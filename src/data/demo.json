@@ -1,0 +1,226 @@
+{
+  "unit": {
+    "id": "unit-menongue",
+    "name": "Hospital de Demonstração",
+    "municipality": "Menongue",
+    "province": "Cubango"
+  },
+  "professionals": [
+    { "id": "med-1", "name": "Dra. Helena Manuel", "specialty": "Medicina geral" },
+    { "id": "med-2", "name": "Dr. Paulo Chissola", "specialty": "Pediatria" },
+    { "id": "med-3", "name": "Dra. Isabel Mateus", "specialty": "Ginecologia" }
+  ],
+  "patients": [
+    {
+      "id": "p1",
+      "number": "SIGH-000001",
+      "name": "Esperança Manuel Zua",
+      "birthDate": "1988-04-12",
+      "sex": "Feminino",
+      "document": "DEMO000001",
+      "phone": "923000001",
+      "municipality": "Menongue",
+      "address": "Bairro de demonstração, rua 1",
+      "guardian": "",
+      "emergencyContact": "Manuel Zua · 923000011"
+    },
+    {
+      "id": "p2",
+      "number": "SIGH-000002",
+      "name": "António José da Costa",
+      "birthDate": "1967-11-23",
+      "sex": "Masculino",
+      "document": "DEMO000002",
+      "phone": "923000002",
+      "municipality": "Cuito Cuanavale",
+      "address": "Bairro de demonstração, rua 2",
+      "guardian": "",
+      "emergencyContact": "Maria Costa · 923000012"
+    },
+    {
+      "id": "p3",
+      "number": "SIGH-000003",
+      "name": "Lúcia Domingos Mateus",
+      "birthDate": "1995-02-18",
+      "sex": "Feminino",
+      "document": "DEMO000003",
+      "phone": "923000003",
+      "municipality": "Menongue",
+      "address": "Bairro de demonstração, rua 3",
+      "guardian": "",
+      "emergencyContact": ""
+    },
+    {
+      "id": "p4",
+      "number": "SIGH-000004",
+      "name": "Daniel Francisco André",
+      "birthDate": "2018-07-09",
+      "sex": "Masculino",
+      "document": "",
+      "phone": "923000004",
+      "municipality": "Menongue",
+      "address": "Bairro de demonstração, rua 4",
+      "guardian": "Francisca André (mãe)",
+      "emergencyContact": "Francisca André · 923000004"
+    },
+    {
+      "id": "p5",
+      "number": "SIGH-000005",
+      "name": "Beatriz Joaquim Kapenda",
+      "birthDate": "1982-09-30",
+      "sex": "Feminino",
+      "document": "DEMO000005",
+      "phone": "923000005",
+      "municipality": "Chitembo",
+      "address": "Bairro de demonstração, rua 5",
+      "guardian": "",
+      "emergencyContact": ""
+    },
+    {
+      "id": "p6",
+      "number": "SIGH-000006",
+      "name": "Miguel Domingos Chaves",
+      "birthDate": "1974-06-16",
+      "sex": "Masculino",
+      "document": "DEMO000006",
+      "phone": "923000006",
+      "municipality": "Menongue",
+      "address": "Bairro de demonstração, rua 6",
+      "guardian": "",
+      "emergencyContact": "Ana Chaves · 923000016"
+    },
+    {
+      "id": "p7",
+      "number": "SIGH-000007",
+      "name": "Ana Paula Vunge",
+      "birthDate": "2000-01-26",
+      "sex": "Feminino",
+      "document": "DEMO000007",
+      "phone": "923000007",
+      "municipality": "Menongue",
+      "address": "Bairro de demonstração, rua 7",
+      "guardian": "",
+      "emergencyContact": ""
+    },
+    {
+      "id": "p8",
+      "number": "SIGH-000008",
+      "name": "Tomás Eduardo Nunes",
+      "birthDate": "2021-03-04",
+      "sex": "Masculino",
+      "document": "",
+      "phone": "923000008",
+      "municipality": "Cuchi",
+      "address": "Bairro de demonstração, rua 8",
+      "guardian": "Eduardo Nunes (pai)",
+      "emergencyContact": "Eduardo Nunes · 923000008"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "a1",
+      "patientId": "p1",
+      "professionalId": "med-1",
+      "dayOffset": 0,
+      "time": "08:00",
+      "status": "Admitida",
+      "reason": "Consulta de seguimento"
+    },
+    {
+      "id": "a2",
+      "patientId": "p4",
+      "professionalId": "med-2",
+      "dayOffset": 0,
+      "time": "08:30",
+      "status": "Admitida",
+      "reason": "Consulta de rotina"
+    },
+    {
+      "id": "a3",
+      "patientId": "p3",
+      "professionalId": "med-3",
+      "dayOffset": 0,
+      "time": "09:00",
+      "status": "Confirmada",
+      "reason": "Consulta de seguimento"
+    },
+    {
+      "id": "a4",
+      "patientId": "p5",
+      "professionalId": "med-1",
+      "dayOffset": 0,
+      "time": "09:30",
+      "status": "Marcada",
+      "reason": "Primeira consulta"
+    },
+    {
+      "id": "a5",
+      "patientId": "p8",
+      "professionalId": "med-2",
+      "dayOffset": 0,
+      "time": "10:00",
+      "status": "Confirmada",
+      "reason": "Consulta de rotina"
+    },
+    {
+      "id": "a6",
+      "patientId": "p7",
+      "professionalId": "med-3",
+      "dayOffset": 1,
+      "time": "08:30",
+      "status": "Marcada",
+      "reason": "Primeira consulta"
+    },
+    {
+      "id": "a7",
+      "patientId": "p2",
+      "professionalId": "med-1",
+      "dayOffset": -2,
+      "time": "10:00",
+      "status": "Cancelada",
+      "reason": "Indisponibilidade do paciente"
+    }
+  ],
+  "episodes": [
+    {
+      "id": "e1",
+      "patientId": "p1",
+      "appointmentId": "a1",
+      "dayOffset": 0,
+      "time": "07:50",
+      "service": "Medicina geral",
+      "reason": "Consulta de seguimento",
+      "status": "Aguarda triagem"
+    },
+    {
+      "id": "e2",
+      "patientId": "p4",
+      "appointmentId": "a2",
+      "dayOffset": 0,
+      "time": "08:10",
+      "service": "Pediatria",
+      "reason": "Consulta de rotina",
+      "status": "Aguarda triagem"
+    },
+    {
+      "id": "e3",
+      "patientId": "p6",
+      "appointmentId": null,
+      "dayOffset": 0,
+      "time": "08:15",
+      "service": "Medicina geral",
+      "reason": "Atendimento sem marcação",
+      "status": "Aguarda triagem"
+    },
+    {
+      "id": "e4",
+      "patientId": "p2",
+      "appointmentId": null,
+      "dayOffset": -7,
+      "time": "09:10",
+      "service": "Medicina geral",
+      "reason": "Episódio histórico de demonstração",
+      "status": "Concluído"
+    }
+  ]
+}

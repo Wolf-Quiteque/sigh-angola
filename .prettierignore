@@ -1,0 +1,10 @@
+node_modules
+.next
+test-results
+playwright-report
+index.html
+docs/source-requirements.txt
+package-lock.json
+*.docx
+*.pptx
+next-env.d.ts

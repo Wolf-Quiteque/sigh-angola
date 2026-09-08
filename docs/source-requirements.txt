@@ -1,0 +1,1261 @@
+﻿SIGH-Cubango SIGH-Cubango 
+SIGH-Cubango 
+SIGH-Cubango 
+SIGH-ANGOLA
+SISTEMA INTEGRADO DE GESTÃO HOSPITALAR DE ANGOLA
+PROJETO DE TRANSFORMAÇÃO DIGITAL DA GESTÃO HOSPITALAR
+“Tecnologia, Informação e Inovação ao Serviço da Saúde”
+Especificação de Requisitos e Arquitetura do Sistema
+Âmbito inicial:
+Hospitais de Tipologia A -Cuando e Cubango
+Âmbito de expansão:
+Níveis Municipal, Provincial
+
+
+
+
+MENTOR E IDEALIZADOR DO PROJETO
+Adriano Ngandalo Elias Francisco
+
+
+EQUIPA DO PROJETO
+Pedro Jambalichinde Ngandalo, Membro do Projeto;
+Jason de Sá Menezes, Arquiteto de Software do Projeto;
+Dr. Eliúde dos Santos,Consultor Estatístico Hospitalar;
+Gilmar Cílio Pascual,Membro do Projeto;
+
+
+
+Menongue, Agosto 2026
+ESPECIFICAÇÃO DE REQUISITOS DE SOFTWARE
+SIGH-ANGOLA
+Sistema Integrado de Gestão Hospitalar
+Versão: 1.0Data: 08 de agosto de 2026Fase: Concepção e especificaçãoÂmbito inicial: Hospitais de Tipologia A - região do Cuando e Cubango, com possibilidade de expansão
+1. Identificação do projeto
+Nome do projeto: SIGH-ANGOLADesignação completa: Sistema Integrado de Gestão Hospitalar de Angola
+O SIGH-ANGOLA é uma plataforma digital destinada à gestão integrada dos processos clínicos, administrativos, logísticos, financeiros e estatísticos das unidades hospitalares.
+O sistema será concebido prioritariamente para funcionar em ambientes com conectividade limitada, permitindo a operação em modo offline e a posterior sincronização segura dos dados quando existir ligação à Internet.
+O projeto pretende contribuir para a transformação digital dos serviços hospitalares, redução do uso de papel, melhoria da qualidade dos dados, automatização dos processos e disponibilização de informação para a tomada de decisão nos níveis hospitalar, municipal, provincial e nacional.
+2. EQUIPA E TITULARIDADE DO PROJETO
+2.1 Equipa inicial
+Nome
+Função
+Dr. Adriano Ngandalo Elias Francisco
+Mentor e idealizador do projeto
+Gilmar Cílio Pascoal
+Mentor do projeto
+Pedro Jambalichinde Ngandalo
+Mentor do projeto
+Arnaldo Samba
+Membro da equipa do projeto
+Jason de Sá Manezes
+Engenheiro de Arquitetura e Design do Projeto
+Dr. Eliúde do Santos
+Consultor de Bases de Dados e Estatística
+A composição da equipa poderá ser ampliada posteriormente com especialistas em desenvolvimento de software, engenharia de dados, segurança da informação, redes, infraestrutura, informática biomédica, gestão hospitalar, medicina, enfermagem, farmácia, laboratório, contabilidade e administração hospitalar.
+
+
+3. RESUMO EXECUTIVO
+O SIGH-ANGOLA surge como uma solução tecnológica para apoiar a modernização da gestão hospitalar em Angola.
+A proposta parte da identificação de problemas recorrentes nos processos hospitalares, nomeadamente:
+elevada utilização de documentos em papel;
+duplicação de registos;
+dificuldade de localização de processos clínicos;
+demora na produção de relatórios;
+dificuldades na consolidação de estatísticas;
+falta de informação em tempo oportuno para a gestão;
+dificuldade de acompanhamento de medicamentos e materiais;
+dependência de processos manuais;
+dificuldade de comunicação entre diferentes níveis administrativos;
+limitações de conectividade em determinadas zonas.
+A principal característica diferenciadora do SIGH-ANGOLA será a sua capacidade de funcionar em modo híbrido online/offline.
+O profissional de saúde poderá utilizar um tablet ou outro dispositivo autorizado para realizar as operações necessárias mesmo sem Internet.
+Quando a conectividade estiver disponível, o sistema efetuará a sincronização dos dados com os servidores centrais.
+Desta forma, a ausência temporária de Internet não deverá interromper a prestação de serviços nem impedir a recolha de informação.
+4. VISÃO DO PROJETO
+A visão do SIGH-ANGOLA é criar uma plataforma hospitalar:
+Digital + Móvel + Offline + Segura + Integrada + Estatística + Escalável.
+O sistema deverá permitir que a informação seja registada uma única vez e reutilizada de acordo com as permissões de cada utilizador e com as necessidades dos diferentes setores.
+A informação produzida no hospital deverá alimentar automaticamente os processos administrativos e estatísticos, reduzindo a necessidade de transcrição manual.
+5. MISSÃO
+Disponibilizar uma solução tecnológica adaptada à realidade das unidades hospitalares angolanas, capaz de digitalizar os processos hospitalares, melhorar a qualidade da informação, reduzir custos operacionais e apoiar a tomada de decisão baseada em dados.
+6. OBJETIVO GERAL
+Desenvolver e implementar um Sistema Integrado de Gestão Hospitalar capaz de digitalizar, integrar e automatizar os principais processos clínicos, administrativos, logísticos e estatísticos de hospitais de Tipologia A, com funcionamento online e offline.
+7. OBJETIVOS ESPECÍFICOS
+O sistema deverá:
+Digitalizar o processo de registo dos pacientes.
+Criar um identificador único para cada paciente.
+Implementar o prontuário clínico eletrónico.
+Digitalizar o processo de triagem.
+Gerir consultas e agendas.
+Gerir internamentos.
+Gerir camas hospitalares.
+Digitalizar prescrições médicas.
+Gerir pedidos e resultados de exames.
+Integrar laboratório e imagiologia.
+Gerir medicamentos.
+Controlar stocks.
+Reduzir a utilização de papel.
+Produzir estatísticas hospitalares automaticamente.
+Disponibilizar dashboards de gestão.
+Permitir funcionamento offline.
+Implementar sincronização automática.
+Garantir rastreabilidade das operações.
+Proteger os dados dos pacientes.
+Permitir expansão para outras unidades hospitalares.
+Facilitar a produção de relatórios municipais, provinciais e nacionais.
+Apoiar a tomada de decisão baseada em dados.
+8. PRINCIPAL MAIS-VALIA DO PROJETO
+8.1 Arquitetura Offline-First
+A característica estratégica do SIGH-ANGOLA será a adoção de uma arquitetura Offline-First.
+Em vez de assumir que o hospital terá Internet permanentemente, o sistema será concebido partindo da realidade de que a conectividade poderá:
+ser inexistente;
+ser intermitente;
+apresentar baixa velocidade;
+sofrer interrupções;
+apresentar elevada latência.
+Portanto, o funcionamento normal do sistema não deverá depender permanentemente de uma ligação à Internet.
+9. FUNCIONAMENTO ONLINE E OFFLINE
+9.1 Modo online
+Quando houver conectividade:
+Tablet/Computador
+       ↓
+Rede hospitalar/Internet
+       ↓
+Servidor/API
+       ↓
+Base de Dados Central
+       ↓
+Dashboards e Relatórios
+Os dados poderão ser enviados para o servidor central de acordo com as regras de sincronização.
+9.2 Modo offline
+Quando não houver Internet:
+Tablet
+   ↓
+Aplicação SIGH
+   ↓
+Base de Dados Local
+   ↓
+Operação continua normalmente
+O utilizador poderá continuar a:
+registar pacientes;
+realizar triagem;
+registar consultas;
+preencher dados clínicos;
+efetuar prescrições;
+registar procedimentos;
+consultar informação previamente sincronizada;
+registar consumo de medicamentos;
+realizar determinadas operações administrativas;
+recolher dados estatísticos.
+Os dados ficarão temporariamente armazenados no dispositivo ou na infraestrutura local autorizada.
+10. SINCRONIZAÇÃO
+Quando a ligação voltar:
+Base Local
+     ↓
+Motor de Sincronização
+     ↓
+Validação
+     ↓
+Encriptação
+     ↓
+API de Sincronização
+     ↓
+Servidor Central
+     ↓
+Base de Dados Central
+A sincronização deverá ocorrer automaticamente, sem exigir que o utilizador repita o trabalho realizado offline.
+11. REQUISITOS DA SINCRONIZAÇÃO
+O sistema deverá:
+identificar registos ainda não sincronizados;
+enviar os dados de forma segura;
+confirmar a receção;
+marcar os registos sincronizados;
+permitir repetição em caso de falha;
+evitar duplicação de dados;
+registar erros de sincronização;
+manter histórico da sincronização;
+permitir sincronização incremental;
+priorizar dados críticos;
+funcionar mesmo em conexões de baixa velocidade.
+12. RESOLUÇÃO DE CONFLITOS
+O sistema deverá possuir mecanismos para situações em que o mesmo registo seja alterado em diferentes dispositivos.
+Deverão ser definidas regras para:
+identificação do conflito;
+prioridade da alteração;
+data/hora da operação;
+utilizador responsável;
+versão do registo;
+resolução automática;
+resolução manual quando necessário.
+Nenhum dado clínico crítico deverá ser simplesmente sobrescrito sem rastreabilidade.
+13. ARQUITETURA GERAL
+A arquitetura recomendada é uma arquitetura modular, distribuída e orientada a serviços.
+SIGH-ANGOLA
+│
+┌──────────┴──────────┐
+│                     │
+APLICAÇÕES             PORTAL WEB
+MÓVEIS                    
+│                     
+┌──────┴──────┐              
+
+ONLINE         OFFLINE          
+│             │              │
+       Base Local           
+
+└──────┬──────┘              
+│             
+API / GATEWAY
+│
+SERVIÇOS DO SIGH
+
+┌─────────┼─────────┐
+│                │
+Clínico  Administrativo Estatístico
+│                │
+└─────────┼─────────┘
+│
+BASE DE DADOS
+CENTRAL
+│
+DATA WAREHOUSE
+│
+DASHBOARDS/BI
+│
+┌──────────┼──────────┐
+│          │          │
+Hospital   Municipal  Provincial  Nacional
+
+
+14. PLATAFORMAS
+O sistema deverá possuir prioritariamente:
+Aplicação móvel/tablet
+Destinada principalmente a:
+médicos;
+enfermeiros;
+técnicos;
+farmacêuticos;
+profissionais de laboratório;
+equipas de campo.
+Aplicação Web
+Destinada principalmente a:
+diretores;
+administradores;
+gestores;
+estatísticos;
+responsáveis de departamentos;
+utilizadores administrativos.
+15. MÓDULOS FUNCIONAIS
+Módulo 1 — Gestão de Utilizadores
+Deverá permitir:
+criação de utilizadores;
+alteração de utilizadores;
+ativação/desativação;
+definição de perfis;
+atribuição de permissões;
+gestão de sessões;
+recuperação de acesso;
+auditoria.
+Perfis iniciais
+Administrador do sistema;
+Diretor hospitalar;
+Médico;
+Enfermeiro;
+Técnico de diagnóstico;
+Farmacêutico;
+Técnico de farmácia;
+Estatístico;
+Administrativo;
+Gestor financeiro;
+Gestor de stock;
+Rececionista;
+Auditor.
+16. MÓDULO DE PACIENTES
+Funcionalidades:
+registo;
+identificação;
+pesquisa;
+atualização;
+histórico;
+contactos;
+dados demográficos;
+identificação de responsável;
+identificação de emergência;
+histórico de atendimentos.
+O sistema deverá procurar impedir a criação de pacientes duplicados.
+17. IDENTIFICAÇÃO DO PACIENTE
+Cada paciente deverá possuir um identificador único.
+Possível utilização:
+código alfanumérico;
+QR Code;
+cartão do paciente;
+código de barras.
+O QR Code poderá permitir acesso rápido ao identificador do paciente, sem expor diretamente informações clínicas sensíveis.
+18. MÓDULO DE TRIAGEM
+Deverá permitir o registo de:
+sinais vitais;
+temperatura;
+pressão arterial;
+frequência cardíaca;
+frequência respiratória;
+saturação de oxigénio;
+peso;
+altura;
+queixa principal;
+nível de prioridade;
+observações.
+O sistema poderá posteriormente integrar dispositivos de medição compatíveis.
+19. MÓDULO DE CONSULTAS
+Deverá permitir:
+marcação;
+confirmação;
+cancelamento;
+reagendamento;
+agenda;
+histórico;
+consulta médica;
+diagnóstico;
+procedimentos;
+observações;
+prescrição.
+20. PRONTUÁRIO ELETRÓNICO
+O prontuário deverá reunir:
+identificação;
+antecedentes;
+alergias;
+diagnósticos;
+consultas;
+internamentos;
+exames;
+prescrições;
+procedimentos;
+evolução clínica;
+altas.
+O acesso deverá ser condicionado pelas permissões do profissional.
+21. MÓDULO DE INTERNAMENTO
+Deverá permitir:
+admissão;
+localização do paciente;
+enfermaria;
+cama;
+médico responsável;
+evolução;
+procedimentos;
+transferência;
+alta.
+22. GESTÃO DE CAMAS
+Dashboard com:
+camas ocupadas;
+camas livres;
+camas bloqueadas;
+camas em manutenção;
+taxa de ocupação;
+distribuição por enfermaria.
+23. FARMÁCIA
+Funcionalidades:
+cadastro de medicamentos;
+entradas;
+saídas;
+consumo;
+validade;
+lote;
+stock mínimo;
+stock máximo;
+dispensação;
+requisições;
+alertas.
+24. GESTÃO DE ARMAZÉM
+Deverá controlar:
+medicamentos;
+materiais gastáveis;
+equipamentos;
+consumíveis;
+entradas;
+saídas;
+transferências;
+inventário;
+fornecedores.
+25. LABORATÓRIO
+Fluxo:
+Médico
+ ↓
+Pedido de exame
+ ↓
+Colheita
+ ↓
+Laboratório
+ ↓
+Processamento
+ ↓
+Resultado
+ ↓
+Validação
+ ↓
+Prontuário
+26. IMAGIOLOGIA
+Deverá permitir:
+solicitação;
+agendamento;
+realização;
+relatório;
+resultado;
+associação ao paciente.
+Numa fase posterior, poderá ser considerada integração com padrões como DICOM/PACS.
+27. PRESCRIÇÃO ELETRÓNICA
+O sistema deverá permitir:
+medicamento;
+dose;
+via;
+frequência;
+duração;
+observações;
+profissional prescritor.
+A prescrição deverá ficar associada ao prontuário.
+
+28. MÓDULO FINANCEIRO
+Deverá contemplar:
+faturação;
+pagamentos;
+despesas;
+receitas;
+contas;
+convénios/seguros;
+relatórios financeiros.
+A implementação deverá respeitar os requisitos administrativos e fiscais aplicáveis.
+29. RECURSOS HUMANOS
+Funcionalidades previstas:
+cadastro;
+função;
+departamento;
+escala;
+presença;
+férias;
+formação;
+afetação à unidade.
+30. ESTATÍSTICA HOSPITALAR
+Este será um dos módulos estratégicos do SIGH-ANGOLA.
+O sistema deverá transformar os dados operacionais em informação estatística.
+Indicadores possíveis
+número de consultas;
+número de internamentos;
+número de altas;
+óbitos;
+taxa de mortalidade;
+taxa de ocupação;
+média de permanência;
+consultas por especialidade;
+atendimentos de urgência;
+partos;
+cirurgias;
+exames realizados;
+consumo de medicamentos;
+transferências;
+referências;
+contrarreferências.
+31. DASHBOARD DE GESTÃO
+O diretor hospitalar poderá visualizar:
+situação das camas;
+fluxo de pacientes;
+consultas;
+internamentos;
+altas;
+óbitos;
+consumo de medicamentos;
+situação do stock;
+produção por departamento;
+indicadores estatísticos.
+32. HIERARQUIA DA INFORMAÇÃO
+A arquitetura deverá permitir diferentes níveis de acesso e agregação.
+UNIDADE SANITÁRIA
+↓
+MUNICÍPIO
+↓
+PROVÍNCIA
+↓
+NÍVEL CENTRAL
+Cada nível deverá visualizar apenas os dados para os quais possui autorização.
+33. DASHBOARD PROVINCIAL
+A Direção Provincial poderá acompanhar, por exemplo:
+número de pacientes;
+produção hospitalar;
+ocupação de camas;
+mortalidade;
+medicamentos;
+recursos;
+indicadores por município;
+comparação entre unidades.
+Os dados poderão ser apresentados em:
+tabelas;
+gráficos;
+mapas;
+indicadores;
+séries temporais.
+34. REDUÇÃO DO PAPEL
+O SIGH-ANGOLA deverá contribuir para a redução progressiva de:
+fichas físicas;
+formulários;
+requisições em papel;
+mapas manuais;
+relatórios manuscritos;
+transcrição repetida de dados.
+Contudo, o projeto deverá adotar uma política de transição gradual, mantendo mecanismos de contingência para situações em que a tecnologia não esteja disponível.
+35. UTILIZAÇÃO DOS TABLETS
+Os tablets serão um componente central da estratégia móvel.
+Poderão ser utilizados para:
+identificação do paciente;
+triagem;
+consulta;
+registo clínico;
+prescrição;
+administração de medicamentos;
+recolha de dados;
+inventário;
+leitura de QR Code;
+captura de documentos;
+consulta de informação autorizada.
+A utilização da câmara deverá obedecer às políticas de privacidade e proteção de dados.
+36. INTEGRAÇÃO COM DISPOSITIVOS MÉDICOS
+A arquitetura deverá ser preparada para futuras integrações com dispositivos compatíveis.
+Exemplos:
+termómetros digitais;
+oxímetros;
+tensiómetros;
+balanças;
+monitores de sinais vitais.
+A integração não deverá ser assumida como requisito obrigatório do MVP, mas a arquitetura deverá permitir a sua incorporação futura através de interfaces apropriadas.
+37. SEGURANÇA
+A segurança será requisito fundamental.
+O sistema deverá implementar:
+autenticação;
+autorização;
+controlo de acesso baseado em papéis;
+encriptação em trânsito;
+encriptação de dados sensíveis quando aplicável;
+gestão de sessões;
+registos de auditoria;
+backups;
+recuperação de desastre;
+bloqueio automático de sessão;
+políticas de palavras-passe;
+proteção contra acessos indevidos.
+38. AUDITORIA
+O sistema deverá manter registos de:
+quem acedeu;
+quando acedeu;
+qual informação consultou;
+que alteração realizou;
+qual dispositivo utilizou;
+origem da operação;
+sincronização realizada;
+erros ocorridos.
+As informações de auditoria deverão ser protegidas contra alterações indevidas.
+
+
+39. REQUISITOS FUNCIONAIS PRINCIPAIS
+RF01
+O sistema deverá permitir autenticação de utilizadores.
+RF02
+O sistema deverá permitir gestão de perfis e permissões.
+RF03
+O sistema deverá permitir cadastro de pacientes.
+RF04
+O sistema deverá gerar identificador único do paciente.
+RF05
+O sistema deverá permitir registo de triagem.
+RF06
+O sistema deverá permitir gestão de consultas.
+RF07
+O sistema deverá permitir criação e consulta do prontuário eletrónico.
+RF08
+O sistema deverá permitir prescrição eletrónica.
+RF09
+O sistema deverá permitir gestão de internamento.
+RF10
+O sistema deverá permitir gestão de camas.
+RF11
+O sistema deverá permitir pedidos e resultados laboratoriais.
+RF12
+O sistema deverá permitir gestão de imagiologia.
+RF13
+O sistema deverá permitir gestão de farmácia.
+RF14
+O sistema deverá permitir gestão de stocks.
+RF15
+O sistema deverá permitir produção de estatísticas.
+RF16
+O sistema deverá possuir dashboards.
+RF17
+O sistema deverá funcionar offline.
+RF18
+O sistema deverá sincronizar dados automaticamente quando existir conectividade.
+RF19
+O sistema deverá registar eventos de auditoria.
+RF20
+O sistema deverá gerar relatórios.
+40. REQUISITOS NÃO FUNCIONAIS
+RNF01 — Disponibilidade
+O sistema deverá estar disponível durante o período operacional da unidade hospitalar.
+RNF02 — Desempenho
+As operações comuns deverão apresentar tempos de resposta adequados mesmo em infraestruturas com recursos limitados.
+RNF03 — Escalabilidade
+A arquitetura deverá permitir expansão para múltiplas unidades hospitalares.
+RNF04 — Segurança
+Os dados deverão ser protegidos contra acesso não autorizado.
+RNF05 — Usabilidade
+A interface deverá ser simples, objetiva e adequada a profissionais de saúde.
+RNF06 — Offline
+O sistema deverá continuar funcional durante períodos sem conectividade.
+RNF07 — Sincronização
+A sincronização deverá ser segura, confiável e tolerante a falhas.
+RNF08 — Manutenibilidade
+O sistema deverá possuir arquitetura modular.
+RNF09 — Interoperabilidade
+O sistema deverá ser preparado para integração com sistemas externos.
+RNF10 — Auditoria
+Operações relevantes deverão ser rastreáveis.
+41. ARQUITETURA DE DADOS
+A base de dados deverá considerar, entre outras, as seguintes entidades:
+Paciente;
+Utilizador;
+Perfil;
+Permissão;
+Unidade Sanitária;
+Município;
+Província;
+Consulta;
+Triagem;
+Diagnóstico;
+Prescrição;
+Medicamento;
+Stock;
+Internamento;
+Cama;
+Exame;
+Resultado;
+Laboratório;
+Imagiologia;
+Procedimento;
+Alta;
+Óbito;
+Fatura;
+Pagamento;
+Auditoria;
+Sincronização.
+42. PRINCÍPIO "REGISTAR UMA VEZ"
+Sempre que possível, uma informação deverá ser introduzida apenas uma vez.
+Por exemplo:
+Cadastro do paciente
+        ↓
+Triagem
+        ↓
+Consulta
+        ↓
+Prescrição
+        ↓
+Farmácia
+        ↓
+Estatística
+        ↓
+Relatório de gestão
+Isso reduz:
+duplicação;
+erros de transcrição;
+desperdício de tempo;
+utilização de papel.
+43. BACKUP E RECUPERAÇÃO
+O sistema deverá possuir:
+backup automático;
+cópias redundantes;
+política de retenção;
+recuperação de dados;
+testes periódicos de restauração;
+mecanismos de recuperação após falha.
+A estratégia deverá considerar tanto os servidores centrais quanto os ambientes locais.
+
+44. PROTEÇÃO CONTRA PERDA DE DADOS OFFLINE
+Os dados recolhidos offline deverão possuir:
+identificador único;
+timestamp;
+identificação do dispositivo;
+identificação do utilizador;
+estado de sincronização;
+mecanismo de confirmação.
+O sistema não deverá apagar imediatamente dados locais após uma sincronização sem garantir que a operação foi concluída com sucesso e segundo a política de retenção definida
+45. MVP — PRIMEIRA VERSÃO
+Considerando o prazo de aproximadamente três meses para construção do protótipo, recomenda-se não tentar desenvolver todos os módulos simultaneamente.
+O MVP deverá concentrar-se nos processos essenciais.
+Prioridade 1
+Autenticação;
+Gestão de utilizadores;
+Cadastro de pacientes;
+Triagem;
+Consultas;
+Prontuário básico;
+Prescrição;
+Farmácia básica;
+Estatística;
+Dashboard;
+Funcionamento offline;
+Sincronização.
+Prioridade 2
+Internamento;
+camas;
+laboratório;
+imagiologia;
+stock avançado.
+Prioridade 3
+financeiro;
+RH;
+integrações externas;
+dispositivos médicos;
+Business Intelligence avançado.
+46. CRONOGRAMA DE TRÊS MESES
+MÊS 1 — ANÁLISE E ARQUITETURA
+Semana 1
+levantamento de requisitos;
+entrevistas com profissionais;
+definição de processos;
+definição do MVP.
+Semana 2
+arquitetura;
+modelo de dados;
+segurança;
+desenho da sincronização.
+Semana 3
+protótipos das interfaces;
+validação com utilizadores.
+Semana 4
+preparação do ambiente de desenvolvimento;
+criação da estrutura inicial do sistema.
+47. MÊS 2 — DESENVOLVIMENTO
+Semana 5
+autenticação;
+utilizadores;
+pacientes.
+Semana 6
+triagem;
+consultas;
+prontuário.
+Semana 7
+prescrição;
+farmácia;
+stock básico.
+Semana 8
+estatísticas;
+dashboards;
+relatório
+48. MÊS 3 — OFFLINE, SINCRONIZAÇÃO E TESTES
+Semana 9
+base de dados local;
+funcionamento offline.
+Semana 10
+sincronização;
+tratamento de conflitos;
+recuperação de falhas.
+Semana 11
+testes funcionais;
+testes de segurança;
+testes de desempenho;
+testes de usabilidade.
+Semana 12
+correções;
+documentação;
+demonstração;
+preparação do piloto.
+49. PROTÓTIPO PILOTO
+O protótipo deverá ser testado inicialmente numa unidade hospitalar selecionada.
+O piloto deverá avaliar:
+facilidade de utilização;
+velocidade;
+estabilidade;
+funcionamento offline;
+sincronização;
+aceitação dos profissionais;
+redução de papel;
+qualidade dos dados;
+produção estatística.
+50. INDICADORES PARA MEDIR O SUCESSO
+O projeto deverá possuir indicadores antes e depois da implementação.
+Exemplos:
+Operacionais
+tempo médio de atendimento;
+tempo de registo;
+tempo de localização do processo;
+número de operações digitais.
+Documentais
+quantidade de papel consumido;
+quantidade de formulários físicos;
+quantidade de relatórios manuais.
+Estatísticos
+tempo necessário para produzir relatórios;
+erros encontrados;
+completude dos dados;
+atraso na entrega dos dados.
+Tecnológicos
+disponibilidade;
+taxa de sincronização;
+número de falhas;
+tempo médio de recuperação.
+51. MODELO DE FLUXO DA INFORMAÇÃO
+PACIENTE
+↓
+RECEÇÃO
+↓
+TRIAGEM
+↓
+CONSULTA
+↓
+┌────────────┼─────────────┐
+↓            ↓             ↓
+FARMÁCIA     LABORATÓRIO   IMAGIOLOGIA
+│            │             │
+└────────────┼─────────────┘
+↓
+PRONTUÁRIO
+
+ESTATÍSTICA HOSPITALAR
+↓
+GESTÃO HOSPITALAR
+↓
+DIREÇÃO MUNICIPAL
+↓
+DIREÇÃO PROVINCIAL
+↓
+NÍVEL CENTRAL
+
+52. PRINCÍPIOS DE DESIGN
+A interface deverá obedecer aos seguintes princípios:
+simplicidade;
+legibilidade;
+poucos passos;
+botões suficientemente grandes para utilização em tablets;
+mensagens claras;
+minimização de erros;
+acessibilidade;
+funcionamento adequado em ecrãs pequenos;
+possibilidade de utilização por profissionais com diferentes níveis de familiaridade tecnológica.
+53. TECNOLOGIAS RECOMENDADAS
+A escolha definitiva deverá ser feita pela equipa de arquitetura após avaliação técnica.
+Uma possibilidade:
+Frontend Web
+React;
+Angular;
+Vue.
+Aplicação móvel
+Flutter;
+React Native;
+ou tecnologia nativa Android.
+Backend
+Java/Spring Boot;
+.NET;
+Node.js;
+Python/FastAPI.
+Base de dados
+PostgreSQL como principal candidato.
+Infraestrutura
+Linux;
+Docker;
+servidor local;
+servidor central/cloud quando apropriado.
+54. ARQUITETURA DE SINCRONIZAÇÃO
+Uma estratégia recomendada é utilizar sincronização baseada em eventos/registos.
+Cada operação deverá possuir metadados como:
+ID da operação
+ID do dispositivo
+ID do utilizador
+Data/hora
+Tipo de operação
+Entidade
+Versão
+Estado de sincronização
+Estados possíveis:
+PENDENTE
+   ↓
+ENVIANDO
+   ↓
+CONFIRMADO
+Em caso de falha:
+ERRO
+ ↓
+NOVA TENTATIVA
+55. INTEROPERABILIDADE
+A arquitetura deverá permitir futuramente integração com:
+sistemas nacionais de saúde;
+sistemas laboratoriais;
+sistemas de imagiologia;
+sistemas financeiros;
+sistemas de seguros;
+plataformas de estatística;
+sistemas de informação epidemiológica.
+Quando tecnicamente e institucionalmente aplicável, deverão ser considerados padrões de interoperabilidade em saúde, como HL7/FHIR.
+56. GOVERNANÇA DOS DADOS
+Deverão ser definidas políticas sobre:
+quem pode criar dados;
+quem pode alterar;
+quem pode consultar;
+quem pode eliminar;
+quanto tempo os dados são conservados;
+como os dados são arquivados;
+como são exportados;
+como são auditados.
+Informações clínicas não deverão ser tratadas como simples dados administrativos.
+57. CONTINGÊNCIA
+Mesmo sendo um sistema digital, deverá existir um plano para:
+falha do servidor;
+perda de energia;
+falha da rede local;
+ausência prolongada de Internet;
+falha do dispositivo;
+corrupção da base de dados;
+indisponibilidade temporária do sistema.
+O hospital deverá possuir procedimentos de contingência para continuar a trabalhar.
+58. ESCALABILIDADE
+A solução deverá ser desenvolvida de modo a permitir crescimento progressivo:
+1 Hospital
+     ↓
+Vários Hospitais
+     ↓
+Município
+     ↓
+Província
+     ↓
+Várias Províncias
+
+A arquitetura não deverá ficar dependente de um único hospital.
+59. MODELO DE NEGÓCIO E SUSTENTABILIDADE
+A solução poderá futuramente adotar diferentes modelos:
+licenciamento institucional;
+subscrição;
+implementação por unidade;
+contratos de manutenção;
+suporte técnico;
+formação;
+personalização;
+serviços de integração;
+infraestrutura tecnológica.
+A definição comercial deverá ser separada da especificação técnica.
+
+60. RISCOS DO PROJETO
+Risco 1 — Conectividade
+Mitigação: arquitetura Offline-First.
+Risco 2 — Resistência dos utilizadores
+Mitigação: formação e participação dos profissionais desde a fase de desenho.
+Risco 3 — Perda de dados
+Mitigação: backups, redundância e sincronização segura.
+Risco 4 — Falhas de energia
+Mitigação: UPS, soluções de energia de emergência e infraestrutura local adequada.
+Risco 5 — Segurança
+Mitigação: controlo de acesso, auditoria e encriptação.
+Risco 6 — Complexidade excessiva do MVP
+Mitigação: desenvolvimento faseado.
+Risco 7 — Dados de baixa qualidade
+Mitigação: validações automáticas e formação dos utilizadores.
+61. ESTRATÉGIA DE IMPLEMENTAÇÃO
+Recomenda-se a seguinte sequência:
+Fase 1 — Conceção
+↓
+Fase 2 — Protótipo
+↓
+Fase 3 — MVP
+↓
+Fase 4 — Piloto hospitalar
+↓
+Fase 5 — Avaliação
+↓
+Fase 6 — Correção
+↓
+Fase 7 — Expansão
+62. CRITÉRIOS DE ACEITAÇÃO DO MVP
+O MVP será considerado funcional quando conseguir:
+Registar um paciente;
+Identificar o paciente;
+Realizar triagem;
+Registar consulta;
+Registar informação clínica;
+Emitir prescrição;
+Registar dispensa/consumo de medicamento;
+Produzir indicadores básicos;
+Funcionar sem Internet;
+Armazenar operações offline;
+Sincronizar posteriormente;
+Evitar duplicação durante a sincronização;
+Manter auditoria das operações;
+Permitir acesso conforme o perfil do utilizador.
+63. RESULTADO ESPERADO
+Ao final da primeira fase de três meses, espera-se possuir um protótipo funcional capaz de demonstrar o seguinte cenário:
+Profissional entra no sistema
+          ↓
+Identifica o paciente
+          ↓
+Realiza triagem
+          ↓
+Efetua consulta
+          ↓
+Regista diagnóstico
+          ↓
+Prescreve
+          ↓
+Farmácia recebe informação
+          ↓
+Dados ficam disponíveis
+          ↓
+Indicadores são atualizados
+          ↓
+Internet desaparece
+          ↓
+Sistema continua funcionando
+          ↓
+Internet regressa
+          ↓
+Dados são sincronizados
+          ↓
+Gestão provincial recebe informação agregada
+64. DIFERENCIAL ESTRATÉGICO DO SIGH-ANGOLA
+O principal diferencial do projeto não deverá ser simplesmente "ter um software hospitalar".
+Existem diversas soluções de gestão hospitalar no mundo.
+O diferencial deverá ser a capacidade de desenvolver uma solução adaptada às condições reais de funcionamento das unidades sanitárias angolanas.
+Entre os principais diferenciais:
+1. Offline-First
+Funcionamento mesmo sem Internet.
+2. Sincronização automática
+Os dados são enviados quando a conectividade estiver disponível.
+3. Mobilidade
+Utilização através de tablets.
+4. Redução de papel
+Digitalização dos processos.
+5. Estatística integrada
+Os dados operacionais transformam-se automaticamente em indicadores.
+6. Escalabilidade
+Possibilidade de expansão do hospital para níveis municipal, provincial e nacional.
+7. Adaptabilidade
+Possibilidade de configurar o sistema de acordo com as características de cada unidade.
+65. CONSIDERAÇÕES FINAIS
+O SIGH-ANGOLA esta a  ser concebido não apenas como um programa informático, mas como uma plataforma de transformação dos processos de gestão hospitalar.
+O sucesso do projeto dependerá tanto da qualidade do software quanto da sua adequação aos processos reais das unidades sanitárias.
+Por essa razão, o desenvolvimento deverá envolver continuamente profissionais de:
+medicina;
+enfermagem;
+estatística hospitalar;
+farmácia;
+laboratório;
+administração;
+gestão hospitalar;
+informática;
+engenharia de software;
+bases de dados;
+segurança da informação.
+A arquitetura Offline-First constitui uma das principais apostas estratégicas do projeto, permitindo que a transformação digital avance mesmo em ambientes com limitações de conectividade.
+A informação recolhida no ponto de atendimento deverá, progressivamente, transformar-se em informação de gestão:
+DADO → INFORMAÇÃO → INDICADOR → ANÁLISE → DECISÃO.
+Dessa forma, o SIGH-ANGOLA poderá contribuir simultaneamente para a digitalização dos serviços, redução do uso de materiais físicos, melhoria da qualidade dos dados hospitalares, produção atempada de estatísticas e fortalecimento da gestão baseada em evidências
+66. PRÓXIMOS DOCUMENTOS TÉCNICOS
+Após esta ERS, a equipa esta a produzir, pela ordem recomendada:
+Documento de Arquitetura de Software (DAS);
+Modelo Entidade-Relacionamento da Base de Dados;
+Diagrama de Casos de Uso;
+Diagrama de Classes;
+Diagramas de Sequência;
+Diagramas de Atividade;
+Arquitetura detalhada Offline/Online;
+Especificação da API;
+Protótipos UI/UX para tablet e Web;
+Plano de Segurança;
+Plano de Testes;
+Plano de Implementação Piloto;
+Manual de Utilizador;
+Plano de Formação;
+Plano de Manutenção e Evolução.
+67. IMPACTO FINANCEIRO, SOCIAL E NO DESENVOLVIMENTO HOSPITALAR
+67.1 Impacto Financeiro Hospitalar
+A implementação do SIGH-ANGOLA poderá produzir impactos financeiros significativos através da digitalização, integração e racionalização dos processos hospitalares.
+Um dos principais benefícios esperados é a redução dos custos associados ao uso de papel, incluindo despesas com impressão, toner, formulários, armazenamento físico, transporte e arquivo de documentos.
+A informatização dos processos poderá ainda contribuir para:
+redução de desperdícios de materiais gastáveis;
+melhor controlo de medicamentos e consumíveis;
+redução de perdas por expiração de produtos;
+melhoria do controlo de stocks;
+redução de duplicação de registos;
+diminuição do tempo gasto em tarefas administrativas;
+melhor utilização dos recursos humanos;
+redução de erros de transcrição;
+melhoria do controlo de receitas, despesas e faturação;
+maior capacidade de planeamento financeiro;
+identificação de desperdícios e ineficiências operacionais.
+O sistema permitirá também relacionar a produção hospitalar com os recursos utilizados, criando melhores condições para análise de custos e tomada de decisões.
+A médio e longo prazo, a digitalização poderá contribuir para uma gestão hospitalar mais eficiente, transparente e orientada para resultados.
+Indicadores financeiros a acompanhar
+
+O SIGH-ANGOLA poderá disponibilizar indicadores como:
+custo estimado por serviço;
+consumo de medicamentos;
+consumo de materiais gastáveis;
+despesas com impressão;
+despesas com arquivo físico;
+perdas de medicamentos e materiais;
+utilização de recursos;
+receitas;
+despesas;
+faturação;
+custo médio por atendimento;
+custo médio por internamento;
+variação mensal de despesas.
+67.2 Impacto Social
+O SIGH-ANGOLA apresenta potencial para produzir impacto social direto na qualidade e acessibilidade dos serviços de saúde.
+A digitalização dos processos poderá contribuir para a redução do tempo de espera, melhoria da organização dos serviços e maior disponibilidade de informação para os profissionais responsáveis pelo atendimento.
+Entre os principais impactos sociais esperados destacam-se:
+melhoria da qualidade do atendimento;
+redução do tempo de espera;
+melhoria da continuidade dos cuidados;
+redução de erros associados a registos manuais;
+maior segurança das informações dos pacientes;
+melhoria da comunicação entre departamentos;
+facilidade de localização do histórico clínico;
+maior eficiência na prestação dos serviços;
+melhoria da experiência do paciente;
+fortalecimento da confiança nos serviços hospitalares.
+A capacidade de funcionamento offline assume particular importância em regiões onde a conectividade é limitada.
+Mesmo sem Internet, os profissionais poderão continuar a realizar determinadas operações. Quando a conectividade estiver disponível, os dados serão sincronizados com a infraestrutura central.
+Desta forma, o projeto procura evitar que as limitações de conectividade se transformem numa barreira à transformação digital dos serviços de saúde.
+67.3 Impacto na Gestão Hospitalar
+O SIGH-ANGOLA deverá transformar os dados produzidos diariamente pelos diferentes departamentos em informação útil para a gestão.
+A direção hospitalar poderá acompanhar indicadores relacionados com:
+consultas;
+internamentos;
+altas;
+ocupação de camas;
+mortalidade;
+farmácia;
+laboratório;
+imagiologia;
+recursos humanos;
+consumo de materiais;
+produção dos serviços.
+A disponibilização de dashboards e relatórios poderá reduzir a dependência de processos manuais de compilação de informação.
+Consequentemente, os gestores poderão tomar decisões com maior rapidez e baseadas em dados atualizados.
+67.4 Impacto na Estatística Hospitalar
+Considerando a importância da estatística hospitalar para o planeamento e avaliação dos serviços, o SIGH-ANGOLA deverá integrar a produção estatística diretamente nos processos operacionais.
+O princípio será:
+REGISTO → DADO → INFORMAÇÃO → INDICADOR → ANÁLISE → DECISÃO
+Em vez de o profissional registar uma informação e posteriormente outro funcionário transcrever esses dados para produzir estatísticas, o sistema deverá aproveitar os dados já introduzidos durante a prestação do serviço.
+Isso poderá contribuir para:
+redução de erros de transcrição;
+melhoria da completude dos dados;
+redução do tempo de produção dos relatórios;
+maior disponibilidade de indicadores;
+padronização dos dados;
+melhoria da qualidade da informação hospitalar.
+67.5 Impacto na Direção Municipal e Provincial
+A arquitetura hierárquica do SIGH-ANGOLA permitirá que os dados devidamente autorizados sejam agregados progressivamente.
+Fluxo institucional
+Unidade Sanitária → Município → Província → Nível Nacional
+No nível municipal, poderão ser acompanhados indicadores agregados das unidades sanitárias.
+No nível provincial, será possível comparar indicadores entre municípios e unidades hospitalares, permitindo identificar necessidades, tendências e desigualdades na distribuição de recursos.
+Esta estrutura poderá melhorar o planeamento de:
+medicamentos;
+materiais;
+recursos humanos;
+equipamentos;
+camas;
+serviços;
+formação;
+investimentos.
+67.6 Impacto na Redução do Uso de Papel
+A digitalização deverá reduzir progressivamente a dependência de documentação física.
+O projeto poderá contribuir para diminuir:
+fichas de pacientes;
+formulários;
+requisições;
+mapas estatísticos;
+relatórios;
+impressões;
+cópias;
+arquivos físicos.
+A redução deverá ser medida através de indicadores antes e depois da implementação.
+Indicadores propostos
+número de folhas utilizadas por mês;
+quantidade de formulários impressos;
+consumo de toner;
+custos de impressão;
+espaço utilizado para arquivo físico;
+quantidade de processos digitalizados.
+67.7 Impacto na Produtividade
+A automatização de tarefas repetitivas poderá permitir que os profissionais dediquem mais tempo às atividades que efetivamente exigem intervenção humana.
+O sistema poderá reduzir o tempo gasto com:
+procura de processos;
+transcrição de informações;
+elaboração manual de mapas;
+consolidação de estatísticas;
+preparação de relatórios;
+conferência de documentos;
+controlo manual de stocks.
+O ganho de produtividade deverá ser avaliado através de indicadores mensuráveis durante o projeto-piloto.
+67.8 Impacto no Desenvolvimento Tecnológico
+O SIGH-ANGOLA poderá contribuir para o desenvolvimento de competências nacionais em:
+engenharia de software;
+arquitetura de sistemas;
+informática em saúde;
+análise de dados;
+estatística hospitalar;
+segurança da informação;
+bases de dados;
+desenvolvimento móvel;
+inteligência de dados.
+O projeto poderá também estimular a criação de soluções tecnológicas adaptadas às necessidades específicas do contexto angolano.
+67.9 Impacto na Equidade Digital
+A abordagem Offline-First constitui uma estratégia importante para reduzir desigualdades decorrentes das diferenças de conectividade.
+Uma unidade sanitária com Internet estável e outra com conectividade limitada deverão poder utilizar o mesmo sistema, embora com diferentes condições de sincronização.
+Assim, a transformação digital não deverá ficar limitada apenas às unidades localizadas em áreas com melhor infraestrutura de telecomunicações.
+70.1 Sustentabilidade Económica e Operacional
+O SIGH-ANGOLA deverá ser concebido com uma estratégia de sustentabilidade que considere não apenas os custos iniciais de desenvolvimento, mas também:
+manutenção;
+atualização;
+suporte técnico;
+formação;
+infraestrutura;
+segurança;
+backups;
+expansão;
+substituição de equipamentos.
+A sustentabilidade deverá ser considerada desde a fase de arquitetura, evitando dependências tecnológicas desnecessárias e permitindo evolução progressiva da plataforma.
+70.2 Indicadores Globais de Impacto
+Para avaliar objetivamente os resultados do projeto, recomenda-se estabelecer uma linha de base antes do piloto e comparar os resultados posteriormente.
+Indicadores sociais
+tempo médio de espera;
+satisfação dos utilizadores;
+tempo de atendimento;
+número de erros de registo.
+Indicadores financeiros
+custo de impressão;
+consumo de papel;
+consumo de toner;
+perdas de medicamentos;
+custos administrativos.
+Indicadores operacionais
+tempo de localização de processos;
+tempo de produção de relatórios;
+taxa de ocupação de camas;
+produtividade dos serviços.
+Indicadores tecnológicos
+disponibilidade do sistema;
+taxa de sincronização;
+número de falhas;
+tempo de recuperação;
+número de dispositivos ativos.
+Indicadores estatísticos
+completude dos dados;
+consistência;
+oportunidade dos relatórios;
+número de indicadores produzidos automaticamente.
+70.3 Considerações Finais 
+O SIGH-ANGOLA deverá ser entendido não apenas como um software de gestão hospitalar, mas como uma infraestrutura digital de apoio à transformação dos serviços de saúde.
+O impacto esperado deverá manifestar-se em três dimensões principais:
+DIMENSÃO SOCIAL
+Melhor serviço → melhor atendimento → maior segurança → melhor experiência do paciente.
+DIMENSÃO FINANCEIRA
+Menos desperdício → melhor controlo → maior produtividade → utilização mais eficiente dos recursos.
+DIMENSÃO INSTITUCIONAL
+Dados de qualidade → melhores indicadores → melhor planeamento → melhores decisões.
+Deste modo, o SIGH-ANGOLA pretende contribuir para a construção de um sistema hospitalar mais eficiente, digital, integrado, sustentável e orientado por dados, tendo como uma das suas principais características a capacidade de funcionar em ambientes com limitações de conectividade através da arquitetura Offline-First.
+
+

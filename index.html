@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGH-ANGOLA v1.0 - Sistema Integrado de Gestão Hospitalar de Angola</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0a3651'
+                        },
+                        angola: {
+                            red: '#ce1126',
+                            yellow: '#fcd116',
+                            black: '#000000'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+
+        .node-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .node-card:hover {
+            transform: translateY(-2px) scale(1.01);
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        @keyframes pulseLine {
+            0% { stroke-dashoffset: 24; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .flow-line-active {
+            stroke-dasharray: 6, 6;
+            animation: pulseLine 1.2s linear infinite;
+        }
+
+        .angola-stripe {
+            background: linear-gradient(90deg, #ce1126 0%, #ce1126 33%, #fcd116 33%, #fcd116 66%, #000 66%, #000 100%);
+            height: 3px;
+        }
+
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(156, 163, 175, 0.2) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        .dark .bg-grid-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+
+        /* Priority Colors Manchester */
+        .manc-red { background-color: #ef4444; color: white; }
+        .manc-orange { background-color: #f97316; color: white; }
+        .manc-yellow { background-color: #eab308; color: black; }
+        .manc-green { background-color: #22c55e; color: white; }
+        .manc-blue { background-color: #3b82f6; color: white; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- Metadata Top Ribbon -->
+    <div class="bg-slate-900 text-slate-300 text-[11px] py-1.5 px-4 lg:px-8 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-4 flex-wrap">
+            <span><strong class="text-amber-400">SIGH-ANGOLA v1.0</strong></span>
+            <span class="text-slate-600">|</span>
+            <span><strong class="text-sky-400">Data:</strong> 08 de Agosto de 2026</span>
+            <span class="text-slate-600">|</span>
+            <span><strong class="text-emerald-400">Fase:</strong> Especificação Funcional & Protótipo do Sistema</span>
+            <span class="text-slate-600">|</span>
+            <span><strong class="text-red-400">Âmbito Inicial:</strong> Hospitais de Tipologia A (Cuando Cubango)</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span class="font-mono text-[10px] text-emerald-400">Motor Offline-First Ativo • Sincronização Encriptada</span>
+        </div>
+    </div>
+
+    <!-- Navigation / Header Bar -->
+    <header class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30 px-4 lg:px-8 py-3">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Logo & Project Identity -->
+            <div class="flex items-center gap-3 w-full md:w-auto justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-red-600 via-amber-500 to-sky-600 flex items-center justify-center text-white shadow-md font-bold text-lg">
+                        <i class="fa-solid fa-hospital-user"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">SIGH-ANGOLA</h1>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800">MINSA</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Sistema Integrado de Gestão Hospitalar de Angola</p>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Toggles -->
+                <button id="themeToggleMobile" class="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                </button>
+            </div>
+
+            <!-- Main Navigation View Switcher Tabs -->
+            <div class="flex flex-wrap items-center gap-1 bg-slate-100 dark:bg-slate-800 rounded-xl p-1 border border-slate-200 dark:border-slate-700 text-xs">
+                <button id="tabPatientFlow" class="tab-btn active px-3 py-1.5 rounded-lg font-semibold bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-route text-emerald-500"></i> Fluxo Hospitalar
+                </button>
+                <button id="tabArchitecture" class="tab-btn px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-sitemap text-sky-500"></i> Arquitetura & Sync
+                </button>
+                <button id="tabModules" class="tab-btn px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-cubes text-purple-500"></i> Módulos do Sistema
+                </button>
+                <button id="tabSpecification" class="tab-btn px-3 py-1.5 rounded-lg font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-all">
+                    <i class="fa-solid fa-file-contract text-amber-500"></i> Especificação
+                </button>
+            </div>
+
+            <!-- Toolbar Quick Actions -->
+            <div class="flex items-center gap-2">
+                <!-- Theme Toggle -->
+                <button id="themeToggle" class="hidden md:flex p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                    <i class="fa-solid fa-moon dark:hidden"></i>
+                    <i class="fa-solid fa-sun hidden dark:block"></i>
+                </button>
+                <!-- Print / Export -->
+                <button id="exportBtn" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700" title="Imprimir / Exportar Especificação">
+                    <i class="fa-solid fa-print"></i>
+                </button>
+            </div>
+        </div>
+        <div class="angola-stripe mt-2 rounded-full opacity-80"></div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+
+        <!-- VIEW 1: PATIENT FLOW CANVAS -->
+        <div id="viewPatientFlowContainer" class="view-panel flex-1 overflow-auto relative custom-scrollbar bg-grid-pattern p-6 lg:p-12">
+            
+            <!-- SVG Overlay for Connection Lines -->
+            <svg id="svgPatientConnections" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0" style="min-width: 1100px; min-height: 1600px;">
+                <defs>
+                    <marker id="arrowPatient" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981" />
+                    </marker>
+                </defs>
+            </svg>
+
+            <!-- Flow Canvas Wrapper -->
+            <div id="patientFlowWrapper" class="transition-transform duration-150 transform-gpu origin-top-center mx-auto flex flex-col items-center gap-8 min-w-[980px] max-w-4xl pb-24 z-10 relative">
+
+                <div class="text-center max-w-2xl mb-2">
+                    <span class="text-[11px] font-bold uppercase tracking-widest px-3 py-1 bg-emerald-100 dark:bg-emerald-950/70 text-emerald-700 dark:text-emerald-300 rounded-full border border-emerald-200 dark:border-emerald-800">
+                        Hospitais Tipologia A • Cuando Cubango
+                    </span>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white mt-2">FLUXO INTEGRADO DA INFORMAÇÃO HOSPITALAR</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Circuito do paciente desde a Recepção ao Prontuário Eletrónico e Reporte Territorial</p>
+                </div>
+
+                <!-- STEP 1: RECEPÇÃO -->
+                <div id="pnode-rececao" data-pnode="rececao" class="node-card cursor-pointer bg-white dark:bg-slate-800 border-2 border-sky-500 p-4 rounded-xl shadow-md w-96 flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-id-card"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400 uppercase">Registo & Identificação</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">1. RECEPÇÃO & ADMISSÃO</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Validação de BI, Prevenção de Duplicados, QR Code e Emissão de Senha</p>
+                    </div>
+                </div>
+
+                <div class="text-sky-500 dark:text-sky-400 text-base"><i class="fa-solid fa-arrow-down"></i></div>
+
+                <!-- STEP 2: TRIAGEM -->
+                <div id="pnode-triagem" data-pnode="triagem" class="node-card cursor-pointer bg-white dark:bg-slate-800 border-2 border-amber-500 p-4 rounded-xl shadow-md w-96 flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-lg bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase">Processo Clínico Inicial</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">2. TRIAGEM DE MANCHESTER</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Sinais Vitais (PA, FC, Temp, SpO2), Priorização por Cores & Queixa</p>
+                    </div>
+                </div>
+
+                <div class="text-amber-500 dark:text-amber-400 text-base"><i class="fa-solid fa-arrow-down"></i></div>
+
+                <!-- STEP 3: CONSULTAS -->
+                <div id="pnode-consulta" data-pnode="consulta" class="node-card cursor-pointer bg-white dark:bg-slate-800 border-2 border-indigo-500 p-4 rounded-xl shadow-md w-96 flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-lg bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase">Atendimento Médico</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">3. CONSULTA MÉDICA & AGENDA</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Anamnese, Diagnóstico CID-11, Procedimentos & Prescrição</p>
+                    </div>
+                </div>
+
+                <div class="w-full text-center text-slate-400 text-xs font-semibold uppercase tracking-wider my-1">
+                    <i class="fa-solid fa-code-fork mr-1"></i> Serviços de Apoio, Logística, Internamento e Caixa
+                </div>
+
+                <!-- STEP 4: BRANCH PARALELO -->
+                <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-5 p-4 bg-slate-100/80 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800">
+                    
+                    <!-- Farmácia & Armazém -->
+                    <div id="pnode-farmacia" data-pnode="farmacia" class="node-card cursor-pointer bg-white dark:bg-slate-800 border border-emerald-300 dark:border-emerald-800 p-4 rounded-xl shadow-sm hover:border-emerald-500 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-pills"></i>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">FARMÁCIA & ARMAZÉM</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Dispensação, Lotes/Validade, Gestão de Stock Mínimo & Requisições</p>
+                    </div>
+
+                    <!-- Internamento & Camas -->
+                    <div id="pnode-internamento" data-pnode="internamento" class="node-card cursor-pointer bg-white dark:bg-slate-800 border border-purple-300 dark:border-purple-800 p-4 rounded-xl shadow-sm hover:border-purple-500 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-950 text-purple-600 dark:text-purple-400 flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-bed"></i>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">INTERNAMENTO & CAMAS</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Admissão, Gestão de Leitos, Evolução Clínica, Transferência & Alta</p>
+                    </div>
+
+                    <!-- Financeiro & Caixa -->
+                    <div id="pnode-financeiro" data-pnode="financeiro" class="node-card cursor-pointer bg-white dark:bg-slate-800 border border-violet-300 dark:border-violet-800 p-4 rounded-xl shadow-sm hover:border-violet-500 flex flex-col items-center text-center">
+                        <div class="w-10 h-10 rounded-full bg-violet-100 dark:bg-violet-950 text-violet-600 dark:text-violet-400 flex items-center justify-center text-lg mb-2">
+                            <i class="fa-solid fa-calculator"></i>
+                        </div>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">FINANCEIRO & CAIXA</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Facturação, Isenções Regulamentadas & Gestão de Pagamentos</p>
+                    </div>
+
+                </div>
+
+                <!-- STEP 5: PEP UNIFICADO -->
+                <div id="pnode-prontuario" data-pnode="prontuario" class="node-card cursor-pointer bg-slate-900 text-white p-4 rounded-xl shadow-lg border-2 border-rose-500 w-96 flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl font-bold border border-rose-500/30">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] font-bold text-rose-400 uppercase">Consolidação Clínica</span>
+                        <h3 class="text-base font-bold text-white">4. PRONTUÁRIO ELETRÓNICO (PEP)</h3>
+                        <p class="text-[11px] text-slate-300">Histórico Clínico Unificado, Alergias, Antecedentes & Acesso por Perfil</p>
+                    </div>
+                </div>
+
+                <div class="text-slate-400 text-base"><i class="fa-solid fa-arrow-down"></i></div>
+
+                <!-- STEP 6: ESTATÍSTICA & AUDITORIA -->
+                <div id="pnode-estatistica" data-pnode="estatistica" class="node-card cursor-pointer bg-white dark:bg-slate-800 border-2 border-orange-500 p-4 rounded-xl shadow-md w-96 flex items-center gap-4">
+                    <div class="w-11 h-11 rounded-lg bg-orange-100 dark:bg-orange-950 text-orange-600 dark:text-orange-400 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] font-bold text-orange-600 dark:text-orange-400 uppercase">Processo Estatístico & Controlo</span>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-white">5. ESTATÍSTICA & AUDITORIA</h3>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400">Boletins Sanitários, Audit Logs de Sessão & Indicadores Epidemiológicos</p>
+                    </div>
+                </div>
+
+                <div class="text-orange-500 dark:text-orange-400 text-base"><i class="fa-solid fa-arrow-down animate-bounce"></i></div>
+
+                <!-- STEP 7: CONSOLIDAÇÃO MINSA -->
+                <div id="pnode-direcao" data-pnode="direcao" class="node-card cursor-pointer bg-gradient-to-r from-red-600 via-amber-600 to-slate-900 text-white p-5 rounded-2xl shadow-xl border-2 border-amber-400 w-full max-w-md flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
+                        <i class="fa-solid fa-building-flag"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[10px] font-bold uppercase text-amber-300">Território & Governo Central</span>
+                            <span class="text-[10px] bg-red-950/80 px-2 py-0.5 rounded text-red-200 border border-red-800">MINSA</span>
+                        </div>
+                        <h3 class="text-xl font-black">6. DIREÇÃO MUNICIPAL & MINSA</h3>
+                        <p class="text-xs text-slate-100 opacity-90 mt-0.5">Sincronização Offline-First e Consolidação dos Dados de Saúde de Angola</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VIEW 2: ARCHITECTURE & SYNC -->
+        <div id="viewArchitectureContainer" class="view-panel hidden flex-1 overflow-auto relative custom-scrollbar bg-grid-pattern p-6 lg:p-12">
+            <svg id="svgConnections" class="absolute top-0 left-0 w-full h-full pointer-events-none z-0" style="min-width: 1100px; min-height: 1400px;"></svg>
+
+            <div id="diagramWrapper" class="transition-transform duration-150 transform-gpu origin-top-center mx-auto flex flex-col items-center gap-10 min-w-[1000px] pb-24 z-10 relative">
+
+                <!-- LEVEL 1: ROOT -->
+                <div id="node-sigh" data-node="sigh" class="node-card cursor-pointer bg-gradient-to-r from-red-700 via-amber-600 to-sky-700 text-white p-5 rounded-2xl shadow-xl border border-white/20 flex items-center gap-4 w-96 relative">
+                    <div class="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl border border-white/20">
+                        <i class="fa-solid fa-hospital-user"></i>
+                    </div>
+                    <div class="flex-1">
+                        <span class="text-[10px] uppercase font-bold tracking-widest text-amber-200">Plataforma Nacional</span>
+                        <h2 class="text-2xl font-black tracking-tight">SIGH-ANGOLA</h2>
+                        <p class="text-xs text-slate-100 opacity-90 mt-0.5">Ecossistema Digital de Saúde Hospitalar</p>
+                    </div>
+                </div>
+
+                <!-- LEVEL 2: NETWORK AMBIENCE -->
+                <div class="w-full max-w-4xl flex items-start justify-between gap-8 relative pt-2">
+                    <!-- Branch A: Offline -->
+                    <div class="flex-1 flex flex-col items-center gap-4 bg-amber-500/10 dark:bg-amber-950/20 p-5 rounded-2xl border border-amber-300 dark:border-amber-800/60">
+                        <div id="node-app-movel" data-node="app-movel" class="node-card cursor-pointer bg-white dark:bg-slate-800 border-2 border-amber-500 p-4 rounded-xl shadow-md w-full flex items-center gap-3">
+                            <i class="fa-solid fa-mobile-screen-button text-amber-500 text-xl"></i>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-white">REDE LIMITADA (CUANDO CUBANGO)</h3>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Hospitais Tipologia A com Conexão Instável</p>
+                            </div>
+                        </div>
+                        <div id="node-offline" data-node="offline" class="node-card cursor-pointer bg-amber-100 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-700 p-3 rounded-xl w-full text-xs">
+                            <span class="font-bold text-amber-900 dark:text-amber-200">Motor Store-and-Forward</span>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300">Gravação local garantida em SQLite Cifrado</p>
+                        </div>
+                    </div>
+
+                    <!-- Branch B: Online Direct -->
+                    <div class="flex-1 flex flex-col items-center gap-4 bg-sky-500/10 dark:bg-sky-950/20 p-5 rounded-2xl border border-sky-300 dark:border-sky-800/60">
+                        <div id="node-portal-web" data-node="portal-web" class="node-card cursor-pointer bg-white dark:bg-slate-800 border-2 border-sky-500 p-4 rounded-xl shadow-md w-full flex items-center gap-3">
+                            <i class="fa-solid fa-globe text-sky-500 text-xl"></i>
+                            <div>
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-white">PORTAL WEB & LIGAÇÃO DIRETA</h3>
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400">Sincronização em Tempo Real via HTTPS/TLS 1.3</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LEVEL 3: API GATEWAY & SECURITY -->
+                <div id="node-api-gateway" data-node="api-gateway" class="node-card cursor-pointer bg-slate-900 text-white p-4 rounded-xl shadow-lg border-2 border-purple-500 w-full max-w-xl flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-shield-halved text-purple-400 text-2xl"></i>
+                        <div>
+                            <h3 class="font-extrabold text-base text-white">API GATEWAY & CAMADA DE SEGURANÇA</h3>
+                            <p class="text-xs text-slate-300">Gestão de Sessões, Controlo de Acessos por Perfil, Encriptação & Resolution Queue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LEVEL 4: SYSTEM SERVICES -->
+                <div class="w-full max-w-4xl bg-slate-100/70 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div id="node-clinico" data-node="clinico" class="node-card cursor-pointer bg-white dark:bg-slate-800 border border-rose-200 dark:border-rose-900/50 p-4 rounded-xl text-center">
+                        <i class="fa-solid fa-stethoscope text-rose-500 text-xl mb-2"></i>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">Módulo Clínico</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Pacientes, Triagem, Consultas, PEP & Internamento</p>
+                    </div>
+
+                    <div id="node-administrativo" data-node="administrativo" class="node-card cursor-pointer bg-white dark:bg-slate-800 border border-blue-200 dark:border-blue-900/50 p-4 rounded-xl text-center">
+                        <i class="fa-solid fa-boxes-packing text-blue-500 text-xl mb-2"></i>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">Módulo Logístico</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Farmácia, Gestão de Armazém, Lotes & Camas</p>
+                    </div>
+
+                    <div id="node-estatistico" data-node="estatistico" class="node-card cursor-pointer bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-900/50 p-4 rounded-xl text-center">
+                        <i class="fa-solid fa-chart-pie text-amber-500 text-xl mb-2"></i>
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">Módulo Admin & BI</h4>
+                        <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Gestão de Utilizadores, Auditoria & Dashboards MINSA</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- VIEW 3: SYSTEM MODULES & INTERACTIVE PROTOTYPES -->
+        <div id="viewModulesContainer" class="view-panel hidden flex-1 overflow-auto p-4 lg:p-8 max-w-7xl mx-auto w-full custom-scrollbar">
+            
+            <!-- Module Switcher Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-3 mb-6 border-b border-slate-200 dark:border-slate-800 custom-scrollbar">
+                <button data-mod="mod-utilizadores" class="mod-pill active px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-500 text-white shadow-sm flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-users-gear"></i> 1. Utilizadores & Perfis
+                </button>
+                <button data-mod="mod-pacientes" class="mod-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-address-card"></i> 16/17. Pacientes & Cartão QR
+                </button>
+                <button data-mod="mod-triagem" class="mod-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-heart-pulse"></i> 18. Triagem Manchester
+                </button>
+                <button data-mod="mod-consultas" class="mod-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-stethoscope"></i> 19/20. Consultas & PEP
+                </button>
+                <button data-mod="mod-internamento" class="mod-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-bed"></i> 21/22. Internamento & Camas
+                </button>
+                <button data-mod="mod-farmacia" class="mod-pill px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300 flex items-center gap-2 whitespace-nowrap">
+                    <i class="fa-solid fa-pills"></i> 23/24. Farmácia & Armazém
+                </button>
+            </div>
+
+            <!-- PROTOTYPE SECTION 1: UTILIZADORES & PERFIS -->
+            <div id="mod-utilizadores" class="mod-content space-y-6">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Módulo 1</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Gestão de Utilizadores, Perfis e Auditoria</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Controlo centralizado de acessos com 13 perfis operacionais e log de auditoria em tempo real.</p>
+                    </div>
+                    <button onclick="openNewUserModal()" class="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow transition-all">
+                        <i class="fa-solid fa-user-plus"></i> Criar Novo Utilizador
+                    </button>
+                </div>
+
+                <!-- 13 Initial Roles Grid -->
+                <div>
+                    <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield text-amber-500"></i> Perfis Iniciais de Sistema (13 Roles Configurados)
+                    </h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Administrador</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Acesso Total</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Diretor Hospitalar</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Gestão & BI</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Médico</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Consultas & PEP</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Enfermeiro</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Triagem & Leitos</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Técnico Diagnóstico</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Exames & PACS</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Farmacêutico</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Aprovação & Lotes</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Técnico Farmácia</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Dispensação</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Estatístico</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Boletins MINSA</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Administrativo</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Admissão</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Gestor Financeiro</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Facturação & Caixa</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Gestor Stock</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Armazém</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Rececionista</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Atendimento</span>
+                        </div>
+                        <div class="p-2.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-900/50 rounded-xl text-center col-span-2 md:col-span-1">
+                            <span class="block text-[11px] font-bold text-sky-700 dark:text-sky-300">Auditor</span>
+                            <span class="text-[9px] text-slate-500 dark:text-slate-400">Logs & Conformidade</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Users Table -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">Utilizadores Registados</h4>
+                        <span class="text-xs text-slate-500 dark:text-slate-400 font-mono">Hospital Geral de Menongue (Cuando Cubango)</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-3">Nome / Utilizador</th>
+                                    <th class="p-3">Perfil</th>
+                                    <th class="p-3">Sessão / Estado</th>
+                                    <th class="p-3">Último Acesso</th>
+                                    <th class="p-3 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody" class="divide-y divide-slate-200 dark:divide-slate-800">
+                                <!-- Dynamic JS Population -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Audit Log Section -->
+                <div class="bg-slate-900 text-slate-200 p-5 rounded-2xl border border-slate-800">
+                    <h4 class="font-bold text-xs uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check"></i> Trilha de Auditoria (Audit Logs do Sistema)
+                    </h4>
+                    <div id="auditLogContent" class="space-y-2 font-mono text-[11px] text-slate-300 max-h-48 overflow-y-auto custom-scrollbar">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROTOTYPE SECTION 2: PACIENTES & IDENTIFICAÇÃO -->
+            <div id="mod-pacientes" class="mod-content hidden space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Módulos 16 & 17</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Registo de Pacientes & Cartão com QR Code Privado</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Identificador Único Nacional, Verificação Anti-duplicação por BI e Acesso Rápido Seguro.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="patientSearchInput" placeholder="Buscar por Nome, BI ou Código..." class="px-3 py-2 text-xs bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <button onclick="searchPatient()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- New Patient Registration Form -->
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
+                            <span><i class="fa-solid fa-id-card text-sky-500 mr-2"></i> Formuário de Registo de Paciente</span>
+                            <span class="text-[10px] text-amber-600 dark:text-amber-400 font-mono"><i class="fa-solid fa-shield-virus mr-1"></i> Anti-Duplicação Ativa</span>
+                        </h3>
+                        
+                        <form id="patientForm" onsubmit="handlePatientRegistration(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Nome Completo *</label>
+                                <input type="text" id="regNome" required placeholder="Ex: Manuel Agostinho Neto" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Nº Bilhete de Identidade (BI) / Passaporte *</label>
+                                <input type="text" id="regBI" required placeholder="Ex: 004829102CC049" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Data de Nascimento *</label>
+                                <input type="date" id="regDataNasc" required class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Género *</label>
+                                <select id="regGenero" required class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500">
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Feminino</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Contacto Telefónico *</label>
+                                <input type="tel" id="regTelefone" required placeholder="Ex: +244 923 000 111" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Município / Província *</label>
+                                <input type="text" id="regEndereco" required placeholder="Ex: Menongue, Cuando Cubango" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Nome do Responsável / Encarregado</label>
+                                <input type="text" id="regResponsavel" placeholder="Nome de familiar ou responsável" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                            </div>
+                            <div>
+                                <label class="block text-slate-600 dark:text-slate-400 mb-1 font-semibold">Contacto de Emergência *</label>
+                                <input type="tel" id="regEmergencia" required placeholder="Telefone do contacto direto" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                            </div>
+                            <div class="md:col-span-2 pt-2 flex items-center justify-between">
+                                <span id="duplicadoAlert" class="text-xs text-red-500 font-bold hidden"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Paciente já registado com este BI!</span>
+                                <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-md transition-all ml-auto">
+                                    <i class="fa-solid fa-floppy-disk mr-1"></i> Registo e Emissão de Cartão
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Digital Patient Card Preview & QR Code -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-xl border border-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 rounded bg-red-600 flex items-center justify-center text-white text-xs font-bold">AO</div>
+                                    <span class="text-xs font-extrabold tracking-wider text-amber-400">REPÚBLICA DE ANGOLA • MINSA</span>
+                                </div>
+                                <span class="text-[9px] bg-emerald-950 text-emerald-400 px-2 py-0.5 rounded border border-emerald-800 font-mono">CARTÃO DO PACIENTE</span>
+                            </div>
+
+                            <div id="patientCardContainer" class="space-y-4">
+                                <div class="flex items-start justify-between">
+                                    <div>
+                                        <span class="text-[10px] text-slate-400 uppercase block">Identificador Único</span>
+                                        <span id="cardID" class="text-lg font-mono font-black text-sky-400">ANG-2026-88492</span>
+                                    </div>
+                                    <div class="p-2 bg-white rounded-lg shadow-inner text-slate-900 text-center">
+                                        <!-- Simulated QR Code SVG -->
+                                        <svg width="60" height="60" viewBox="0 0 100 100" class="mx-auto">
+                                            <path d="M0,0 h30 v30 h-30 z M10,10 h10 v10 h-10 z M70,0 h30 v30 h-30 z M80,10 h10 v10 h-10 z M0,70 h30 v30 h-30 z M10,80 h10 v10 h-10 z M40,10 h20 v10 h-20 z M40,40 h20 v20 h-20 z M70,70 h20 v20 h-20 z M10,40 h20 v10 h-20 z M70,40 h20 v20 h-20 z" fill="#0f172a"/>
+                                        </svg>
+                                        <span class="text-[8px] font-mono text-slate-600 block mt-0.5">Seguro (Sem Clínica)</span>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-1 text-xs">
+                                    <div><strong class="text-slate-400">Nome:</strong> <span id="cardNome" class="font-bold">Esperança Manuel Zua</span></div>
+                                    <div><strong class="text-slate-400">BI:</strong> <span id="cardBI" class="font-mono">005938201CC038</span></div>
+                                    <div><strong class="text-slate-400">Nascimento:</strong> <span id="cardNasc">14/03/1988</span></div>
+                                    <div><strong class="text-slate-400">Emergência:</strong> <span id="cardEmergencia">+244 934 112 334</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-800 text-center">
+                            <p class="text-[10px] text-slate-400">O QR Code permite leitura ótica ultrarrápida no terminal de triagem sem expor dados clínicos na etiqueta impressa.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROTOTYPE SECTION 3: TRIAGEM DE MANCHESTER -->
+            <div id="mod-triagem" class="mod-content hidden space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">Módulo 18</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Triagem de Manchester & Sinais Vitais</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Aferição biométrica completa, classificação por cores e cálculo da fila médica de urgência.</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-mono bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                        <i class="fa-solid fa-plug-circle-check text-emerald-500"></i> Dispositivo Biométrico IoT Ligado
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Manchester Vitals Form -->
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
+                            <span><i class="fa-solid fa-heart-pulse text-amber-500 mr-2"></i> Admissão de Sinais Vitais do Paciente</span>
+                            <span class="text-xs font-mono text-slate-500">Paciente: <strong class="text-sky-600 dark:text-sky-400">ANG-2026-88492</strong></span>
+                        </h3>
+
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Temperatura (°C)</label>
+                                <input type="number" id="vTemp" value="38.5" step="0.1" oninput="calculatePriority()" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">P. Arterial (mmHg)</label>
+                                <input type="text" id="vPA" value="140/90" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Freq. Cardíaca (bpm)</label>
+                                <input type="number" id="vFC" value="110" oninput="calculatePriority()" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Freq. Resp. (rpm)</label>
+                                <input type="number" id="vFR" value="22" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Saturação SpO2 (%)</label>
+                                <input type="number" id="vSpO2" value="94" oninput="calculatePriority()" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Peso (kg)</label>
+                                <input type="number" id="vPeso" value="72" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Altura (cm)</label>
+                                <input type="number" id="vAltura" value="175" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <label class="block text-slate-500 dark:text-slate-400 font-semibold mb-1">Glicemia (mg/dL)</label>
+                                <input type="number" id="vGlicemia" value="115" class="w-full p-2 font-mono font-bold text-base text-slate-900 dark:text-white bg-transparent outline-none">
+                            </div>
+                        </div>
+
+                        <div class="text-xs space-y-2">
+                            <label class="block text-slate-600 dark:text-slate-400 font-semibold">Queixa Principal / Discriminador de Triagem *</label>
+                            <textarea id="vQueixa" rows="2" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-amber-500">Febre alta contínua há 3 dias com tremores, calafrios e fortes dores de cabeça (Suspeita de Malária Severe).</textarea>
+                        </div>
+
+                        <div class="pt-2 flex justify-end">
+                            <button onclick="confirmTriagem()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow-md transition-all">
+                                <i class="fa-solid fa-check-double mr-1"></i> Confirmar Triagem & Encaminhar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Priority Badge & Queue Visualizer -->
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="font-bold text-xs uppercase tracking-wider text-slate-400 mb-3">Prioridade Manchester Calculada</h4>
+                            
+                            <div id="mancPriorityBadge" class="manc-orange p-6 rounded-2xl text-center shadow-lg transition-all">
+                                <span class="text-xs font-bold uppercase tracking-widest block opacity-90">Atendimento Urgente</span>
+                                <h2 id="mancPriorityTitle" class="text-2xl font-black my-1">LARANJA (URGENTE)</h2>
+                                <p id="mancPriorityTime" class="text-xs font-semibold">Tempo Alvo Atendimento: &le; 10 Minutos</p>
+                            </div>
+
+                            <div class="mt-6 space-y-2 text-xs">
+                                <span class="font-bold text-slate-700 dark:text-slate-300">Classificação Geral de Manchester:</span>
+                                <div class="grid grid-cols-5 gap-1 text-[10px] text-center font-bold">
+                                    <div class="p-2 rounded bg-red-500 text-white">Vermelho<br>(0 min)</div>
+                                    <div class="p-2 rounded bg-orange-500 text-white ring-2 ring-slate-900">Laranja<br>(10 min)</div>
+                                    <div class="p-2 rounded bg-yellow-500 text-black">Amarelo<br>(60 min)</div>
+                                    <div class="p-2 rounded bg-green-500 text-white">Verde<br>(120 min)</div>
+                                    <div class="p-2 rounded bg-blue-500 text-white">Azul<br>(240 min)</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500">
+                            <i class="fa-solid fa-circle-info mr-1 text-sky-500"></i> O nível de prioridade reposiciona o paciente em tempo real na fila do Consultório Médico.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROTOTYPE SECTION 4: CONSULTAS & PEP -->
+            <div id="mod-consultas" class="mod-content hidden space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Módulos 19 & 20</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Consultas Médicas & Prontuário Eletrónico (PEP)</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Agenda, Anamnese, Codificação CID-11, Prescrição e Histórico Vitalício do Utente.</p>
+                    </div>
+                    <div class="flex items-center gap-2 font-mono text-xs text-slate-600 dark:text-slate-300">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Médico Autenticado: Dr. António Agostinho
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- PEP Consolidated Medical File -->
+                    <div class="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+                        
+                        <!-- Patient Mini Banner -->
+                        <div class="p-4 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl border border-indigo-200 dark:border-indigo-900/50 flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-bold text-sm text-indigo-950 dark:text-indigo-200">Esperança Manuel Zua (38 Anos)</h3>
+                                <p class="text-xs text-indigo-700 dark:text-indigo-400 font-mono">ANG-2026-88492 • BI: 005938201CC038</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="px-2.5 py-1 rounded-full manc-orange font-bold text-[10px]">Triagem: LARANJA</span>
+                                <span class="px-2.5 py-1 rounded-full bg-red-100 text-red-700 dark:bg-red-950/80 dark:text-red-300 font-bold text-[10px]">Alergia: Penicilina</span>
+                            </div>
+                        </div>
+
+                        <!-- Medical Clinical Consultation Form -->
+                        <div class="space-y-4 text-xs">
+                            <div>
+                                <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Anamnese & Evolução Clínica *</label>
+                                <textarea rows="3" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500">Utente refere astenia acentuada, cefaleia holocraniana e picos febris há 72h. Nega episódios prévios este mês. Exame físico: Mucosas anictéricas, coradas. Abdómen doloroso à palpação no hipocôndrio esquerdo.</textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Diagnóstico Principal (CID-11) *</label>
+                                    <select class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 font-mono">
+                                        <option>1F40 - Malária por Plasmodium falciparum</option>
+                                        <option>1C60 - Febre Tifóide</option>
+                                        <option>CA40 - Infeção Respiratória Aguda</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Procedimentos Clínicos Efetuados</label>
+                                    <input type="text" value="Teste Rápido de Malária (TDR), Colheita para Hemograma" class="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl">
+                                </div>
+                            </div>
+
+                            <!-- Electronic Prescription Section -->
+                            <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-pills text-emerald-500"></i> Prescrição Médica Eletrónica
+                                    </h4>
+                                    <span class="text-[10px] text-slate-500">Sincroniza automaticamente com a Farmácia</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                    <input type="text" placeholder="Medicamento (Ex: Coartem)" value="Artemeter + Lumefantrina (Coartem)" class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <input type="text" placeholder="Posologia (Ex: 1 comp. 12/12h)" value="1 comp. de 12/12h por 3 dias" class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                    <input type="text" placeholder="Quantidade" value="1 Caixa (24 comp)" class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex items-center justify-between">
+                                <button type="button" class="px-4 py-2 bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl font-bold">
+                                    <i class="fa-solid fa-bed mr-1"></i> Requisitar Internamento
+                                </button>
+                                <button type="button" onclick="savePEPRecord()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-md">
+                                    <i class="fa-solid fa-file-signature mr-1"></i> Finalizar Consulta & Assinar PEP
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Medical Agenda & Clinical History -->
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-slate-400">Histórico de Atendimentos (PEP)</h4>
+                        
+                        <div class="space-y-3 text-xs">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <div class="flex justify-between font-bold text-slate-900 dark:text-white">
+                                    <span>Consulta de Medicina Geral</span>
+                                    <span class="text-slate-500 font-mono text-[10px]">12/02/2026</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-1">Diag: CID-11 1F40 (Malária). Prescrito Coartem. Alta no mesmo dia.</p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                                <div class="flex justify-between font-bold text-slate-900 dark:text-white">
+                                    <span>Atendimento Urgência</span>
+                                    <span class="text-slate-500 font-mono text-[10px]">04/11/2025</span>
+                                </div>
+                                <p class="text-[11px] text-slate-500 mt-1">Queixa de síndrome gripal aguda. Sinais vitais normais.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-2">Controlo de Acessos por Perfil</span>
+                            <p class="text-[10px] text-slate-500 leading-relaxed">Conforme os requisitos do SIGH-ANGOLA, o acesso ao PEP é condicionado às credenciais e perfil médico/enfermeiro autenticado.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROTOTYPE SECTION 5: INTERNAMENTO & CAMAS -->
+            <div id="mod-internamento" class="mod-content hidden space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400">Módulos 21 & 22</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Internamento & Gestão de Camas Hospitalares</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Admissão de leitos, monitorização gráfica de ocupação e transferências de enfermaria.</p>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs font-mono">
+                        <span class="px-3 py-1.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 rounded-xl font-bold">Taxa de Ocupação: 68%</span>
+                    </div>
+                </div>
+
+                <!-- Bed Status Dashboard Cards -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 rounded-2xl text-center">
+                        <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400 block">24</span>
+                        <span class="text-xs font-bold text-emerald-900 dark:text-emerald-200">Camas Livres</span>
+                    </div>
+                    <div class="p-4 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 rounded-2xl text-center">
+                        <span class="text-2xl font-black text-rose-600 dark:text-rose-400 block">52</span>
+                        <span class="text-xs font-bold text-rose-900 dark:text-rose-200">Camas Ocupadas</span>
+                    </div>
+                    <div class="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-2xl text-center">
+                        <span class="text-2xl font-black text-amber-600 dark:text-amber-400 block">4</span>
+                        <span class="text-xs font-bold text-amber-900 dark:text-amber-200">Camas Bloqueadas</span>
+                    </div>
+                    <div class="p-4 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-center">
+                        <span class="text-2xl font-black text-slate-700 dark:text-slate-300 block">2</span>
+                        <span class="text-xs font-bold text-slate-500">Em Manutenção</span>
+                    </div>
+                </div>
+
+                <!-- Ward Bed Matrix Visualization -->
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <h3 class="font-bold text-sm text-slate-900 dark:text-white">Distribuição Visual de Leitos por Enfermaria</h3>
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500"></span> Livre</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-rose-500"></span> Ocupada</span>
+                            <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500"></span> Bloqueada</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Ward 1 -->
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+                                <span>Enfermaria A • Medicina Geral</span>
+                                <span class="text-slate-500">8/10 Ocupadas</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2">
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold" title="Paciente: Esperança Zua">C-01</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">C-02</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer" onclick="occupyBed('C-03')">C-03</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">C-04</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">C-05</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">C-06</div>
+                                <div class="p-2 rounded-lg bg-amber-500 text-white text-center font-mono text-[10px] font-bold">C-07</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer" onclick="occupyBed('C-08')">C-08</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">C-09</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">C-10</div>
+                            </div>
+                        </div>
+
+                        <!-- Ward 2 -->
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+                                <span>Enfermaria B • Pediatria</span>
+                                <span class="text-slate-500">4/10 Ocupadas</span>
+                            </div>
+                            <div class="grid grid-cols-5 gap-2">
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">P-01</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">P-02</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">P-03</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">P-04</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">P-05</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">P-06</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">P-07</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">P-08</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">P-09</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">P-10</div>
+                            </div>
+                        </div>
+
+                        <!-- Ward 3 -->
+                        <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <div class="flex justify-between text-xs font-bold text-slate-800 dark:text-slate-200">
+                                <span>Enfermaria C • Maternidade</span>
+                                <span class="text-slate-500">6/8 Ocupadas</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2">
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">M-01</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">M-02</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">M-03</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">M-04</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">M-05</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">M-06</div>
+                                <div class="p-2 rounded-lg bg-rose-500 text-white text-center font-mono text-[10px] font-bold">M-07</div>
+                                <div class="p-2 rounded-lg bg-emerald-500 text-white text-center font-mono text-[10px] font-bold cursor-pointer">M-08</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROTOTYPE SECTION 6: FARMÁCIA & ARMAZÉM -->
+            <div id="mod-farmacia" class="mod-content hidden space-y-6">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Módulos 23 & 24</span>
+                        <h2 class="text-xl font-extrabold text-slate-900 dark:text-white">Farmácia Hospitalar & Gestão de Armazém</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Controlo de lotes, datas de validade, dispensação de prescrições e alertas de stock mínimo.</p>
+                    </div>
+                    <button class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Entrada de Lote / Stock
+                    </button>
+                </div>
+
+                <!-- Stock Inventory Table -->
+                <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
+                    <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white">Inventário de Fármacos & Materiais Gastáveis</h4>
+                        <span class="text-xs text-amber-600 dark:text-amber-400 font-mono"><i class="fa-solid fa-triangle-exclamation mr-1"></i> 2 Alertas de Stock Mínimo</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 uppercase font-semibold">
+                                <tr>
+                                    <th class="p-3">Item / Categoria</th>
+                                    <th class="p-3">Lote</th>
+                                    <th class="p-3">Validade</th>
+                                    <th class="p-3">Stock Atual</th>
+                                    <th class="p-3">Mín / Máx</th>
+                                    <th class="p-3">Estado</th>
+                                    <th class="p-3 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-800 font-mono">
+                                <tr>
+                                    <td class="p-3 font-sans font-bold text-slate-900 dark:text-white">
+                                        Artemeter + Lumefantrina (Coartem)
+                                        <span class="block text-[10px] text-slate-500 font-normal">Medicamentos</span>
+                                    </td>
+                                    <td class="p-3">LT-2026-991</td>
+                                    <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold">11/2028</td>
+                                    <td class="p-3 font-bold text-base">420 cx</td>
+                                    <td class="p-3 text-slate-500">100 / 1000</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px]">Normal</span></td>
+                                    <td class="p-3 text-right font-sans">
+                                        <button onclick="dispenseDrug('Coartem')" class="px-2.5 py-1 bg-sky-600 text-white rounded text-[11px] font-bold">Dispensar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-sans font-bold text-slate-900 dark:text-white">
+                                        Paracetamol 500mg (Comprimidos)
+                                        <span class="block text-[10px] text-slate-500 font-normal">Medicamentos</span>
+                                    </td>
+                                    <td class="p-3">LT-2025-402</td>
+                                    <td class="p-3 text-amber-600 dark:text-amber-400 font-bold">10/2026</td>
+                                    <td class="p-3 font-bold text-base text-amber-600">85 cx</td>
+                                    <td class="p-3 text-slate-500">100 / 800</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 text-[10px]">Stock Mínimo</span></td>
+                                    <td class="p-3 text-right font-sans">
+                                        <button onclick="dispenseDrug('Paracetamol')" class="px-2.5 py-1 bg-sky-600 text-white rounded text-[11px] font-bold">Dispensar</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 font-sans font-bold text-slate-900 dark:text-white">
+                                        Luvas Cirúrgicas Estéreis (Tam M)
+                                        <span class="block text-[10px] text-slate-500 font-normal">Materiais Gastáveis</span>
+                                    </td>
+                                    <td class="p-3">LT-2026-118</td>
+                                    <td class="p-3 text-emerald-600 dark:text-emerald-400 font-bold">04/2029</td>
+                                    <td class="p-3 font-bold text-base">1200 par</td>
+                                    <td class="p-3 text-slate-500">300 / 3000</td>
+                                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 text-[10px]">Normal</span></td>
+                                    <td class="p-3 text-right font-sans">
+                                        <button class="px-2.5 py-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded text-[11px] font-bold">Requisição</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- VIEW 4: FULL TECHNICAL SPECIFICATION DOCUMENT -->
+        <div id="viewSpecificationContainer" class="view-panel hidden flex-1 overflow-auto p-6 lg:p-12 max-w-5xl mx-auto w-full">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 lg:p-8 space-y-8">
+                
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-6">
+                    <span class="text-xs font-bold uppercase tracking-widest text-sky-600 dark:text-sky-400">Documentação do Sistema</span>
+                    <h2 class="text-2xl font-black text-slate-900 dark:text-white">SIGH-ANGOLA — ESPECIFICAÇÃO COMPLETA DE MÓDULOS</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Concebido para Unidades Hospitalares de Tipologia A • Provincia do Cuando Cubango & Expansão Nacional</p>
+                </div>
+
+                <!-- Textual Tree Hierarchy of Modules -->
+                <div>
+                    <h3 class="text-base font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap text-sky-500"></i> Estrutura do Layout do Sistema
+                    </h3>
+                    <div id="treeListContent" class="space-y-3 font-mono text-xs text-slate-700 dark:text-slate-300"></div>
+                </div>
+
+                <!-- Comprehensive Text Specifications for Modules 1 to 24 -->
+                <div class="space-y-6 text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2">Módulo 1 — Gestão de Utilizadores & Perfis</h4>
+                        <p>Permite criação, alteração, ativação/desativação, atribuição de permissões (RBAC), gestão de sessões ativas, recuperação de credenciais e auditoria rigorosa de ações. Inclui 13 perfis iniciais: Administrador, Diretor hospitalar, Médico, Enfermeiro, Técnico de diagnóstico, Farmacêutico, Técnico de farmácia, Estatístico, Administrativo, Gestor financeiro, Gestor de stock, Rececionista e Auditor.</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2">Módulos 16 e 17 — Pacientes & Identificação Única</h4>
+                        <p>Funcionalidades de registo, pesquisa avançada, atualização demográfica, contactos, encarregados e histórico de atendimentos. Implementa mecanismos automáticos anti-duplicação (por BI e dados pessoais). Atribui um identificador único impresso no cartão do paciente e um QR Code de leitura rápida sem expor publicamente informações clínicas sensíveis.</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2">Módulo 18 — Triagem de Manchester</h4>
+                        <p>Aferição obrigatória de temperatura, pressão arterial, frequência cardíaca, frequência respiratória, SpO2, peso e altura. Registo de queixa principal e cálculo do grau de urgência (Vermelho, Laranja, Amarelo, Verde, Azul). Preparado para integração de dispositivos IoT via USB/Bluetooth.</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2">Módulos 19 e 20 — Consultas & Prontuário Eletrónico (PEP)</h4>
+                        <p>Gestão de agenda, marcação, confirmação e histórico de consultas. Suporte a anamnese médica, codificação de diagnósticos (CID-11), procedimentos executados, prescrição eletrónica integrada com a farmácia e unificação histórica do PEP (antecedentes, alergias, internamentos e exames) sob restrição rigorosa de permissões do perfil profissional.</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2">Módulos 21 e 22 — Internamento & Gestão de Camas</h4>
+                        <p>Admissão de pacientes, localização por enfermaria e cama, indicação do médico responsável, evolução diária e guia de alta. Dashboard executivo com monitorização em tempo real de camas ocupadas, livres, bloqueadas, em manutenção e taxa global de ocupação.</p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-800">
+                        <h4 class="font-bold text-sm text-slate-900 dark:text-white mb-2">Módulos 23 e 24 — Farmácia & Gestão de Armazém</h4>
+                        <p>Cadastro de medicamentos, materiais gastáveis, consumíveis e equipamentos. Controlo estrito de entradas, saídas, transferências, lotes, datas de validade e fornecedores. Emissão automática de alertas para stock mínimo/máximo e dispensação direta a partir de prescrições do PEP.</p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Component Inspector Modal Drawer -->
+        <div id="nodeDrawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-slate-900 shadow-2xl border-l border-slate-200 dark:border-slate-800 z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+            <div class="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
+                <div class="flex items-center gap-3">
+                    <div id="drawerIcon" class="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <div>
+                        <span id="drawerTag" class="text-[10px] font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Especificação</span>
+                        <h3 id="drawerTitle" class="text-base font-bold text-slate-900 dark:text-white">Nome do Componente</h3>
+                    </div>
+                </div>
+                <button id="closeDrawerBtn" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-2 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Função no SIGH-ANGOLA</h4>
+                    <p id="drawerDesc" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">Descrição...</p>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Funcionalidades</h4>
+                    <ul id="drawerFeatures" class="space-y-2 text-xs text-slate-600 dark:text-slate-300"></ul>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Sample Data Stores
+        const USERS_DB = [
+            { id: 1, name: "Dr. António Agostinho", user: "aagostinho", role: "Médico", active: true, lastAccess: "Hoje, 10:42" },
+            { id: 2, name: "Enfª. Maria Teresa", user: "mteresa", role: "Enfermeiro", active: true, lastAccess: "Hoje, 11:05" },
+            { id: 3, name: "Manuel Kalandula", user: "mkalandula", role: "Rececionista", active: true, lastAccess: "Hoje, 08:15" },
+            { id: 4, name: "Drª. Luísa Cambuta", user: "lcambuta", role: "Diretor Hospitalar", active: true, lastAccess: "Ontem, 16:30" },
+            { id: 5, name: "João Vissanje", user: "jvissanje", role: "Gestor de Stock", active: true, lastAccess: "Hoje, 09:20" }
+        ];
+
+        const AUDIT_LOGS = [
+            "11:22:04 - [SESSÃO] Usuário 'aagostinho' iniciou consulta no PEP para utente ANG-2026-88492",
+            "11:15:30 - [TRIAGEM] Triagem Manchester efetuada: Prioridade LARANJA atribuída a Esperança Zua",
+            "10:45:12 - [STOCK] Abate de 1 caixa de Coartem registado por 'mteresa'",
+            "09:10:00 - [SINC] Pacote offline #8492 sincronizado com sucesso no MINSA Central"
+        ];
+
+        // Architecture & Patient Connection Definitions
+        const PATIENT_CONNECTIONS = [
+            { from: 'pnode-rececao', to: 'pnode-triagem' },
+            { from: 'pnode-triagem', to: 'pnode-consulta' },
+            { from: 'pnode-consulta', to: 'pnode-farmacia' },
+            { from: 'pnode-consulta', to: 'pnode-internamento' },
+            { from: 'pnode-consulta', to: 'pnode-financeiro' },
+            { from: 'pnode-farmacia', to: 'pnode-prontuario' },
+            { from: 'pnode-internamento', to: 'pnode-prontuario' },
+            { from: 'pnode-financeiro', to: 'pnode-prontuario' },
+            { from: 'pnode-prontuario', to: 'pnode-estatistica' },
+            { from: 'pnode-estatistica', to: 'pnode-direcao' }
+        ];
+
+        let isFlowAnimating = false;
+
+        function drawPatientConnections() {
+            const svg = document.getElementById('svgPatientConnections');
+            const container = document.getElementById('patientFlowWrapper');
+            if (!svg || !container) return;
+
+            const existingPaths = svg.querySelectorAll('path.patient-connection-line');
+            existingPaths.forEach(p => p.remove());
+
+            const svgRect = svg.getBoundingClientRect();
+
+            PATIENT_CONNECTIONS.forEach((conn) => {
+                const elemFrom = document.getElementById(conn.from);
+                const elemTo = document.getElementById(conn.to);
+                if (!elemFrom || !elemTo) return;
+
+                const rFrom = elemFrom.getBoundingClientRect();
+                const rTo = elemTo.getBoundingClientRect();
+
+                const x1 = (rFrom.left + rFrom.width / 2) - svgRect.left;
+                const y1 = (rFrom.top + rFrom.height) - svgRect.top;
+                const x2 = (rTo.left + rTo.width / 2) - svgRect.left;
+                const y2 = rTo.top - svgRect.top;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const deltaY = Math.abs(y2 - y1) * 0.5;
+                const d = `M ${x1} ${y1} C ${x1} ${y1 + deltaY}, ${x2} ${y2 - deltaY}, ${x2} ${y2}`;
+
+                path.setAttribute('d', d);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#10b981');
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('stroke-opacity', '0.55');
+                path.setAttribute('marker-end', 'url(#arrowPatient)');
+                path.setAttribute('class', `patient-connection-line ${isFlowAnimating ? 'flow-line-active' : ''}`);
+
+                svg.appendChild(path);
+            });
+        }
+
+        // Render Users Table
+        function renderUsersTable() {
+            const tbody = document.getElementById('userTableBody');
+            if (!tbody) return;
+
+            tbody.innerHTML = USERS_DB.map(u => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                    <td class="p-3">
+                        <strong class="text-slate-900 dark:text-white font-sans">${u.name}</strong>
+                        <span class="block text-[10px] text-slate-400 font-mono">@${u.user}</span>
+                    </td>
+                    <td class="p-3 font-semibold text-sky-600 dark:text-sky-400">${u.role}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-red-100 text-red-800'}">
+                            ${u.active ? 'Ativo' : 'Inativo'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-slate-500 font-mono">${u.lastAccess}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="toggleUserStatus(${u.id})" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-200 text-[10px]">
+                            ${u.active ? 'Desativar' : 'Ativar'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAuditLogs() {
+            const container = document.getElementById('auditLogContent');
+            if (!container) return;
+            container.innerHTML = AUDIT_LOGS.map(log => `<div class="border-b border-slate-800/80 pb-1">${log}</div>`).join('');
+        }
+
+        function toggleUserStatus(id) {
+            const user = USERS_DB.find(u => u.id === id);
+            if (user) {
+                user.active = !user.active;
+                AUDIT_LOGS.unshift(`${new Date().toLocaleTimeString()} - [UTILIZADOR] Estado do utilizador '${user.user}' alterado para ${user.active ? 'Ativo' : 'Inativo'}`);
+                renderUsersTable();
+                renderAuditLogs();
+            }
+        }
+
+        function calculatePriority() {
+            const temp = parseFloat(document.getElementById('vTemp').value) || 36.5;
+            const spo2 = parseInt(document.getElementById('vSpO2').value) || 98;
+            const badge = document.getElementById('mancPriorityBadge');
+            const title = document.getElementById('mancPriorityTitle');
+            const time = document.getElementById('mancPriorityTime');
+
+            if (spo2 < 90 || temp > 39.5) {
+                badge.className = "manc-red p-6 rounded-2xl text-center shadow-lg transition-all";
+                title.innerText = "VERMELHO (EMERGÊNCIA)";
+                time.innerText = "Tempo Alvo Atendimento: IMEDIATO (0 Minutos)";
+            } else if (temp >= 38.5 || spo2 <= 94) {
+                badge.className = "manc-orange p-6 rounded-2xl text-center shadow-lg transition-all";
+                title.innerText = "LARANJA (URGENTE)";
+                time.innerText = "Tempo Alvo Atendimento: ≤ 10 Minutos";
+            } else {
+                badge.className = "manc-yellow p-6 rounded-2xl text-center shadow-lg transition-all";
+                title.innerText = "AMARELO (POUCO URGENTE)";
+                time.innerText = "Tempo Alvo Atendimento: ≤ 60 Minutos";
+            }
+        }
+
+        function confirmTriagem() {
+            alert("Triagem de Manchester registada com sucesso! Paciente encaminhado para a Fila do Consultório Médico.");
+            AUDIT_LOGS.unshift(`${new Date().toLocaleTimeString()} - [TRIAGEM] Registo efetuado para utente ANG-2026-88492`);
+            renderAuditLogs();
+        }
+
+        function savePEPRecord() {
+            alert("Prontuário Eletrónico do Paciente (PEP) assinado digitalmente e guardado com sucesso!");
+            AUDIT_LOGS.unshift(`${new Date().toLocaleTimeString()} - [PEP] Consulta e prescrição médica concluída por Dr. António Agostinho`);
+            renderAuditLogs();
+        }
+
+        function handlePatientRegistration(e) {
+            e.preventDefault();
+            const nome = document.getElementById('regNome').value;
+            const bi = document.getElementById('regBI').value;
+            const nasc = document.getElementById('regDataNasc').value;
+            const emerg = document.getElementById('regEmergencia').value;
+
+            document.getElementById('cardNome').innerText = nome;
+            document.getElementById('cardBI').innerText = bi;
+            document.getElementById('cardNasc').innerText = nasc;
+            document.getElementById('cardEmergencia').innerText = emerg;
+
+            alert(`Paciente ${nome} registado com sucesso! Cartão do paciente emitido.`);
+            AUDIT_LOGS.unshift(`${new Date().toLocaleTimeString()} - [PACIENTE] Novo registo efetuado: ${nome} (BI: ${bi})`);
+            renderAuditLogs();
+        }
+
+        function occupyBed(bedId) {
+            if (confirm(`Deseja alocar o paciente na cama ${bedId}?`)) {
+                alert(`Cama ${bedId} reservada com sucesso!`);
+            }
+        }
+
+        function dispenseDrug(drugName) {
+            alert(`Dispensação de ${drugName} registada com sucesso com abate automático no stock!`);
+            AUDIT_LOGS.unshift(`${new Date().toLocaleTimeString()} - [FARMÁCIA] Dispensação de ${drugName} efetuada no balcão`);
+            renderAuditLogs();
+        }
+
+        function renderTreeList() {
+            const container = document.getElementById('treeListContent');
+            if (!container) return;
+            container.innerHTML = `
+                <div class="space-y-1">
+                    <div class="font-bold text-sky-600 dark:text-sky-400">SIGH-ANGOLA (v1.0 • Arquitetura Integrada Hospitalar)</div>
+                    <div class="pl-4 border-l-2 border-slate-200 dark:border-slate-800 space-y-2">
+                        <div>├── Módulo 1: Gestão de Utilizadores (13 Perfis Iniciais & Audit Trail)</div>
+                        <div>├── Módulos 16/17: Registo de Pacientes & Cartão com QR Code Privado</div>
+                        <div>├── Módulo 18: Triagem de Manchester & Sinais Vitais</div>
+                        <div>├── Módulos 19/20: Consultas Médicas & Prontuário Eletrónico (PEP)</div>
+                        <div>├── Módulos 21/22: Internamento & Dashboard de Gestão de Camas</div>
+                        <div>└── Módulos 23/24: Farmácia, Armazém, Lotes & Requisições</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Tab Navigation Logic
+        window.addEventListener('DOMContentLoaded', () => {
+            renderUsersTable();
+            renderAuditLogs();
+            renderTreeList();
+
+            setTimeout(drawPatientConnections, 100);
+            window.addEventListener('resize', drawPatientConnections);
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const viewPanels = document.querySelectorAll('.view-panel');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => {
+                        b.classList.remove('active', 'bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+                        b.classList.add('text-slate-600', 'dark:text-slate-400');
+                    });
+                    btn.classList.add('active', 'bg-white', 'dark:bg-slate-700', 'text-slate-900', 'dark:text-white', 'shadow-sm');
+
+                    viewPanels.forEach(p => p.classList.add('hidden'));
+
+                    if (btn.id === 'tabPatientFlow') {
+                        document.getElementById('viewPatientFlowContainer').classList.remove('hidden');
+                        setTimeout(drawPatientConnections, 50);
+                    } else if (btn.id === 'tabArchitecture') {
+                        document.getElementById('viewArchitectureContainer').classList.remove('hidden');
+                    } else if (btn.id === 'tabModules') {
+                        document.getElementById('viewModulesContainer').classList.remove('hidden');
+                    } else if (btn.id === 'tabSpecification') {
+                        document.getElementById('viewSpecificationContainer').classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Module Sub-Pills Logic
+            const modPills = document.querySelectorAll('.mod-pill');
+            const modContents = document.querySelectorAll('.mod-content');
+
+            modPills.forEach(pill => {
+                pill.addEventListener('click', () => {
+                    modPills.forEach(p => {
+                        p.classList.remove('active', 'bg-sky-500', 'text-white');
+                        p.classList.add('bg-slate-200', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
+                    });
+                    pill.classList.add('active', 'bg-sky-500', 'text-white');
+
+                    modContents.forEach(c => c.classList.add('hidden'));
+                    const targetId = pill.getAttribute('data-mod');
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
+            });
+
+            // Theme Toggle
+            function toggleDarkMode() {
+                document.documentElement.classList.toggle('dark');
+            }
+            document.getElementById('themeToggle').addEventListener('click', toggleDarkMode);
+            document.getElementById('themeToggleMobile').addEventListener('click', toggleDarkMode);
+
+            // Export / Print
+            document.getElementById('exportBtn').addEventListener('click', () => {
+                window.print();
+            });
+        });
+    </script>
+</body>
+</html>
