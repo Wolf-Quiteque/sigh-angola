@@ -1,6 +1,11 @@
 import {
   appointmentSchema,
   canWrite,
+  canReception,
+  canTriage,
+  canConsult,
+  triageSchema,
+  prescriptionItemSchema,
   patientInputSchema,
   type Database,
   type PatientInput,
@@ -8,7 +13,50 @@ import {
 } from './schema';
 import { normalize, today } from '@/lib/format';
 
+export type ClinicalCommand =
+  | {
+      type: 'triage.save';
+      episodeId: string;
+      chiefComplaint: string;
+      priority: 'Vermelho' | 'Laranja' | 'Amarelo' | 'Verde' | 'Azul';
+      temperature: number;
+      systolic: number;
+      diastolic: number;
+      heartRate: number;
+      respiratoryRate: number;
+      oxygenSaturation: number;
+      weight: number | null;
+      height: number | null;
+      notes: string;
+    }
+  | { type: 'consultation.start'; episodeId: string; professionalId: string }
+  | {
+      type: 'consultation.save';
+      consultationId: string;
+      history: string;
+      allergies: string;
+      diagnosis: string;
+      procedures: string;
+      evolution: string;
+      prescriptions: Array<{
+        id?: string;
+        medication: string;
+        dose: string;
+        route: string;
+        frequency: string;
+        duration: string;
+        notes: string;
+      }>;
+    }
+  | {
+      type: 'consultation.complete';
+      consultationId: string;
+      outcome: 'Alta ambulatória' | 'Observação' | 'Internamento' | 'Transferência';
+    }
+  | { type: 'consultation.amend'; consultationId: string; reason: string; text: string };
+
 export type Command =
+  | ClinicalCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -39,6 +87,13 @@ export function executeCommand(
   now = new Date().toISOString(),
 ): Database {
   if (!canWrite(session)) fail('O perfil Direcção tem acesso apenas de leitura.');
+  if (
+    ['patient.save', 'appointment.save', 'appointment.status', 'admission.create'].includes(
+      command.type,
+    ) &&
+    !canReception(session)
+  )
+    fail('Este perfil não tem permissão para operar a recepção.');
   const db = structuredClone(current);
   let entityId = '';
   let action = '';
@@ -164,6 +219,125 @@ export function executeCommand(
     });
     action = 'Chegada registada';
     detail = `${patient.name} · ${a ? 'Com marcação' : 'Admissão directa'}`;
+  }
+  if (command.type === 'triage.save') {
+    if (!canTriage(session)) fail('Este perfil não tem permissão para realizar triagem.');
+    const episode =
+      db.episodes.find((e) => e.id === command.episodeId) ?? fail('Episódio não encontrado.');
+    if (episode.status !== 'Aguarda triagem') fail('Este episódio já não aguarda triagem.');
+    if (db.triages.some((t) => t.episodeId === episode.id))
+      fail('Este episódio já possui uma triagem.');
+    const parsed = triageSchema.safeParse({
+      ...command,
+      id: crypto.randomUUID(),
+      patientId: episode.patientId,
+      nurse: session.name,
+      recordedAt: now,
+    });
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues[0]?.message || 'Verifique todos os sinais vitais.');
+    }
+    db.triages.push(parsed.data);
+    episode.status = 'Aguarda consulta';
+    entityId = parsed.data.id;
+    action = 'Triagem concluída';
+    detail = `${patientFor(episode.patientId).name} · Prioridade ${parsed.data.priority}`;
+  }
+  if (command.type === 'consultation.start') {
+    if (!canConsult(session)) fail('Este perfil não tem permissão para iniciar consultas.');
+    const episode =
+      db.episodes.find((e) => e.id === command.episodeId) ?? fail('Episódio não encontrado.');
+    if (
+      episode.status !== 'Aguarda consulta' ||
+      !db.triages.some((t) => t.episodeId === episode.id)
+    )
+      fail('A consulta só pode começar depois da triagem.');
+    if (db.consultations.some((c) => c.episodeId === episode.id))
+      fail('Este episódio já possui uma consulta.');
+    const professional =
+      db.professionals.find((p) => p.id === command.professionalId) ??
+      fail('Seleccione um médico válido.');
+    entityId = crypto.randomUUID();
+    db.consultations.push({
+      id: entityId,
+      episodeId: episode.id,
+      patientId: episode.patientId,
+      professionalId: professional.id,
+      startedAt: now,
+      completedAt: null,
+      status: 'Em curso',
+      history: '',
+      allergies: '',
+      diagnosis: '',
+      procedures: '',
+      evolution: '',
+      outcome: null,
+      prescriptions: [],
+      amendments: [],
+    });
+    episode.status = 'Em consulta';
+    action = 'Consulta iniciada';
+    detail = `${patientFor(episode.patientId).name} · ${professional.name}`;
+  }
+  if (command.type === 'consultation.save') {
+    if (!canConsult(session))
+      fail('Este perfil não tem permissão para registar informação clínica.');
+    const consultation =
+      db.consultations.find((c) => c.id === command.consultationId) ??
+      fail('Consulta não encontrada.');
+    if (consultation.status !== 'Em curso')
+      fail('Uma consulta concluída não pode ser alterada. Utilize uma adenda.');
+    const prescriptions = command.prescriptions.map((item) =>
+      prescriptionItemSchema.parse({ ...item, id: item.id || crypto.randomUUID() }),
+    );
+    Object.assign(consultation, {
+      history: command.history.trim(),
+      allergies: command.allergies.trim(),
+      diagnosis: command.diagnosis.trim(),
+      procedures: command.procedures.trim(),
+      evolution: command.evolution.trim(),
+      prescriptions,
+    });
+    entityId = consultation.id;
+    action = 'Consulta guardada';
+    detail = `${patientFor(consultation.patientId).name} · ${prescriptions.length} prescrição(ões)`;
+  }
+  if (command.type === 'consultation.complete') {
+    if (!canConsult(session)) fail('Este perfil não tem permissão para concluir consultas.');
+    const consultation =
+      db.consultations.find((c) => c.id === command.consultationId) ??
+      fail('Consulta não encontrada.');
+    if (consultation.status !== 'Em curso') fail('Esta consulta já foi concluída.');
+    if (!consultation.diagnosis.trim() || !consultation.evolution.trim())
+      fail('Registe o diagnóstico e a evolução antes de concluir.');
+    const episode =
+      db.episodes.find((e) => e.id === consultation.episodeId) ?? fail('Episódio não encontrado.');
+    consultation.status = 'Concluída';
+    consultation.completedAt = now;
+    consultation.outcome = command.outcome;
+    episode.status = 'Concluído';
+    entityId = consultation.id;
+    action = 'Consulta concluída';
+    detail = `${patientFor(consultation.patientId).name} · ${command.outcome}`;
+  }
+  if (command.type === 'consultation.amend') {
+    if (!canConsult(session)) fail('Este perfil não tem permissão para acrescentar adendas.');
+    const consultation =
+      db.consultations.find((c) => c.id === command.consultationId) ??
+      fail('Consulta não encontrada.');
+    if (consultation.status !== 'Concluída') fail('Adendas destinam-se a consultas concluídas.');
+    if (command.reason.trim().length < 3 || command.text.trim().length < 3)
+      fail('Indique o motivo e o conteúdo da adenda.');
+    consultation.amendments.push({
+      id: crypto.randomUUID(),
+      at: now,
+      author: session.name,
+      reason: command.reason.trim(),
+      text: command.text.trim(),
+    });
+    entityId = consultation.id;
+    action = 'Adenda clínica registada';
+    detail = `${patientFor(consultation.patientId).name} · ${command.reason.trim()}`;
   }
   db.revision++;
   db.audit.unshift({

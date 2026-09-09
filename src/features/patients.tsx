@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Plus, ArrowLeft, Pencil, CalendarPlus, LogIn, ArrowUpRight } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
-import { canWrite } from '@/domain/schema';
+import { canReception } from '@/domain/schema';
 import { PageHeader, Panel, SearchInput, PatientCell, Badge, Empty, Status } from '@/components/ui';
 import { formatDate, normalize, age, initials } from '@/lib/format';
 import { PatientForm, AppointmentForm, AdmissionForm } from './reception/forms';
@@ -34,7 +34,7 @@ export function Patients() {
         title="Pacientes"
         description="Uma identificação única. Um histórico que acompanha cada paciente."
       >
-        {canWrite(session) && (
+        {canReception(session) && (
           <button className="button primary" onClick={() => setForm(true)}>
             <Plus size={18} />
             Novo paciente
@@ -176,7 +176,7 @@ export function PatientDetail({ id }: { id: string }) {
         title={patient.name}
         description={`${patient.number} · ${age(patient.birthDate)} anos · ${patient.sex}`}
       >
-        {canWrite(session) && (
+        {canReception(session) && (
           <>
             <button className="button secondary" onClick={() => setForm('edit')}>
               <Pencil size={16} />
@@ -213,7 +213,7 @@ export function PatientDetail({ id }: { id: string }) {
               </div>
             ))}
           </dl>
-          {canWrite(session) && (
+          {canReception(session) && (
             <div className="profile-footer">
               <button
                 className="button secondary full-width"
@@ -249,6 +249,11 @@ export function PatientDetail({ id }: { id: string }) {
                         {formatDate(e.arrivedAt, true)} ·{' '}
                         {e.appointmentId ? 'Com marcação' : 'Admissão directa'}
                       </small>
+                      {db.consultations.some((c) => c.episodeId === e.id) && (
+                        <Link className="text-link" href={'/clinica/' + e.id}>
+                          Abrir registo clínico
+                        </Link>
+                      )}
                     </div>
                   </div>
                 ))}

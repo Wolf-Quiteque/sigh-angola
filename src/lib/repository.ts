@@ -23,7 +23,14 @@ function read(): Database {
     return db;
   }
   try {
-    return databaseSchema.parse(JSON.parse(raw));
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (parsed.version === 1) {
+      parsed.version = 2;
+      parsed.triages = [];
+      parsed.consultations = [];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    }
+    return databaseSchema.parse(parsed);
   } catch {
     throw new Error(
       'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a demonstração.',

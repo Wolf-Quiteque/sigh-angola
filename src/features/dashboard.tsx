@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
 import { Badge, PageHeader, Panel, TextLink, PatientCell } from '@/components/ui';
-import { canWrite } from '@/domain/schema';
+import { canReception } from '@/domain/schema';
 import { today, formatDate, formatTime, localDate } from '@/lib/format';
 import { AppointmentTable } from './reception/appointment-table';
 import { PatientForm, AppointmentForm, AdmissionForm } from './reception/forms';
@@ -70,7 +70,7 @@ export function Dashboard() {
         title="Visão geral"
         description="Acompanhe o atendimento e organize o dia da sua equipa."
       >
-        {canWrite(session) && (
+        {canReception(session) && (
           <button className="button primary" onClick={() => setForm('patient')}>
             <Plus size={18} />
             Novo paciente
@@ -143,7 +143,7 @@ export function Dashboard() {
                 {
                   name: 'Triagem',
                   detail: 'Pacientes a aguardar',
-                  count: active.length,
+                  count: active.filter((e) => e.status === 'Aguarda triagem').length,
                   icon: ListOrdered,
                 },
               ].map(({ name, detail, count, icon: Icon }, i) => (
@@ -191,7 +191,7 @@ export function Dashboard() {
                   key: 'admission',
                 },
               ].map(({ name, detail, icon: Icon, key }) => (
-                <button key={key} disabled={!canWrite(session)} onClick={() => setForm(key)}>
+                <button key={key} disabled={!canReception(session)} onClick={() => setForm(key)}>
                   <span className="quick-icon">
                     <Icon size={19} />
                   </span>
@@ -227,9 +227,9 @@ export function Dashboard() {
             </Link>
           </Panel>
           <div className="roadmap-card">
-            <Badge tone="success">FASE 1 · FUNDAÇÃO</Badge>
+            <Badge tone="success">FASE 2 · CLÍNICA</Badge>
             <h2>Crescer, passo a passo.</h2>
-            <p>Uma plataforma integrada começa com processos bem definidos.</p>
+            <p>Recepção, triagem e consulta já partilham o mesmo processo.</p>
             <Link href="/roteiro">
               Conhecer as próximas fases
               <ArrowUpRightIcon />

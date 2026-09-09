@@ -4,7 +4,7 @@ import { dayOffset, today } from '@/lib/format';
 export function createSeed(base = today()): Database {
   const unitId = seed.unit.id;
   return databaseSchema.parse({
-    version: 1,
+    version: 2,
     revision: 0,
     unit: seed.unit,
     professionals: seed.professionals,
@@ -24,6 +24,8 @@ export function createSeed(base = today()): Database {
       unitId,
       arrivedAt: `${dayOffset(offset, base)}T${time}:00+01:00`,
     })),
+    triages: [],
+    consultations: [],
     audit: [
       {
         id: 'initial',

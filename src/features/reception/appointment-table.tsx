@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Check, LogIn, CalendarClock, X } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
-import { canWrite, type Appointment } from '@/domain/schema';
+import { canReception, type Appointment } from '@/domain/schema';
 import { PatientCell, Status, Empty } from '@/components/ui';
 import { AppointmentForm, CancelAppointmentForm } from './forms';
 import { today } from '@/lib/format';
@@ -61,7 +61,7 @@ export function AppointmentTable({
                 <th>Paciente</th>
                 <th>{compact ? 'Especialidade' : 'Profissional / especialidade'}</th>
                 <th>Estado</th>
-                {canWrite(session) && <th className="align-right">Acções</th>}
+                {canReception(session) && <th className="align-right">Acções</th>}
               </tr>
             </thead>
             <tbody>
@@ -85,7 +85,7 @@ export function AppointmentTable({
                     <td>
                       <Status value={a.status} />
                     </td>
-                    {canWrite(session) && (
+                    {canReception(session) && (
                       <td>
                         <div className="table-actions">
                           {a.status === 'Marcada' && (

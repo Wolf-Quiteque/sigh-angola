@@ -7,6 +7,8 @@ import type { Command } from '@/domain/commands';
 const sessions: Record<Role, Session> = {
   Administrador: { name: 'Ana Manuel', role: 'Administrador' },
   Recepcionista: { name: 'João Domingos', role: 'Recepcionista' },
+  Enfermeiro: { name: 'Enf. Carlos Vunge', role: 'Enfermeiro' },
+  Médico: { name: 'Dra. Helena Manuel', role: 'Médico' },
   Direcção: { name: 'Isabel Francisco', role: 'Direcção' },
 };
 type Context = {

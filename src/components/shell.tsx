@@ -8,6 +8,8 @@ import {
   Users,
   CalendarDays,
   ListOrdered,
+  HeartPulse,
+  Stethoscope,
   ShieldCheck,
   Settings2,
   Route,
@@ -27,6 +29,8 @@ const navigation = [
   { href: '/pacientes', label: 'Pacientes', icon: Users },
   { href: '/agenda', label: 'Agenda de consultas', icon: CalendarDays },
   { href: '/atendimento', label: 'Fila de atendimento', icon: ListOrdered },
+  { href: '/triagem', label: 'Triagem', icon: HeartPulse },
+  { href: '/consultas', label: 'Consultas médicas', icon: Stethoscope },
   { href: '/auditoria', label: 'Registo de actividade', icon: ShieldCheck },
   { href: '/configuracoes', label: 'Configurações', icon: Settings2 },
   { href: '/roteiro', label: 'Roteiro da plataforma', icon: Route },
@@ -67,7 +71,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <nav aria-label="Navegação principal">
           {navigation.map(({ href, label, icon: Icon }, index) => (
             <div key={href}>
-              {index === 4 && <div className="nav-section">GESTÃO E SISTEMA</div>}
+              {index === 6 && <div className="nav-section">GESTÃO E SISTEMA</div>}
               <Link
                 href={href}
                 onClick={() => setOpen(false)}
@@ -97,7 +101,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <div className="sidebar-foot">
             <span className="status-dot" />
-            Ambiente de demonstração<span>v0.1</span>
+            Ambiente de demonstração<span>v0.2</span>
           </div>
         </div>
       </aside>

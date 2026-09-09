@@ -18,7 +18,7 @@ npm.cmd run build
 npm.cmd run start
 ```
 
-## Entrega actual: fases 0 e 1
+## Entrega actual: fases 0 a 2
 
 - Painel de recepção com indicadores calculados dos dados.
 - Pesquisa, filtros, paginação, registo e edição de pacientes; ficha demográfica e histórico.
@@ -28,8 +28,12 @@ npm.cmd run start
 - Perfis de demonstração, permissões no domínio e auditoria de alterações.
 - Persistência local entre recarregamentos, exportação JSON e reposição do cenário.
 - Navegação responsiva, diálogos com foco e mensagens de erro.
+- Triagem com queixa, sinais vitais completos, observações e prioridade atribuída pelo profissional.
+- Fila médica por prioridade; consulta com antecedentes, alergias, diagnóstico, procedimentos, evolução e destino.
+- Prescrição estruturada e processo longitudinal, com registos finalizados protegidos e adendas rastreáveis.
+- Migração automática dos dados locais da fase 1 para o esquema clínico da fase 2.
 
-O perfil é seleccionado no cabeçalho. Administrador e Recepcionista podem operar a recepção; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
+O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; Recepcionista opera a recepção; Enfermeiro realiza triagens; Médico realiza consultas; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
 
 ## Percurso de demonstração
 
@@ -41,7 +45,7 @@ O perfil é seleccionado no cabeçalho. Administrador e Recepcionista podem oper
 6. Consultar **Registo de actividade** para ver as operações.
 7. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
 
-Triagem e consulta clínica serão implementadas na fase 2. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
+Laboratório e imagiologia constituem a próxima fase. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
 
 ## Estrutura
 

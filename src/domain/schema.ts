@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-export const roles = ['Administrador', 'Recepcionista', 'Direcção'] as const;
+export const roles = [
+  'Administrador',
+  'Recepcionista',
+  'Enfermeiro',
+  'Médico',
+  'Direcção',
+] as const;
 export type Role = (typeof roles)[number];
 const date = z
   .string()
@@ -61,11 +67,66 @@ export const episodeSchema = z.object({
   arrivedAt: z.string(),
   service: z.string(),
   reason: z.string(),
-  status: z.enum(['Aguarda triagem', 'Em consulta', 'Concluído']),
+  status: z.enum(['Aguarda triagem', 'Aguarda consulta', 'Em consulta', 'Concluído']),
 });
 export type Episode = z.infer<typeof episodeSchema>;
+export const triageSchema = z.object({
+  id: z.string(),
+  episodeId: z.string(),
+  patientId: z.string(),
+  nurse: z.string(),
+  recordedAt: z.string(),
+  chiefComplaint: z.string().trim().min(3),
+  priority: z.enum(['Vermelho', 'Laranja', 'Amarelo', 'Verde', 'Azul']),
+  temperature: z.number().min(25).max(45),
+  systolic: z.number().int().min(40).max(300),
+  diastolic: z.number().int().min(20).max(200),
+  heartRate: z.number().int().min(20).max(250),
+  respiratoryRate: z.number().int().min(5).max(80),
+  oxygenSaturation: z.number().int().min(40).max(100),
+  weight: z.number().positive().max(500).nullable(),
+  height: z.number().positive().max(250).nullable(),
+  notes: z.string().max(2000),
+});
+export type Triage = z.infer<typeof triageSchema>;
+export const prescriptionItemSchema = z.object({
+  id: z.string(),
+  medication: z.string().trim().min(2),
+  dose: z.string().trim().min(1),
+  route: z.string().trim().min(1),
+  frequency: z.string().trim().min(1),
+  duration: z.string().trim().min(1),
+  notes: z.string().max(500),
+});
+export type PrescriptionItem = z.infer<typeof prescriptionItemSchema>;
+export const consultationSchema = z.object({
+  id: z.string(),
+  episodeId: z.string(),
+  patientId: z.string(),
+  professionalId: z.string(),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+  status: z.enum(['Em curso', 'Concluída']),
+  history: z.string().max(3000),
+  allergies: z.string().max(1000),
+  diagnosis: z.string().max(2000),
+  procedures: z.string().max(2000),
+  evolution: z.string().max(3000),
+  outcome: z.enum(['Alta ambulatória', 'Observação', 'Internamento', 'Transferência']).nullable(),
+  prescriptions: z.array(prescriptionItemSchema),
+  amendments: z.array(
+    z.object({
+      id: z.string(),
+      at: z.string(),
+      author: z.string(),
+      reason: z.string().trim().min(3),
+      text: z.string().trim().min(3),
+    }),
+  ),
+});
+export type Consultation = z.infer<typeof consultationSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(1),
+  version: z.literal(2),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -77,6 +138,8 @@ export const databaseSchema = z.object({
   patients: z.array(patientSchema),
   appointments: z.array(appointmentSchema),
   episodes: z.array(episodeSchema),
+  triages: z.array(triageSchema),
+  consultations: z.array(consultationSchema),
   audit: z.array(
     z.object({
       id: z.string(),
@@ -91,3 +154,8 @@ export const databaseSchema = z.object({
 export type Database = z.infer<typeof databaseSchema>;
 export type Session = { name: string; role: Role };
 export const canWrite = (session: Session) => session.role !== 'Direcção';
+export const canReception = (session: Session) =>
+  ['Administrador', 'Recepcionista'].includes(session.role);
+export const canTriage = (session: Session) =>
+  ['Administrador', 'Enfermeiro'].includes(session.role);
+export const canConsult = (session: Session) => ['Administrador', 'Médico'].includes(session.role);

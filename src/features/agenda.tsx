@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Plus, ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
-import { canWrite } from '@/domain/schema';
+import { canReception } from '@/domain/schema';
 import { PageHeader, Panel, Badge } from '@/components/ui';
 import { dayOffset, today, formatDate } from '@/lib/format';
 import { AppointmentForm } from './reception/forms';
@@ -29,7 +29,7 @@ export function Agenda() {
         title="Agenda de consultas"
         description="Organize marcações, confirme presenças e registe chegadas."
       >
-        {canWrite(session) && (
+        {canReception(session) && (
           <button className="button primary" onClick={() => setForm(true)}>
             <Plus size={18} />
             Marcar consulta

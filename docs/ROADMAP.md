@@ -33,17 +33,19 @@ Cobertura: RF03, RF04, RF06 (agenda), RF16 (recepção), RF19 (mutações locais
 
 ## Fase 2 — triagem, consulta e processo clínico
 
-Estado: por iniciar. RF05, RF06 clínico, RF07, RF08.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RF05, RF06 clínico, RF07, RF08.
 
 - Triagem: queixa, sinais vitais completos, observações, prioridade atribuída por profissional; regras clínicas a validar com equipa clínica.
 - Consulta: chamar/iniciar/concluir, antecedentes, alergias, diagnóstico, procedimentos, evolução, destino e alta ambulatória.
 - Prescrição estruturada: medicamento, dose, via, frequência, duração, observações e prescritor; ligação ao episódio e paciente.
 - Processo clínico longitudinal; correções rastreáveis, sem apagar notas finalizadas.
-- Aceitação: admissão → triagem → consulta → prescrição → conclusão; referências consistentes e acesso por perfil.
+- Aceitação: admissão → triagem manual → fila por prioridade → consulta → prescrição → conclusão → processo longitudinal; referências consistentes, migração da fase 1, permissões por perfil e adendas sem alterar o registo finalizado.
+
+A classificação de prioridade é sempre atribuída pelo profissional. A demo não calcula, recomenda ou valida protocolos clínicos. Destinos de internamento e transferência ficam pendentes até à fase 4.
 
 ## Fase 3 — laboratório e imagiologia
 
-Estado: por iniciar. RF11, RF12.
+Estado: próxima fase. RF11, RF12.
 
 - Pedido → colheita → processamento → resultado → validação → processo clínico.
 - Imagiologia: pedido → agenda → realização → relatório → validação.

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Plus, ListOrdered, Clock3 } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
-import { canWrite } from '@/domain/schema';
+import { canReception } from '@/domain/schema';
 import { PageHeader, Panel, SearchInput, PatientCell, Status, Empty, Badge } from '@/components/ui';
 import { normalize, formatDate, formatTime } from '@/lib/format';
 import { AdmissionForm } from './reception/forms';
@@ -27,7 +27,7 @@ export function Queue() {
         title="Fila de atendimento"
         description="Acompanhe as admissões e os pacientes que aguardam triagem."
       >
-        {canWrite(session) && (
+        {canReception(session) && (
           <button className="button primary" onClick={() => setForm(true)}>
             <Plus size={18} />
             Admissão directa
