@@ -27,6 +27,17 @@ function migrate(parsed: Record<string, unknown>) {
     parsed.version = 3;
     parsed.exams = [];
   }
+  if (parsed.version === 3) {
+    parsed.version = 4;
+    // Enfermarias e camas são dados de referência da unidade, não registos do utilizador.
+    // Sem internamentos migrados, nenhuma cama pode ficar ocupada.
+    const reference = createSeed();
+    parsed.wards = reference.wards;
+    parsed.beds = reference.beds.map((bed) =>
+      bed.status === 'Ocupada' ? { ...bed, status: 'Livre' as const } : bed,
+    );
+    parsed.admissions = [];
+  }
   return parsed.version !== from;
 }
 function read(): Database {

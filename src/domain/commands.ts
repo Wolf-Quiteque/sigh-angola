@@ -5,10 +5,14 @@ import {
   canTriage,
   canConsult,
   canDiagnostics,
+  canWard,
+  admissionSchema,
   examSchema,
   triageSchema,
   prescriptionItemSchema,
   patientInputSchema,
+  type Admission,
+  type Bed,
   type Database,
   type Exam,
   type ExamStatus,
@@ -82,9 +86,50 @@ export type DiagnosticCommand =
   | { type: 'exam.validate'; examId: string; notes: string }
   | { type: 'exam.cancel'; examId: string; reason: string };
 
+export type InpatientCommand =
+  | {
+      type: 'inpatient.admit';
+      episodeId: string;
+      bedId: string;
+      responsibleId: string;
+      reason: string;
+      diagnosis: string;
+    }
+  | {
+      type: 'inpatient.note';
+      admissionId: string;
+      noteType: 'Evolução' | 'Procedimento' | 'Administração de medicamento';
+      text: string;
+    }
+  | { type: 'inpatient.transfer'; admissionId: string; toBedId: string; reason: string }
+  | {
+      type: 'inpatient.event';
+      admissionId: string;
+      eventType: 'Parto' | 'Cirurgia';
+      description: string;
+    }
+  | {
+      type: 'inpatient.discharge';
+      admissionId: string;
+      outcome:
+        | 'Alta clínica'
+        | 'Alta contra parecer médico'
+        | 'Transferência para outra unidade'
+        | 'Óbito';
+      destination: string;
+      notes: string;
+    }
+  | {
+      type: 'bed.status';
+      bedId: string;
+      status: 'Livre' | 'Bloqueada' | 'Em manutenção';
+      note: string;
+    };
+
 export type Command =
   | ClinicalCommand
   | DiagnosticCommand
+  | InpatientCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -343,7 +388,7 @@ export function executeCommand(
     consultation.status = 'Concluída';
     consultation.completedAt = now;
     consultation.outcome = command.outcome;
-    episode.status = 'Concluído';
+    episode.status = command.outcome === 'Internamento' ? 'Aguarda internamento' : 'Concluído';
     entityId = consultation.id;
     action = 'Consulta concluída';
     detail = `${patientFor(consultation.patientId).name} · ${command.outcome}`;
@@ -516,6 +561,149 @@ export function executeCommand(
     entityId = exam.id;
     action = 'Pedido de exame cancelado';
     detail = `${examLabel(exam)} · ${command.reason.trim()}`;
+  }
+  const admissionFor = (id: string): Admission =>
+    db.admissions.find((a) => a.id === id) ?? fail('Internamento não encontrado.');
+  const bedFor = (id: string): Bed =>
+    db.beds.find((b) => b.id === id && b.unitId === db.unit.id) ?? fail('Cama não encontrada.');
+  const bedLabel = (bed: Bed) =>
+    `${db.wards.find((w) => w.id === bed.wardId)?.name ?? 'Enfermaria'} · ${bed.code}`;
+  const openStay = (admission: Admission) => {
+    if (admission.status !== 'Internado')
+      fail('Este internamento já teve alta e não pode ser alterado.');
+    return admission;
+  };
+  if (command.type === 'inpatient.admit') {
+    if (!canConsult(session)) fail('A admissão em enfermaria é um acto médico.');
+    const episode =
+      db.episodes.find((e) => e.id === command.episodeId) ?? fail('Episódio não encontrado.');
+    if (episode.status !== 'Aguarda internamento')
+      fail('Só é possível internar um episódio encaminhado para internamento na consulta.');
+    if (db.admissions.some((a) => a.patientId === episode.patientId && a.status === 'Internado'))
+      fail('O paciente já tem um internamento activo.');
+    const bed = bedFor(command.bedId);
+    if (bed.status !== 'Livre') fail(`A cama ${bedLabel(bed)} está ${bed.status.toLowerCase()}.`);
+    const responsible =
+      db.professionals.find((p) => p.id === command.responsibleId) ??
+      fail('Seleccione o médico responsável.');
+    const parsed = admissionSchema.safeParse({
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      patientId: episode.patientId,
+      episodeId: episode.id,
+      consultationId: db.consultations.find((c) => c.episodeId === episode.id)?.id ?? null,
+      wardId: bed.wardId,
+      bedId: bed.id,
+      responsibleId: responsible.id,
+      admittedAt: now,
+      admittedBy: session.name,
+      reason: command.reason,
+      diagnosis: command.diagnosis.trim(),
+      status: 'Internado',
+      notes: [],
+      transfers: [],
+      events: [],
+      discharge: null,
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique os dados da admissão.');
+    db.admissions.push(parsed.data!);
+    bed.status = 'Ocupada';
+    episode.status = 'Internado';
+    entityId = parsed.data!.id;
+    action = 'Internamento aberto';
+    detail = `${patientFor(episode.patientId).name} · ${bedLabel(bed)} · ${responsible.name}`;
+  }
+  if (command.type === 'inpatient.note') {
+    if (!canWard(session)) fail('Este perfil não tem permissão para registar cuidados.');
+    const admission = openStay(admissionFor(command.admissionId));
+    if (command.text.trim().length < 3) fail('Escreva o registo antes de guardar.');
+    admission.notes.push({
+      id: crypto.randomUUID(),
+      at: now,
+      author: session.name,
+      type: command.noteType,
+      text: command.text.trim(),
+    });
+    entityId = admission.id;
+    action = 'Registo de enfermaria';
+    detail = `${patientFor(admission.patientId).name} · ${command.noteType}`;
+  }
+  if (command.type === 'inpatient.transfer') {
+    if (!canWard(session)) fail('Este perfil não tem permissão para transferir pacientes.');
+    const admission = openStay(admissionFor(command.admissionId));
+    if (command.reason.trim().length < 3) fail('Indique o motivo da transferência.');
+    const origin = bedFor(admission.bedId);
+    const destination = bedFor(command.toBedId);
+    if (destination.id === origin.id) fail('Escolha uma cama diferente da actual.');
+    if (destination.status !== 'Livre')
+      fail(`A cama ${bedLabel(destination)} está ${destination.status.toLowerCase()}.`);
+    // Libertar a origem e ocupar o destino fazem parte da mesma operação.
+    origin.status = 'Livre';
+    destination.status = 'Ocupada';
+    admission.transfers.push({
+      id: crypto.randomUUID(),
+      at: now,
+      author: session.name,
+      fromBedId: origin.id,
+      toBedId: destination.id,
+      reason: command.reason.trim(),
+    });
+    admission.bedId = destination.id;
+    admission.wardId = destination.wardId;
+    entityId = admission.id;
+    action = 'Transferência de cama';
+    detail = `${patientFor(admission.patientId).name} · ${bedLabel(origin)} → ${bedLabel(destination)}`;
+  }
+  if (command.type === 'inpatient.event') {
+    if (!canWard(session)) fail('Este perfil não tem permissão para registar ocorrências.');
+    const admission = openStay(admissionFor(command.admissionId));
+    if (command.description.trim().length < 3) fail('Descreva a ocorrência.');
+    admission.events.push({
+      id: crypto.randomUUID(),
+      at: now,
+      author: session.name,
+      type: command.eventType,
+      description: command.description.trim(),
+    });
+    entityId = admission.id;
+    action = `Ocorrência registada: ${command.eventType}`;
+    detail = patientFor(admission.patientId).name;
+  }
+  if (command.type === 'inpatient.discharge') {
+    if (!canConsult(session)) fail('A alta de internamento é um acto médico.');
+    const admission = openStay(admissionFor(command.admissionId));
+    if (command.outcome === 'Transferência para outra unidade' && !command.destination.trim())
+      fail('Indique a unidade de destino da referência.');
+    const bed = bedFor(admission.bedId);
+    const episode =
+      db.episodes.find((e) => e.id === admission.episodeId) ?? fail('Episódio não encontrado.');
+    admission.status = 'Alta';
+    admission.discharge = {
+      at: now,
+      author: session.name,
+      outcome: command.outcome,
+      destination: command.destination.trim(),
+      notes: command.notes.trim(),
+    };
+    bed.status = 'Livre';
+    episode.status = 'Concluído';
+    entityId = admission.id;
+    action = 'Alta de internamento';
+    detail = `${patientFor(admission.patientId).name} · ${command.outcome}`;
+  }
+  if (command.type === 'bed.status') {
+    if (!canWard(session)) fail('Este perfil não tem permissão para gerir camas.');
+    const bed = bedFor(command.bedId);
+    if (bed.status === 'Ocupada')
+      fail('Uma cama ocupada só muda de estado depois da alta ou da transferência.');
+    if (bed.status === command.status) fail('A cama já se encontra neste estado.');
+    if (command.status !== 'Livre' && !command.note.trim())
+      fail('Explique por que motivo a cama fica indisponível.');
+    bed.status = command.status;
+    bed.note = command.status === 'Livre' ? '' : command.note.trim();
+    entityId = bed.id;
+    action = 'Estado da cama actualizado';
+    detail = `${bedLabel(bed)} · ${command.status}`;
   }
   db.revision++;
   db.audit.unshift({

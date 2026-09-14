@@ -2650,3 +2650,96 @@ textarea {
     gap: 8px;
   }
 }
+
+/* Fase 4 — internamento e enfermagem */
+.ward-block {
+  padding: 16px 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.ward-block:last-child {
+  border-bottom: 0;
+}
+.ward-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.ward-heading strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+}
+.ward-heading small {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.ward-heading > div {
+  flex: 1;
+}
+.bed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+  gap: 8px;
+}
+.bed-chip {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+}
+.bed-chip:hover:not(:disabled) {
+  border-color: #c9d4d9;
+}
+.bed-chip:disabled {
+  cursor: default;
+}
+.bed-code {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.bed-chip small {
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.bed-chip.free {
+  border-left: 3px solid #5fa37c;
+}
+.bed-chip.busy {
+  border-left: 3px solid var(--primary);
+  background: var(--primary-soft);
+}
+.bed-chip.busy .bed-code {
+  color: var(--primary);
+}
+.bed-chip.blocked {
+  border-left: 3px solid #d7b45c;
+  background: #fcfbf7;
+}
+.stay-cell {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 6px;
+}
+@media (max-width: 700px) {
+  .bed-grid {
+    grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  }
+  .ward-block {
+    padding: 14px 16px 16px;
+  }
+}

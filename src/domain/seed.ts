@@ -15,7 +15,7 @@ const stamp = <T extends Offset>(value: T | null, base: string) => {
 export function createSeed(base = today()): Database {
   const unitId = seed.unit.id;
   return databaseSchema.parse({
-    version: 3,
+    version: 4,
     revision: 0,
     unit: seed.unit,
     professionals: seed.professionals,
@@ -62,6 +62,14 @@ export function createSeed(base = today()): Database {
       performance: stamp(performance, base),
       report: stamp(report, base),
       validation: stamp(e.validation, base),
+    })),
+    wards: seed.wards.map((w) => ({ ...w, unitId })),
+    beds: seed.beds.map((b) => ({ ...b, unitId })),
+    admissions: seed.admissions.map(({ admitted, notes, ...a }) => ({
+      ...a,
+      unitId,
+      admittedAt: at(admitted, base),
+      notes: notes.map((note) => stamp(note, base)),
     })),
     audit: [
       {

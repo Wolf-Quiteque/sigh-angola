@@ -233,6 +233,16 @@
       "service": "Medicina geral",
       "reason": "Episódio histórico de demonstração",
       "status": "Concluído"
+    },
+    {
+      "id": "e5",
+      "patientId": "p5",
+      "appointmentId": null,
+      "dayOffset": -2,
+      "time": "14:05",
+      "service": "Medicina geral",
+      "reason": "Febre persistente com desidratação",
+      "status": "Internado"
     }
   ],
   "triages": [
@@ -254,6 +264,25 @@
       "weight": 74,
       "height": 172,
       "notes": "Paciente consciente e orientado, hidratado."
+    },
+    {
+      "id": "t2",
+      "episodeId": "e5",
+      "patientId": "p5",
+      "nurse": "Enf. Carlos Vunge",
+      "dayOffset": -2,
+      "time": "14:20",
+      "chiefComplaint": "Febre persistente e vómitos há dois dias",
+      "priority": "Laranja",
+      "temperature": 39.1,
+      "systolic": 104,
+      "diastolic": 66,
+      "heartRate": 112,
+      "respiratoryRate": 24,
+      "oxygenSaturation": 95,
+      "weight": 58,
+      "height": 161,
+      "notes": "Mucosas secas, prostrada."
     }
   ],
   "consultations": [
@@ -295,6 +324,39 @@
           "frequency": "8/8 horas",
           "duration": "3 dias",
           "notes": "Apenas em caso de febre."
+        }
+      ],
+      "amendments": []
+    },
+    {
+      "id": "c2",
+      "episodeId": "e5",
+      "patientId": "p5",
+      "professionalId": "med-1",
+      "started": {
+        "dayOffset": -2,
+        "time": "14:40"
+      },
+      "completed": {
+        "dayOffset": -2,
+        "time": "15:10"
+      },
+      "status": "Concluída",
+      "history": "Sem doenças crónicas conhecidas.",
+      "allergies": "Nega alergias conhecidas.",
+      "diagnosis": "Síndrome febril com desidratação moderada",
+      "procedures": "Hidratação endovenosa iniciada na sala de observação.",
+      "evolution": "Mantém febre alta e intolerância oral. Internamento para hidratação e vigilância.",
+      "outcome": "Internamento",
+      "prescriptions": [
+        {
+          "id": "rx3",
+          "medication": "Soro fisiológico 0,9%",
+          "dose": "500 mL",
+          "route": "Intravenosa",
+          "frequency": "8/8 horas",
+          "duration": "2 dias",
+          "notes": "Reavaliar tolerância oral."
         }
       ],
       "amendments": []
@@ -394,6 +456,213 @@
       "report": null,
       "validation": null,
       "cancellation": null
+    }
+  ],
+  "wards": [
+    {
+      "id": "w1",
+      "name": "Enfermaria de Medicina",
+      "service": "Medicina interna"
+    },
+    {
+      "id": "w2",
+      "name": "Enfermaria de Pediatria",
+      "service": "Pediatria"
+    },
+    {
+      "id": "w3",
+      "name": "Maternidade",
+      "service": "Obstetrícia"
+    }
+  ],
+  "beds": [
+    {
+      "id": "mi-1",
+      "wardId": "w1",
+      "code": "MI-01",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mi-2",
+      "wardId": "w1",
+      "code": "MI-02",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mi-3",
+      "wardId": "w1",
+      "code": "MI-03",
+      "status": "Ocupada",
+      "note": ""
+    },
+    {
+      "id": "mi-4",
+      "wardId": "w1",
+      "code": "MI-04",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mi-5",
+      "wardId": "w1",
+      "code": "MI-05",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mi-6",
+      "wardId": "w1",
+      "code": "MI-06",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mi-7",
+      "wardId": "w1",
+      "code": "MI-07",
+      "status": "Bloqueada",
+      "note": "Reservada para isolamento respiratório."
+    },
+    {
+      "id": "mi-8",
+      "wardId": "w1",
+      "code": "MI-08",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "ped-1",
+      "wardId": "w2",
+      "code": "PED-01",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "ped-2",
+      "wardId": "w2",
+      "code": "PED-02",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "ped-3",
+      "wardId": "w2",
+      "code": "PED-03",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "ped-4",
+      "wardId": "w2",
+      "code": "PED-04",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "ped-5",
+      "wardId": "w2",
+      "code": "PED-05",
+      "status": "Em manutenção",
+      "note": "Substituição da estrutura da cama."
+    },
+    {
+      "id": "ped-6",
+      "wardId": "w2",
+      "code": "PED-06",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mat-1",
+      "wardId": "w3",
+      "code": "MAT-01",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mat-2",
+      "wardId": "w3",
+      "code": "MAT-02",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mat-3",
+      "wardId": "w3",
+      "code": "MAT-03",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mat-4",
+      "wardId": "w3",
+      "code": "MAT-04",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mat-5",
+      "wardId": "w3",
+      "code": "MAT-05",
+      "status": "Livre",
+      "note": ""
+    },
+    {
+      "id": "mat-6",
+      "wardId": "w3",
+      "code": "MAT-06",
+      "status": "Livre",
+      "note": ""
+    }
+  ],
+  "admissions": [
+    {
+      "id": "adm1",
+      "patientId": "p5",
+      "episodeId": "e5",
+      "consultationId": "c2",
+      "wardId": "w1",
+      "bedId": "mi-3",
+      "responsibleId": "med-1",
+      "admitted": {
+        "dayOffset": -2,
+        "time": "15:25"
+      },
+      "admittedBy": "Dra. Helena Manuel",
+      "reason": "Hidratação endovenosa e vigilância de febre",
+      "diagnosis": "Síndrome febril com desidratação moderada",
+      "status": "Internado",
+      "notes": [
+        {
+          "id": "n1",
+          "dayOffset": -2,
+          "time": "16:00",
+          "author": "Enf. Carlos Vunge",
+          "type": "Evolução",
+          "text": "Doente instalada na cama MI-03. Temperatura 38,6 °C. Soro em curso."
+        },
+        {
+          "id": "n2",
+          "dayOffset": -1,
+          "time": "08:15",
+          "author": "Enf. Carlos Vunge",
+          "type": "Administração de medicamento",
+          "text": "Paracetamol 1 g endovenoso administrado conforme prescrição."
+        },
+        {
+          "id": "n3",
+          "dayOffset": -1,
+          "time": "11:30",
+          "author": "Dra. Helena Manuel",
+          "type": "Evolução",
+          "text": "Apirética desde as 06:00. Tolera líquidos. Manter vigilância."
+        }
+      ],
+      "transfers": [],
+      "events": [],
+      "discharge": null
     }
   ]
 }

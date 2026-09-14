@@ -68,7 +68,14 @@ export const episodeSchema = z.object({
   arrivedAt: z.string(),
   service: z.string(),
   reason: z.string(),
-  status: z.enum(['Aguarda triagem', 'Aguarda consulta', 'Em consulta', 'Concluído']),
+  status: z.enum([
+    'Aguarda triagem',
+    'Aguarda consulta',
+    'Em consulta',
+    'Aguarda internamento',
+    'Internado',
+    'Concluído',
+  ]),
 });
 export type Episode = z.infer<typeof episodeSchema>;
 export const triageSchema = z.object({
@@ -203,8 +210,88 @@ export const examSchema = z.object({
   cancellation: stamp.extend({ reason: z.string().trim().min(3) }).nullable(),
 });
 export type Exam = z.infer<typeof examSchema>;
+export const bedStatuses = ['Livre', 'Ocupada', 'Bloqueada', 'Em manutenção'] as const;
+export type BedStatus = (typeof bedStatuses)[number];
+export const wardSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  name: z.string(),
+  service: z.string(),
+});
+export type Ward = z.infer<typeof wardSchema>;
+export const bedSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  wardId: z.string(),
+  code: z.string(),
+  status: z.enum(bedStatuses),
+  note: z.string().max(200),
+});
+export type Bed = z.infer<typeof bedSchema>;
+export const dischargeOutcomes = [
+  'Alta clínica',
+  'Alta contra parecer médico',
+  'Transferência para outra unidade',
+  'Óbito',
+] as const;
+export type DischargeOutcome = (typeof dischargeOutcomes)[number];
+export const stayNoteTypes = ['Evolução', 'Procedimento', 'Administração de medicamento'] as const;
+export const stayEventTypes = ['Parto', 'Cirurgia'] as const;
+export const admissionSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  patientId: z.string(),
+  episodeId: z.string(),
+  consultationId: z.string().nullable(),
+  wardId: z.string(),
+  bedId: z.string(),
+  responsibleId: z.string(),
+  admittedAt: z.string(),
+  admittedBy: z.string(),
+  reason: z.string().trim().min(3, 'Indique o motivo do internamento.').max(500),
+  diagnosis: z.string().max(500),
+  status: z.enum(['Internado', 'Alta']),
+  notes: z.array(
+    z.object({
+      id: z.string(),
+      at: z.string(),
+      author: z.string(),
+      type: z.enum(stayNoteTypes),
+      text: z.string().trim().min(3),
+    }),
+  ),
+  transfers: z.array(
+    z.object({
+      id: z.string(),
+      at: z.string(),
+      author: z.string(),
+      fromBedId: z.string(),
+      toBedId: z.string(),
+      reason: z.string().trim().min(3),
+    }),
+  ),
+  events: z.array(
+    z.object({
+      id: z.string(),
+      at: z.string(),
+      author: z.string(),
+      type: z.enum(stayEventTypes),
+      description: z.string().trim().min(3),
+    }),
+  ),
+  discharge: z
+    .object({
+      at: z.string(),
+      author: z.string(),
+      outcome: z.enum(dischargeOutcomes),
+      destination: z.string().max(160),
+      notes: z.string().max(2000),
+    })
+    .nullable(),
+});
+export type Admission = z.infer<typeof admissionSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(3),
+  version: z.literal(4),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -219,6 +306,9 @@ export const databaseSchema = z.object({
   triages: z.array(triageSchema),
   consultations: z.array(consultationSchema),
   exams: z.array(examSchema),
+  wards: z.array(wardSchema),
+  beds: z.array(bedSchema),
+  admissions: z.array(admissionSchema),
   audit: z.array(
     z.object({
       id: z.string(),
@@ -240,3 +330,6 @@ export const canTriage = (session: Session) =>
 export const canConsult = (session: Session) => ['Administrador', 'Médico'].includes(session.role);
 export const canDiagnostics = (session: Session) =>
   ['Administrador', 'Técnico'].includes(session.role);
+/** Enfermaria: enfermeiros e médicos registam cuidados; a admissão continua a ser um acto médico. */
+export const canWard = (session: Session) =>
+  ['Administrador', 'Enfermeiro', 'Médico'].includes(session.role);

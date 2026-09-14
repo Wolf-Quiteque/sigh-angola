@@ -33,6 +33,7 @@ import {
   Status,
 } from '@/components/ui';
 import { EpisodeExams } from '@/features/diagnostics/episode-exams';
+import { StayPanel } from '@/features/inpatient/stay';
 
 const numberValue = (data: FormData, key: string) => Number(data.get(key));
 const nullableNumber = (data: FormData, key: string) => {
@@ -703,6 +704,7 @@ export function ClinicalWorkspace({ episodeId }: { episodeId: string }) {
               onAmend={() => setAmend(true)}
             />
           )}
+          <StayPanel episodeId={episode.id} />
           {consultation && (
             <EpisodeExams
               episodeId={episode.id}

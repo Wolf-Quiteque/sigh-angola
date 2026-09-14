@@ -57,16 +57,18 @@ As transições respeitam a via correspondente: não há colheita em imagiologia
 
 ## Fase 4 — internamento e enfermagem
 
-Estado: próxima fase. RF09, RF10.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RF09, RF10.
 
 - Enfermarias, camas livres/ocupadas/bloqueadas/em manutenção; admissão, transferência e alta.
-- Médico responsável, evolução, procedimentos e administração de medicamentos; referências e contrarreferências.
+- Médico responsável, evolução, procedimentos e administração de medicamentos; referências e contrarreferências na alta.
 - Registos demonstrativos de partos, cirurgias e óbitos para estatística.
 - Aceitação: impossível atribuir uma cama ocupada ou admitir duas vezes; transferência liberta a origem e ocupa o destino na mesma operação; alta actualiza histórico e indicadores.
 
+A consulta com destino «Internamento» coloca o episódio a aguardar cama em vez de o encerrar. A admissão e a alta são actos médicos; enfermeiros registam cuidados, ocorrências e transferências. A taxa de ocupação usa como denominador as camas operacionais, excluindo bloqueadas e em manutenção.
+
 ## Fase 5 — farmácia e armazém
 
-Estado: por iniciar. RF13, RF14.
+Estado: próxima fase. RF13, RF14.
 
 - Medicamentos, materiais, consumíveis, equipamentos, fornecedores, lotes, validades e limites de stock.
 - Entrada, saída, inventário, ajuste justificado, requisição e transferência.

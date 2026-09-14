@@ -9,6 +9,7 @@ import { PageHeader, Panel, SearchInput, PatientCell, Badge, Empty, Status } fro
 import { formatDate, normalize, age, initials } from '@/lib/format';
 import { PatientForm, AppointmentForm, AdmissionForm } from './reception/forms';
 import { ExamCard } from './diagnostics/episode-exams';
+import { StayHistory } from './inpatient/stay';
 
 export function Patients() {
   const { db, session } = useDemo();
@@ -308,10 +309,11 @@ export function PatientDetail({ id }: { id: string }) {
               />
             )}
           </Panel>
+          <StayHistory patientId={id} />
           <div className="info-line">
             <Badge tone="info">Próxima fase</Badge>
             <span>
-              Internamento, camas e cuidados de enfermagem serão integrados nesta ficha na fase 4.
+              Dispensação de medicamentos e movimentos de stock serão integrados na fase 5.
             </span>
           </div>
         </div>
