@@ -26,7 +26,7 @@ const triage = {
 describe('Fase 2: fluxo clínico', () => {
   it('regista triagem manual completa e avança o episódio', () => {
     const db = executeCommand(createSeed(), triage, nurse);
-    expect(db.triages).toHaveLength(1);
+    expect(db.triages.filter((t) => t.episodeId === 'e1')).toHaveLength(1);
     expect(db.episodes.find((e) => e.id === 'e1')?.status).toBe('Aguarda consulta');
     expect(db.audit[0].detail).toContain('Laranja');
   });
@@ -62,7 +62,7 @@ describe('Fase 2: fluxo clínico', () => {
       { type: 'consultation.start', episodeId: 'e1', professionalId: 'med-1' },
       doctor,
     );
-    const consultation = db.consultations[0];
+    const consultation = db.consultations.find((c) => c.episodeId === 'e1')!;
     db = executeCommand(
       db,
       {
@@ -95,10 +95,11 @@ describe('Fase 2: fluxo clínico', () => {
       },
       doctor,
     );
-    expect(db.consultations[0].status).toBe('Concluída');
-    expect(db.consultations[0].prescriptions[0].id).toBeTruthy();
+    const saved = db.consultations.find((c) => c.id === consultation.id)!;
+    expect(saved.status).toBe('Concluída');
+    expect(saved.prescriptions[0].id).toBeTruthy();
     expect(db.episodes.find((e) => e.id === 'e1')?.status).toBe('Concluído');
-    expect(db.consultations[0].patientId).toBe(db.triages[0].patientId);
+    expect(saved.patientId).toBe(db.triages.find((t) => t.episodeId === 'e1')!.patientId);
   });
   it('exige diagnóstico e evolução para concluir', () => {
     let db = executeCommand(createSeed(), triage, admin);
@@ -112,7 +113,7 @@ describe('Fase 2: fluxo clínico', () => {
         db,
         {
           type: 'consultation.complete',
-          consultationId: db.consultations[0].id,
+          consultationId: db.consultations.find((c) => c.episodeId === 'e1')!.id,
           outcome: 'Alta ambulatória',
         },
         admin,
@@ -126,7 +127,7 @@ describe('Fase 2: fluxo clínico', () => {
       { type: 'consultation.start', episodeId: 'e1', professionalId: 'med-1' },
       doctor,
     );
-    const id = db.consultations[0].id;
+    const id = db.consultations.find((c) => c.episodeId === 'e1')!.id;
     db = executeCommand(
       db,
       {
@@ -172,7 +173,8 @@ describe('Fase 2: fluxo clínico', () => {
       },
       doctor,
     );
-    expect(amended.consultations[0].diagnosis).toBe('Diagnóstico demo');
-    expect(amended.consultations[0].amendments[0].author).toBe('Dra. Teste');
+    const final = amended.consultations.find((c) => c.id === id)!;
+    expect(final.diagnosis).toBe('Diagnóstico demo');
+    expect(final.amendments[0].author).toBe('Dra. Teste');
   });
 });

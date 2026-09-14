@@ -105,10 +105,10 @@ export function Queue() {
         )}
       </Panel>
       <div className="info-line spaced">
-        <Badge tone="info">Fase 2</Badge>
+        <Badge tone="info">A seguir</Badge>
         <span>
-          Registo de sinais vitais, classificação de prioridade e encaminhamento para consulta estão
-          previstos na próxima fase.
+          Depois da chegada, a triagem regista sinais vitais e prioridade; a consulta pode pedir
+          exames laboratoriais e de imagiologia.
         </span>
       </div>
       {form && <AdmissionForm onClose={() => setForm(false)} />}

@@ -18,7 +18,7 @@ npm.cmd run build
 npm.cmd run start
 ```
 
-## Entrega actual: fases 0 a 2
+## Entrega actual: fases 0 a 3
 
 - Painel de recepção com indicadores calculados dos dados.
 - Pesquisa, filtros, paginação, registo e edição de pacientes; ficha demográfica e histórico.
@@ -31,9 +31,13 @@ npm.cmd run start
 - Triagem com queixa, sinais vitais completos, observações e prioridade atribuída pelo profissional.
 - Fila médica por prioridade; consulta com antecedentes, alergias, diagnóstico, procedimentos, evolução e destino.
 - Prescrição estruturada e processo longitudinal, com registos finalizados protegidos e adendas rastreáveis.
-- Migração automática dos dados locais da fase 1 para o esquema clínico da fase 2.
+- Migração automática dos dados locais das fases anteriores para o esquema actual.
+- Pedidos de laboratório e imagiologia feitos na consulta, ligados ao paciente, episódio e consulta.
+- Laboratório: colheita com código de amostra único, processamento, resultado e validação médica.
+- Imagiologia: agendamento, realização e relatório, também com validação médica.
+- Cancelamento justificado com autoria; só o resultado validado entra no processo clínico como definitivo.
 
-O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; Recepcionista opera a recepção; Enfermeiro realiza triagens; Médico realiza consultas; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
+O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; Recepcionista opera a recepção; Enfermeiro realiza triagens; Médico realiza consultas, pede e valida exames; Técnico opera laboratório e imagiologia; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
 
 ## Percurso de demonstração
 
@@ -43,9 +47,12 @@ O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; R
 4. Em **Fila de atendimento**, encontrar o paciente a aguardar triagem.
 5. Recarregar a página e verificar a persistência.
 6. Consultar **Registo de actividade** para ver as operações.
-7. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
+7. Com o perfil Médico, abrir a consulta e escolher **Pedir exame**.
+8. Com o perfil Técnico, em **Laboratório e imagiologia**, registar colheita, processamento e resultado.
+9. Voltar ao perfil Médico para validar o resultado e vê-lo no processo clínico e na ficha do paciente.
+10. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
 
-Laboratório e imagiologia constituem a próxima fase. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
+Internamento e gestão de camas constituem a próxima fase. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
 
 ## Estrutura
 
@@ -64,7 +71,7 @@ O repositório é a fronteira para uma futura API. Nenhum ecrã faz chamadas a u
 
 ## Dados e limites
 
-`src/data/demo.json` contém pacientes, profissionais, unidade, marcações e episódios. Os nomes e contactos são fictícios; os documentos usam prefixos de demonstração. Datas relativas são convertidas no primeiro carregamento, conservando-se até repor os dados.
+`src/data/demo.json` contém pacientes, profissionais, unidade, marcações, episódios e um percurso clínico histórico com triagem, consulta concluída e exames em vários estados. Os nomes e contactos são fictícios; os documentos usam prefixos de demonstração. Datas relativas são convertidas no primeiro carregamento, conservando-se até repor os dados.
 
 Os dados são guardados na chave `sigh-angola-demo-v1` de localStorage. Alterações só são consideradas bem-sucedidas depois da gravação. Web Locks evita gravações simultâneas entre separadores; a revisão rejeita alterações de um estado obsoleto. Abra a demo em localhost ou num contexto HTTPS compatível.
 

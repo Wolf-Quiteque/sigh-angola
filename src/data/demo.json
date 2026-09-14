@@ -6,9 +6,21 @@
     "province": "Cubango"
   },
   "professionals": [
-    { "id": "med-1", "name": "Dra. Helena Manuel", "specialty": "Medicina geral" },
-    { "id": "med-2", "name": "Dr. Paulo Chissola", "specialty": "Pediatria" },
-    { "id": "med-3", "name": "Dra. Isabel Mateus", "specialty": "Ginecologia" }
+    {
+      "id": "med-1",
+      "name": "Dra. Helena Manuel",
+      "specialty": "Medicina geral"
+    },
+    {
+      "id": "med-2",
+      "name": "Dr. Paulo Chissola",
+      "specialty": "Pediatria"
+    },
+    {
+      "id": "med-3",
+      "name": "Dra. Isabel Mateus",
+      "specialty": "Ginecologia"
+    }
   ],
   "patients": [
     {
@@ -221,6 +233,167 @@
       "service": "Medicina geral",
       "reason": "Episódio histórico de demonstração",
       "status": "Concluído"
+    }
+  ],
+  "triages": [
+    {
+      "id": "t1",
+      "episodeId": "e4",
+      "patientId": "p2",
+      "nurse": "Enf. Carlos Vunge",
+      "dayOffset": -7,
+      "time": "09:20",
+      "chiefComplaint": "Febre alta e dores de cabeça há três dias",
+      "priority": "Amarelo",
+      "temperature": 38.4,
+      "systolic": 128,
+      "diastolic": 82,
+      "heartRate": 96,
+      "respiratoryRate": 20,
+      "oxygenSaturation": 97,
+      "weight": 74,
+      "height": 172,
+      "notes": "Paciente consciente e orientado, hidratado."
+    }
+  ],
+  "consultations": [
+    {
+      "id": "c1",
+      "episodeId": "e4",
+      "patientId": "p2",
+      "professionalId": "med-1",
+      "started": {
+        "dayOffset": -7,
+        "time": "09:40"
+      },
+      "completed": {
+        "dayOffset": -7,
+        "time": "10:35"
+      },
+      "status": "Concluída",
+      "history": "Sem internamentos anteriores. Hipertensão controlada com dieta.",
+      "allergies": "Nega alergias conhecidas.",
+      "diagnosis": "Malária não complicada",
+      "procedures": "Exame físico completo e observação em sala.",
+      "evolution": "Febre a ceder após antipirético. Alta com terapêutica oral e reavaliação em 72 horas.",
+      "outcome": "Alta ambulatória",
+      "prescriptions": [
+        {
+          "id": "rx1",
+          "medication": "Artemeter + lumefantrina",
+          "dose": "80/480 mg",
+          "route": "Oral",
+          "frequency": "12/12 horas",
+          "duration": "3 dias",
+          "notes": "Tomar com alimento."
+        },
+        {
+          "id": "rx2",
+          "medication": "Paracetamol",
+          "dose": "500 mg",
+          "route": "Oral",
+          "frequency": "8/8 horas",
+          "duration": "3 dias",
+          "notes": "Apenas em caso de febre."
+        }
+      ],
+      "amendments": []
+    }
+  ],
+  "exams": [
+    {
+      "id": "x1",
+      "patientId": "p2",
+      "episodeId": "e4",
+      "consultationId": "c1",
+      "category": "Laboratório",
+      "examType": "Teste rápido de malária",
+      "priority": "Urgente",
+      "clinicalNote": "Febre há três dias, sem foco aparente.",
+      "requestedBy": "Dra. Helena Manuel",
+      "requested": {
+        "dayOffset": -7,
+        "time": "09:45"
+      },
+      "status": "Validado",
+      "collection": {
+        "dayOffset": -7,
+        "time": "09:55",
+        "author": "Téc. Manuel Sacala",
+        "sampleCode": "AM-000014"
+      },
+      "schedule": null,
+      "performance": null,
+      "report": {
+        "dayOffset": -7,
+        "time": "10:15",
+        "author": "Téc. Manuel Sacala",
+        "summary": "Positivo para Plasmodium falciparum",
+        "findings": "Teste de diagnóstico rápido reactivo para antigénio HRP-2.",
+        "attachment": "tdr-malaria-demo.pdf"
+      },
+      "validation": {
+        "dayOffset": -7,
+        "time": "10:25",
+        "author": "Dra. Helena Manuel",
+        "notes": "Resultado compatível com o quadro clínico."
+      },
+      "cancellation": null
+    },
+    {
+      "id": "x2",
+      "patientId": "p2",
+      "episodeId": "e4",
+      "consultationId": "c1",
+      "category": "Laboratório",
+      "examType": "Hemograma completo",
+      "priority": "Rotina",
+      "clinicalNote": "Avaliar anemia associada.",
+      "requestedBy": "Dra. Helena Manuel",
+      "requested": {
+        "dayOffset": -7,
+        "time": "09:46"
+      },
+      "status": "Em processamento",
+      "collection": {
+        "dayOffset": -7,
+        "time": "09:56",
+        "author": "Téc. Manuel Sacala",
+        "sampleCode": "AM-000015"
+      },
+      "schedule": null,
+      "performance": null,
+      "report": null,
+      "validation": null,
+      "cancellation": null
+    },
+    {
+      "id": "x3",
+      "patientId": "p2",
+      "episodeId": "e4",
+      "consultationId": "c1",
+      "category": "Imagiologia",
+      "examType": "Radiografia de tórax",
+      "priority": "Rotina",
+      "clinicalNote": "Excluir foco respiratório.",
+      "requestedBy": "Dra. Helena Manuel",
+      "requested": {
+        "dayOffset": -7,
+        "time": "09:47"
+      },
+      "status": "Agendado",
+      "collection": null,
+      "schedule": {
+        "dayOffset": -7,
+        "time": "11:00",
+        "author": "Téc. Manuel Sacala",
+        "scheduledDayOffset": 0,
+        "scheduledTime": "11:00"
+      },
+      "performance": null,
+      "report": null,
+      "validation": null,
+      "cancellation": null
     }
   ]
 }

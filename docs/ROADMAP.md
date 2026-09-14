@@ -45,16 +45,19 @@ A classificação de prioridade é sempre atribuída pelo profissional. A demo n
 
 ## Fase 3 — laboratório e imagiologia
 
-Estado: próxima fase. RF11, RF12.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RF11, RF12.
 
-- Pedido → colheita → processamento → resultado → validação → processo clínico.
+- Laboratório: pedido → colheita → processamento → resultado → validação → processo clínico.
 - Imagiologia: pedido → agenda → realização → relatório → validação.
 - Cancelamento justificado, autoria, resultados pendentes e exemplos de ficheiros locais. DICOM/PACS é integração futura.
+- Perfil Técnico opera as duas vias; a validação é sempre um acto médico. O pedido nasce numa consulta em curso e guarda paciente, episódio e consulta.
 - Aceitação: apenas resultados validados entram no processo como finais; pedidos nunca perdem a ligação à consulta.
+
+As transições respeitam a via correspondente: não há colheita em imagiologia, nem relatório antes da realização. Códigos de amostra são únicos na unidade. Um resultado validado deixa de poder ser cancelado.
 
 ## Fase 4 — internamento e enfermagem
 
-Estado: por iniciar. RF09, RF10.
+Estado: próxima fase. RF09, RF10.
 
 - Enfermarias, camas livres/ocupadas/bloqueadas/em manutenção; admissão, transferência e alta.
 - Médico responsável, evolução, procedimentos e administração de medicamentos; referências e contrarreferências.

@@ -32,6 +32,7 @@ import {
   PatientCell,
   Status,
 } from '@/components/ui';
+import { EpisodeExams } from '@/features/diagnostics/episode-exams';
 
 const numberValue = (data: FormData, key: string) => Number(data.get(key));
 const nullableNumber = (data: FormData, key: string) => {
@@ -700,6 +701,13 @@ export function ClinicalWorkspace({ episodeId }: { episodeId: string }) {
               consultation={consultation}
               clinician={clinician?.name ?? 'Médico'}
               onAmend={() => setAmend(true)}
+            />
+          )}
+          {consultation && (
+            <EpisodeExams
+              episodeId={episode.id}
+              consultationId={consultation.id}
+              open={consultation.status === 'Em curso'}
             />
           )}
         </div>

@@ -10,6 +10,7 @@ import {
   ListOrdered,
   HeartPulse,
   Stethoscope,
+  FlaskConical,
   ShieldCheck,
   Settings2,
   Route,
@@ -31,6 +32,7 @@ const navigation = [
   { href: '/atendimento', label: 'Fila de atendimento', icon: ListOrdered },
   { href: '/triagem', label: 'Triagem', icon: HeartPulse },
   { href: '/consultas', label: 'Consultas médicas', icon: Stethoscope },
+  { href: '/exames', label: 'Laboratório e imagiologia', icon: FlaskConical },
   { href: '/auditoria', label: 'Registo de actividade', icon: ShieldCheck },
   { href: '/configuracoes', label: 'Configurações', icon: Settings2 },
   { href: '/roteiro', label: 'Roteiro da plataforma', icon: Route },
@@ -69,9 +71,9 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
         <div className="workspace-label">ESPAÇO HOSPITALAR</div>
         <nav aria-label="Navegação principal">
-          {navigation.map(({ href, label, icon: Icon }, index) => (
+          {navigation.map(({ href, label, icon: Icon }) => (
             <div key={href}>
-              {index === 6 && <div className="nav-section">GESTÃO E SISTEMA</div>}
+              {href === '/auditoria' && <div className="nav-section">GESTÃO E SISTEMA</div>}
               <Link
                 href={href}
                 onClick={() => setOpen(false)}

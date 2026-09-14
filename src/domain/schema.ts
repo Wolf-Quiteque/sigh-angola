@@ -5,6 +5,7 @@ export const roles = [
   'Recepcionista',
   'Enfermeiro',
   'Médico',
+  'Técnico',
   'Direcção',
 ] as const;
 export type Role = (typeof roles)[number];
@@ -125,8 +126,85 @@ export const consultationSchema = z.object({
   ),
 });
 export type Consultation = z.infer<typeof consultationSchema>;
+export const examCategories = ['Laboratório', 'Imagiologia'] as const;
+export type ExamCategory = (typeof examCategories)[number];
+export const examCatalogue: Record<ExamCategory, readonly string[]> = {
+  Laboratório: [
+    'Hemograma completo',
+    'Glicemia em jejum',
+    'Teste rápido de malária',
+    'Urina II',
+    'Ureia e creatinina',
+    'Transaminases',
+    'Teste rápido de VIH',
+    'Reacção de Widal',
+  ],
+  Imagiologia: [
+    'Radiografia de tórax',
+    'Radiografia de membro',
+    'Ecografia abdominal',
+    'Ecografia obstétrica',
+    'Tomografia computorizada',
+    'Ecocardiograma',
+  ],
+};
+export const examStatuses = [
+  'Pedido',
+  'Colheita realizada',
+  'Em processamento',
+  'Agendado',
+  'Realizado',
+  'Resultado disponível',
+  'Relatado',
+  'Validado',
+  'Cancelado',
+] as const;
+export type ExamStatus = (typeof examStatuses)[number];
+/** Estados finais de cada via; só o estado validado entra no processo clínico como resultado final. */
+export const labFlow: ExamStatus[] = [
+  'Pedido',
+  'Colheita realizada',
+  'Em processamento',
+  'Resultado disponível',
+  'Validado',
+];
+export const imagingFlow: ExamStatus[] = [
+  'Pedido',
+  'Agendado',
+  'Realizado',
+  'Relatado',
+  'Validado',
+];
+const stamp = z.object({ at: z.string(), author: z.string() });
+export const examSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  patientId: z.string(),
+  episodeId: z.string(),
+  consultationId: z.string(),
+  category: z.enum(examCategories),
+  examType: z.string().trim().min(2, 'Indique o exame pedido.').max(120),
+  priority: z.enum(['Urgente', 'Rotina']),
+  clinicalNote: z.string().max(1000),
+  requestedBy: z.string(),
+  requestedAt: z.string(),
+  status: z.enum(examStatuses),
+  collection: stamp.extend({ sampleCode: z.string().trim().min(2) }).nullable(),
+  schedule: stamp.extend({ scheduledFor: z.string() }).nullable(),
+  performance: stamp.nullable(),
+  report: stamp
+    .extend({
+      summary: z.string().trim().min(3),
+      findings: z.string().max(4000),
+      attachment: z.string().max(160),
+    })
+    .nullable(),
+  validation: stamp.extend({ notes: z.string().max(1000) }).nullable(),
+  cancellation: stamp.extend({ reason: z.string().trim().min(3) }).nullable(),
+});
+export type Exam = z.infer<typeof examSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(2),
+  version: z.literal(3),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -140,6 +218,7 @@ export const databaseSchema = z.object({
   episodes: z.array(episodeSchema),
   triages: z.array(triageSchema),
   consultations: z.array(consultationSchema),
+  exams: z.array(examSchema),
   audit: z.array(
     z.object({
       id: z.string(),
@@ -159,3 +238,5 @@ export const canReception = (session: Session) =>
 export const canTriage = (session: Session) =>
   ['Administrador', 'Enfermeiro'].includes(session.role);
 export const canConsult = (session: Session) => ['Administrador', 'Médico'].includes(session.role);
+export const canDiagnostics = (session: Session) =>
+  ['Administrador', 'Técnico'].includes(session.role);

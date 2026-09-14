@@ -4,10 +4,14 @@ import {
   canReception,
   canTriage,
   canConsult,
+  canDiagnostics,
+  examSchema,
   triageSchema,
   prescriptionItemSchema,
   patientInputSchema,
   type Database,
+  type Exam,
+  type ExamStatus,
   type PatientInput,
   type Session,
 } from './schema';
@@ -55,8 +59,32 @@ export type ClinicalCommand =
     }
   | { type: 'consultation.amend'; consultationId: string; reason: string; text: string };
 
+export type DiagnosticCommand =
+  | {
+      type: 'exam.request';
+      consultationId: string;
+      category: 'Laboratório' | 'Imagiologia';
+      examType: string;
+      priority: 'Urgente' | 'Rotina';
+      clinicalNote: string;
+    }
+  | { type: 'exam.collect'; examId: string; sampleCode: string }
+  | { type: 'exam.process'; examId: string }
+  | { type: 'exam.schedule'; examId: string; date: string; time: string }
+  | { type: 'exam.perform'; examId: string }
+  | {
+      type: 'exam.report';
+      examId: string;
+      summary: string;
+      findings: string;
+      attachment: string;
+    }
+  | { type: 'exam.validate'; examId: string; notes: string }
+  | { type: 'exam.cancel'; examId: string; reason: string };
+
 export type Command =
   | ClinicalCommand
+  | DiagnosticCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -338,6 +366,156 @@ export function executeCommand(
     entityId = consultation.id;
     action = 'Adenda clínica registada';
     detail = `${patientFor(consultation.patientId).name} · ${command.reason.trim()}`;
+  }
+  const examFor = (id: string): Exam =>
+    db.exams.find((e) => e.id === id) ?? fail('Pedido de exame não encontrado.');
+  /** Faz avançar um pedido apenas a partir dos estados admitidos pela via correspondente. */
+  const advance = (exam: Exam, from: ExamStatus[], to: ExamStatus) => {
+    if (exam.status === 'Cancelado') fail('Este pedido foi cancelado e já não pode avançar.');
+    if (!from.includes(exam.status))
+      fail(`Transição não permitida: o pedido está em «${exam.status}».`);
+    exam.status = to;
+  };
+  const examLabel = (exam: Exam) => `${patientFor(exam.patientId).name} · ${exam.examType}`;
+  if (command.type === 'exam.request') {
+    if (!canConsult(session)) fail('Este perfil não tem permissão para pedir exames.');
+    const consultation =
+      db.consultations.find((c) => c.id === command.consultationId) ??
+      fail('Consulta não encontrada.');
+    if (consultation.status !== 'Em curso')
+      fail('Os pedidos são feitos durante a consulta. Utilize uma adenda numa consulta concluída.');
+    const examType = command.examType.trim();
+    if (
+      db.exams.some(
+        (e) =>
+          e.consultationId === consultation.id &&
+          e.examType === examType &&
+          !['Cancelado', 'Validado'].includes(e.status),
+      )
+    )
+      fail('Já existe um pedido activo deste exame nesta consulta.');
+    const parsed = examSchema.safeParse({
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      patientId: consultation.patientId,
+      episodeId: consultation.episodeId,
+      consultationId: consultation.id,
+      category: command.category,
+      examType,
+      priority: command.priority,
+      clinicalNote: command.clinicalNote.trim(),
+      requestedBy: session.name,
+      requestedAt: now,
+      status: 'Pedido',
+      collection: null,
+      schedule: null,
+      performance: null,
+      report: null,
+      validation: null,
+      cancellation: null,
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique o pedido de exame.');
+    db.exams.push(parsed.data!);
+    entityId = parsed.data!.id;
+    action = 'Exame pedido';
+    detail = `${examLabel(parsed.data!)} · ${command.category} · ${command.priority}`;
+  }
+  if (command.type === 'exam.collect') {
+    if (!canDiagnostics(session)) fail('Este perfil não tem permissão para operar o laboratório.');
+    const exam = examFor(command.examId);
+    if (exam.category !== 'Laboratório')
+      fail('A colheita aplica-se apenas a exames laboratoriais.');
+    const sampleCode = command.sampleCode.trim().toUpperCase();
+    if (sampleCode.length < 2) fail('Indique o código da amostra.');
+    if (db.exams.some((e) => e.id !== exam.id && e.collection?.sampleCode === sampleCode))
+      fail('Este código de amostra já está atribuído a outro pedido.');
+    advance(exam, ['Pedido'], 'Colheita realizada');
+    exam.collection = { at: now, author: session.name, sampleCode };
+    entityId = exam.id;
+    action = 'Colheita registada';
+    detail = `${examLabel(exam)} · Amostra ${sampleCode}`;
+  }
+  if (command.type === 'exam.process') {
+    if (!canDiagnostics(session)) fail('Este perfil não tem permissão para operar o laboratório.');
+    const exam = examFor(command.examId);
+    if (exam.category !== 'Laboratório') fail('O processamento aplica-se a exames laboratoriais.');
+    advance(exam, ['Colheita realizada'], 'Em processamento');
+    entityId = exam.id;
+    action = 'Amostra em processamento';
+    detail = examLabel(exam);
+  }
+  if (command.type === 'exam.schedule') {
+    if (!canDiagnostics(session)) fail('Este perfil não tem permissão para operar a imagiologia.');
+    const exam = examFor(command.examId);
+    if (exam.category !== 'Imagiologia') fail('O agendamento aplica-se a exames de imagiologia.');
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(command.date) ||
+      !/^([01]\d|2[0-3]):[0-5]\d$/.test(command.time)
+    )
+      fail('Indique uma data e hora válidas para a realização.');
+    if (command.date < today()) fail('Não é possível agendar a realização para uma data passada.');
+    advance(exam, ['Pedido', 'Agendado'], 'Agendado');
+    exam.schedule = {
+      at: now,
+      author: session.name,
+      scheduledFor: `${command.date}T${command.time}:00+01:00`,
+    };
+    entityId = exam.id;
+    action = 'Exame agendado';
+    detail = `${examLabel(exam)} · ${command.date} ${command.time}`;
+  }
+  if (command.type === 'exam.perform') {
+    if (!canDiagnostics(session)) fail('Este perfil não tem permissão para operar a imagiologia.');
+    const exam = examFor(command.examId);
+    if (exam.category !== 'Imagiologia') fail('A realização aplica-se a exames de imagiologia.');
+    advance(exam, ['Agendado'], 'Realizado');
+    exam.performance = { at: now, author: session.name };
+    entityId = exam.id;
+    action = 'Exame realizado';
+    detail = examLabel(exam);
+  }
+  if (command.type === 'exam.report') {
+    if (!canDiagnostics(session)) fail('Este perfil não tem permissão para lançar resultados.');
+    const exam = examFor(command.examId);
+    if (command.summary.trim().length < 3) fail('Indique o resultado ou a conclusão do relatório.');
+    advance(
+      exam,
+      exam.category === 'Laboratório' ? ['Em processamento'] : ['Realizado'],
+      exam.category === 'Laboratório' ? 'Resultado disponível' : 'Relatado',
+    );
+    exam.report = {
+      at: now,
+      author: session.name,
+      summary: command.summary.trim(),
+      findings: command.findings.trim(),
+      attachment: command.attachment.trim(),
+    };
+    entityId = exam.id;
+    action = exam.category === 'Laboratório' ? 'Resultado lançado' : 'Relatório lançado';
+    detail = `${examLabel(exam)} · aguarda validação médica`;
+  }
+  if (command.type === 'exam.validate') {
+    if (!canConsult(session)) fail('Apenas o médico valida resultados de exames.');
+    const exam = examFor(command.examId);
+    if (!exam.report) fail('Não existe resultado para validar.');
+    advance(exam, ['Resultado disponível', 'Relatado'], 'Validado');
+    exam.validation = { at: now, author: session.name, notes: command.notes.trim() };
+    entityId = exam.id;
+    action = 'Resultado validado';
+    detail = `${examLabel(exam)} · entra no processo clínico`;
+  }
+  if (command.type === 'exam.cancel') {
+    if (!canConsult(session) && !canDiagnostics(session))
+      fail('Este perfil não tem permissão para cancelar pedidos.');
+    const exam = examFor(command.examId);
+    if (exam.status === 'Validado') fail('Um resultado validado não pode ser cancelado.');
+    if (exam.status === 'Cancelado') fail('Este pedido já está cancelado.');
+    if (command.reason.trim().length < 3) fail('Indique a justificação do cancelamento.');
+    exam.status = 'Cancelado';
+    exam.cancellation = { at: now, author: session.name, reason: command.reason.trim() };
+    entityId = exam.id;
+    action = 'Pedido de exame cancelado';
+    detail = `${examLabel(exam)} · ${command.reason.trim()}`;
   }
   db.revision++;
   db.audit.unshift({

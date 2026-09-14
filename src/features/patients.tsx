@@ -8,6 +8,7 @@ import { canReception } from '@/domain/schema';
 import { PageHeader, Panel, SearchInput, PatientCell, Badge, Empty, Status } from '@/components/ui';
 import { formatDate, normalize, age, initials } from '@/lib/format';
 import { PatientForm, AppointmentForm, AdmissionForm } from './reception/forms';
+import { ExamCard } from './diagnostics/episode-exams';
 
 export function Patients() {
   const { db, session } = useDemo();
@@ -165,6 +166,9 @@ export function PatientDetail({ id }: { id: string }) {
   const appointments = db.appointments
     .filter((a) => a.patientId === id)
     .sort((a, b) => (b.date + b.time).localeCompare(a.date + a.time));
+  const exams = db.exams
+    .filter((e) => e.patientId === id)
+    .sort((a, b) => b.requestedAt.localeCompare(a.requestedAt));
   return (
     <>
       <Link href="/pacientes" className="back-link">
@@ -287,10 +291,27 @@ export function PatientDetail({ id }: { id: string }) {
               />
             )}
           </Panel>
+          <Panel
+            title="Exames e resultados"
+            subtitle="Pedidos laboratoriais e de imagiologia deste paciente."
+          >
+            {exams.length ? (
+              <div className="exam-list">
+                {exams.map((exam) => (
+                  <ExamCard key={exam.id} exam={exam} />
+                ))}
+              </div>
+            ) : (
+              <Empty
+                title="Sem exames pedidos"
+                description="Os pedidos feitos em consulta aparecem nesta ficha."
+              />
+            )}
+          </Panel>
           <div className="info-line">
             <Badge tone="info">Próxima fase</Badge>
             <span>
-              Triagem, consulta e processo clínico serão integrados nesta ficha na fase 2.
+              Internamento, camas e cuidados de enfermagem serão integrados nesta ficha na fase 4.
             </span>
           </div>
         </div>

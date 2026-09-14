@@ -8,22 +8,20 @@ import { age, initials } from '@/lib/format';
 export function Badge({ children, tone = '' }: { children: ReactNode; tone?: string }) {
   return <span className={`badge ${tone}`}>{children}</span>;
 }
+const statusTone: Record<string, string> = {
+  Cancelada: 'danger',
+  Cancelado: 'danger',
+  Confirmada: 'success',
+  Concluído: 'success',
+  Concluída: 'success',
+  Validado: 'success',
+  'Aguarda triagem': 'warning',
+  Pedido: 'warning',
+  'Resultado disponível': 'orange',
+  Relatado: 'orange',
+};
 export function Status({ value }: { value: string }) {
-  return (
-    <Badge
-      tone={
-        value === 'Cancelada'
-          ? 'danger'
-          : ['Confirmada', 'Concluído'].includes(value)
-            ? 'success'
-            : value === 'Aguarda triagem'
-              ? 'warning'
-              : 'info'
-      }
-    >
-      {value}
-    </Badge>
-  );
+  return <Badge tone={statusTone[value] ?? 'info'}>{value}</Badge>;
 }
 export function PageHeader({
   eyebrow,

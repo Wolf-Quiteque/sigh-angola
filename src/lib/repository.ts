@@ -15,6 +15,20 @@ async function locked<T>(operation: () => T): Promise<T> {
     );
   return navigator.locks.request(STORAGE_KEY, operation);
 }
+/** Acrescenta as colecções de cada versão sem tocar nos registos já gravados. */
+function migrate(parsed: Record<string, unknown>) {
+  const from = parsed.version;
+  if (parsed.version === 1) {
+    parsed.version = 2;
+    parsed.triages = [];
+    parsed.consultations = [];
+  }
+  if (parsed.version === 2) {
+    parsed.version = 3;
+    parsed.exams = [];
+  }
+  return parsed.version !== from;
+}
 function read(): Database {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (raw === null) {
@@ -24,12 +38,7 @@ function read(): Database {
   }
   try {
     const parsed = JSON.parse(raw) as Record<string, unknown>;
-    if (parsed.version === 1) {
-      parsed.version = 2;
-      parsed.triages = [];
-      parsed.consultations = [];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-    }
+    if (migrate(parsed)) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
     return databaseSchema.parse(parsed);
   } catch {
     throw new Error(

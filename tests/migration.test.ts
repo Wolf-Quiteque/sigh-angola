@@ -3,12 +3,13 @@ import { createSeed } from '@/domain/seed';
 import { repository, STORAGE_KEY } from '@/lib/repository';
 
 afterEach(() => vi.unstubAllGlobals());
-describe('Migração da fase 1', () => {
+describe('Migração de esquema', () => {
   it('preserva os registos existentes e acrescenta colecções clínicas', async () => {
     const current = createSeed();
     const legacy = { ...current, version: 1, revision: 12 } as Record<string, unknown>;
     delete legacy.triages;
     delete legacy.consultations;
+    delete legacy.exams;
     const values = new Map([[STORAGE_KEY, JSON.stringify(legacy)]]);
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => values.get(key) ?? null,
@@ -18,11 +19,12 @@ describe('Migração da fase 1', () => {
       locks: { request: async (_key: string, callback: () => unknown) => callback() },
     });
     const migrated = await repository.load();
-    expect(migrated.version).toBe(2);
+    expect(migrated.version).toBe(3);
     expect(migrated.revision).toBe(12);
     expect(migrated.patients).toHaveLength(current.patients.length);
     expect(migrated.appointments).toHaveLength(current.appointments.length);
     expect(migrated.triages).toEqual([]);
     expect(migrated.consultations).toEqual([]);
+    expect(migrated.exams).toEqual([]);
   });
 });
