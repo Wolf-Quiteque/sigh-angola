@@ -1,0 +1,19 @@
+{
+  "name": "SIGH-ANGOLA · demonstração",
+  "short_name": "SIGH-ANGOLA",
+  "description": "Demonstração do Sistema Integrado de Gestão Hospitalar de Angola.",
+  "lang": "pt-AO",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafb",
+  "theme_color": "#167d8b",
+  "icons": [
+    {
+      "src": "/icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -547,8 +547,31 @@ export const networkUnitSchema = z.object({
   occupiedBeds: z.number().int().min(0),
 });
 export type NetworkUnit = z.infer<typeof networkUnitSchema>;
+export const outboxStates = ['Pendente', 'Em envio', 'Confirmado', 'Erro', 'Conflito'] as const;
+export type OutboxState = (typeof outboxStates)[number];
+/**
+ * Cada operação que altera dados deixa aqui um registo com identificador único,
+ * revisão, utilizador, dispositivo e instante — a base da sincronização.
+ */
+export const outboxSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  at: z.string(),
+  user: z.string(),
+  role: z.enum(roles),
+  device: z.string(),
+  revision: z.number().int().nonnegative(),
+  action: z.string(),
+  entityId: z.string(),
+  detail: z.string(),
+  state: z.enum(outboxStates),
+  attempts: z.number().int().min(0),
+  message: z.string().max(300),
+  settledAt: z.string().nullable(),
+});
+export type OutboxEntry = z.infer<typeof outboxSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(7),
+  version: z.literal(8),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -581,6 +604,9 @@ export const databaseSchema = z.object({
   users: z.array(userSchema),
   access: z.array(accessSchema),
   network: z.array(networkUnitSchema),
+  /** Identificador do dispositivo onde a demo foi aberta pela primeira vez. */
+  device: z.object({ id: z.string(), name: z.string() }),
+  outbox: z.array(outboxSchema),
   audit: z.array(
     z.object({
       id: z.string(),

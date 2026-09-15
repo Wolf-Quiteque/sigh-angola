@@ -28,6 +28,8 @@ describe('Migração de esquema', () => {
     delete legacy.users;
     delete legacy.access;
     delete legacy.network;
+    delete legacy.device;
+    delete legacy.outbox;
     const values = new Map([[STORAGE_KEY, JSON.stringify(legacy)]]);
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => values.get(key) ?? null,
@@ -37,7 +39,7 @@ describe('Migração de esquema', () => {
       locks: { request: async (_key: string, callback: () => unknown) => callback() },
     });
     const migrated = await repository.load();
-    expect(migrated.version).toBe(7);
+    expect(migrated.version).toBe(8);
     expect(migrated.revision).toBe(12);
     expect(migrated.patients).toHaveLength(current.patients.length);
     expect(migrated.appointments).toHaveLength(current.appointments.length);
@@ -55,6 +57,8 @@ describe('Migração de esquema', () => {
     expect(migrated.cash).toEqual([]);
     expect(migrated.users).toEqual(current.users);
     expect(migrated.access).toEqual([]);
+    expect(migrated.outbox).toEqual([]);
+    expect(migrated.device.name).toContain('Dispositivo');
     expect(migrated.consultations.every((c) => c.prescriptions.every((p) => p.quantity >= 0))).toBe(
       true,
     );

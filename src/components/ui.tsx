@@ -38,6 +38,11 @@ const statusTone: Record<string, string> = {
   Presente: 'success',
   Falta: 'danger',
   'Falta justificada': 'warning',
+  Pendente: 'warning',
+  'Em envio': 'info',
+  Confirmado: 'success',
+  Erro: 'danger',
+  Conflito: 'orange',
 };
 export function Status({ value }: { value: string }) {
   return <Badge tone={statusTone[value] ?? 'info'}>{value}</Badge>;

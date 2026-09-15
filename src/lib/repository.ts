@@ -1,14 +1,18 @@
 import { databaseSchema, type Database, type Session } from '@/domain/schema';
 import { createSeed } from '@/domain/seed';
 import { executeCommand, type Command } from '@/domain/commands';
+import { readRaw, writeRaw, STORAGE_KEY } from './storage';
+import { clearServer } from './sync';
 
-export const STORAGE_KEY = 'sigh-angola-demo-v1';
+export { STORAGE_KEY, storageKind } from './storage';
+
 export interface HospitalRepository {
   load(): Promise<Database>;
   commit(command: Command, session: Session, revision: number): Promise<Database>;
   reset(session: Session): Promise<Database>;
+  restore(value: string, session: Session): Promise<Database>;
 }
-async function locked<T>(operation: () => T): Promise<T> {
+async function locked<T>(operation: () => Promise<T>): Promise<T> {
   if (!navigator.locks)
     throw new Error(
       'Este navegador não permite gravação segura entre separadores. Abra a demo em localhost num navegador actualizado.',
@@ -73,22 +77,51 @@ function migrate(parsed: Record<string, unknown>) {
     parsed.network = reference.network;
     parsed.access = [];
   }
+  if (parsed.version === 7) {
+    parsed.version = 8;
+    parsed.device = createDevice();
+    parsed.outbox = [];
+  }
   return parsed.version !== from;
 }
-function read(): Database {
-  const raw = localStorage.getItem(STORAGE_KEY);
+/** Identidade do dispositivo: acompanha cada operação enviada para o servidor simulado. */
+function createDevice() {
+  const id = crypto.randomUUID();
+  return { id, name: `Dispositivo ${id.slice(0, 8).toUpperCase()}` };
+}
+async function read(): Promise<Database> {
+  const raw = await readRaw(STORAGE_KEY);
   if (raw === null) {
-    const db = createSeed();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
-    return db;
+    const db = { ...createSeed(), device: createDevice() };
+    await writeRaw(STORAGE_KEY, JSON.stringify(db));
+    return databaseSchema.parse(db);
   }
+  let parsed: Record<string, unknown>;
   try {
-    const parsed = JSON.parse(raw) as Record<string, unknown>;
-    if (migrate(parsed)) localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-    return databaseSchema.parse(parsed);
+    parsed = JSON.parse(raw) as Record<string, unknown>;
   } catch {
     throw new Error(
       'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a demonstração.',
+    );
+  }
+  const migrated = migrate(parsed);
+  let database: Database;
+  try {
+    database = databaseSchema.parse(parsed);
+  } catch {
+    throw new Error(
+      'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a demonstração.',
+    );
+  }
+  if (migrated) await writeRaw(STORAGE_KEY, JSON.stringify(database));
+  return database;
+}
+async function write(next: Database) {
+  try {
+    await writeRaw(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    throw new Error(
+      'Não foi possível guardar. Verifique o espaço e as permissões de armazenamento do navegador.',
     );
   }
 }
@@ -97,29 +130,62 @@ export const repository: HospitalRepository = {
     return locked(read);
   },
   async commit(command, session, revision) {
-    return locked(() => {
-      const current = read();
+    return locked(async () => {
+      const current = await read();
       if (current.revision !== revision)
         throw new Error(
           'Os dados foram alterados noutro separador. Actualize a página antes de repetir a operação.',
         );
       const next = executeCommand(current, command, session);
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-      } catch {
-        throw new Error(
-          'Não foi possível guardar. Verifique o espaço e as permissões de armazenamento do navegador.',
-        );
-      }
+      await write(next);
       return next;
     });
   },
   async reset(session) {
     if (session.role !== 'Administrador')
       throw new Error('Apenas o administrador pode repor os dados de demonstração.');
-    return locked(() => {
-      const next = createSeed();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    return locked(async () => {
+      const next = databaseSchema.parse({ ...createSeed(), device: createDevice() });
+      await write(next);
+      await clearServer();
+      return next;
+    });
+  },
+  /** Restaura uma cópia validada, conservando o que ainda não foi confirmado. */
+  async restore(value, session) {
+    if (session.role !== 'Administrador')
+      throw new Error('Apenas o administrador pode restaurar uma cópia de segurança.');
+    return locked(async () => {
+      let candidate: Database;
+      try {
+        candidate = databaseSchema.parse(JSON.parse(value));
+      } catch {
+        throw new Error(
+          'A cópia não corresponde ao formato desta demonstração. O restauro foi cancelado e os dados actuais mantêm-se.',
+        );
+      }
+      const current = await read();
+      const pending = current.outbox.filter((entry) => entry.state !== 'Confirmado');
+      const known = new Set(candidate.outbox.map((entry) => entry.id));
+      const next: Database = {
+        ...candidate,
+        // O dispositivo é desta instalação, não da cópia.
+        device: current.device,
+        revision: Math.max(candidate.revision, current.revision) + 1,
+        outbox: [...pending.filter((entry) => !known.has(entry.id)), ...candidate.outbox],
+        audit: [
+          {
+            id: crypto.randomUUID(),
+            at: new Date().toISOString(),
+            actor: `${session.name} (${session.role})`,
+            action: 'Cópia de segurança restaurada',
+            entityId: candidate.unit.id,
+            detail: `${pending.length} operação(ões) por confirmar preservada(s)`,
+          },
+          ...candidate.audit,
+        ],
+      };
+      await write(next);
       return next;
     });
   },

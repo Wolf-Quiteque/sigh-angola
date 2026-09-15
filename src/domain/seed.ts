@@ -15,7 +15,7 @@ const stamp = <T extends Offset>(value: T | null, base: string) => {
 export function createSeed(base = today()): Database {
   const unitId = seed.unit.id;
   return databaseSchema.parse({
-    version: 7,
+    version: 8,
     revision: 0,
     unit: seed.unit,
     professionals: seed.professionals,
@@ -145,6 +145,8 @@ export function createSeed(base = today()): Database {
       at: `${dayOffset(offset, base)}T${time}:00+01:00`,
     })),
     network: seed.network,
+    device: { id: 'dispositivo-demo', name: 'Posto de trabalho da recepção' },
+    outbox: [],
     audit: [
       {
         id: 'initial',

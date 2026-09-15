@@ -216,8 +216,8 @@ export function Settings() {
             </button>
           </div>
           <div className="info-line">
-            Reabrir a aplicação totalmente sem rede e restaurar exportações serão tratados na fase
-            8.
+            A abertura sem rede, a fila de envio e o restauro de cópias estão em «Sincronização e
+            cópias».
           </div>
         </Panel>
         <Panel title="Repor o cenário" subtitle="Voltar aos dados fictícios iniciais do projecto.">
@@ -315,13 +315,13 @@ const phases = [
   },
   {
     title: 'Offline e sincronização simulada',
-    status: 'Próxima fase',
+    status: 'Disponível',
     text: 'Abertura sem rede, armazenamento robusto, fila de envio simulada, conflitos e recuperação.',
     items: ['IndexedDB e cache', 'Simulação de conflitos', 'Backup e restauro'],
   },
   {
     title: 'Validação integral da demo',
-    status: 'Planeada',
+    status: 'Disponível',
     text: 'Percursos completos, acessibilidade, tablets, erros e consistência entre todos os módulos.',
     items: ['Testes de ponta a ponta', 'Revisão por perfil', 'Aceitação da demo'],
   },
@@ -336,30 +336,30 @@ export function Roadmap() {
       />
       <div className="roadmap-intro">
         <div>
-          <Badge tone="success">FASES 0–7 · CONCLUÍDAS</Badge>
-          <h2>Do registo do paciente aos indicadores de gestão.</h2>
+          <Badge tone="success">FASES 0–9 · CONCLUÍDAS</Badge>
+          <h2>A demonstração completa, do registo à validação.</h2>
           <p>
-            A demo evolui a partir dos requisitos do SIGH-ANGOLA. Cada fase liga novos processos aos
-            mesmos dados de pacientes e episódios.
+            A demo cobre os requisitos do SIGH-ANGOLA de ponta a ponta. Cada fase ligou novos
+            processos aos mesmos dados de pacientes e episódios, sem duplicar registos.
           </p>
         </div>
         <div className="roadmap-summary">
           <strong>10</strong>
-          <span>fases definidas</span>
+          <span>fases concluídas</span>
           <small>0 a 9 · do planeamento à validação</small>
         </div>
       </div>
       <div className="phase-list">
         {phases.map((phase, i) => (
-          <Panel className={i === 7 ? 'current-phase' : ''} key={phase.title}>
+          <Panel className={i === 9 ? 'current-phase' : ''} key={phase.title}>
             <div className="phase-row">
-              <span className={`phase-number ${i < 8 ? 'done' : ''}`}>
+              <span className={`phase-number done`}>
                 {i === 0 ? <Check size={22} /> : String(i).padStart(2, '0')}
               </span>
               <div className="phase-content">
                 <div className="phase-title">
                   <h2>{phase.title}</h2>
-                  <Badge tone={i < 8 ? 'success' : i === 8 ? 'info' : ''}>{phase.status}</Badge>
+                  <Badge tone="success">{phase.status}</Badge>
                 </div>
                 <p>{phase.text}</p>
                 <div className="phase-tags">
@@ -368,7 +368,7 @@ export function Roadmap() {
                   ))}
                 </div>
               </div>
-              {i === 8 && <ArrowRight className="muted" size={22} />}
+              {i === 9 && <ArrowRight className="muted" size={22} />}
             </div>
           </Panel>
         ))}

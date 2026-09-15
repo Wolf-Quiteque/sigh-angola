@@ -17,6 +17,7 @@ import {
   UsersRound,
   ChartColumn,
   KeyRound,
+  RefreshCw,
   ShieldCheck,
   Settings2,
   Route,
@@ -31,6 +32,7 @@ import { useDemo } from '@/lib/demo-provider';
 import { roles, type Role } from '@/domain/schema';
 import { Badge } from './ui';
 import { downloadJson, STORAGE_KEY } from '@/lib/repository';
+import { readRaw } from '@/lib/storage';
 const navigation = [
   { href: '/', label: 'Visão geral', icon: LayoutDashboard },
   { href: '/pacientes', label: 'Pacientes', icon: Users },
@@ -45,6 +47,7 @@ const navigation = [
   { href: '/recursos-humanos', label: 'Colaboradores', icon: UsersRound },
   { href: '/indicadores', label: 'Indicadores', icon: ChartColumn },
   { href: '/utilizadores', label: 'Utilizadores e permissões', icon: KeyRound },
+  { href: '/sincronizacao', label: 'Sincronização e cópias', icon: RefreshCw },
   { href: '/auditoria', label: 'Registo de actividade', icon: ShieldCheck },
   { href: '/configuracoes', label: 'Configurações', icon: Settings2 },
   { href: '/roteiro', label: 'Roteiro da plataforma', icon: Route },
@@ -189,14 +192,12 @@ export function Shell({ children }: { children: ReactNode }) {
                 <button
                   className="button secondary"
                   onClick={() => {
-                    try {
-                      downloadJson(
-                        localStorage.getItem(STORAGE_KEY) ?? '{}',
-                        'sigh-recuperacao.json',
+                    // Lê do adaptador em uso, para a cópia conter os dados que falharam.
+                    void readRaw(STORAGE_KEY)
+                      .then((raw) => downloadJson(raw ?? '{}', 'sigh-recuperacao.json'))
+                      .catch(() =>
+                        setRecoveryError('O navegador bloqueou o acesso ao armazenamento.'),
                       );
-                    } catch {
-                      setRecoveryError('O navegador bloqueou o acesso ao armazenamento.');
-                    }
                   }}
                 >
                   Descarregar dados originais

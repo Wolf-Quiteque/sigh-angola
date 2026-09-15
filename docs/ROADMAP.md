@@ -6,6 +6,8 @@ Demo funcional em Next.js, em português de Angola, com interface branca e dados
 
 O Word é a fonte principal. O PowerPoint contém texto de modelo; esse texto não é requisito. A triagem simplificada do HTML não constitui um protocolo clínico validado e não será reutilizada como algoritmo de decisão.
 
+Estado geral: as fases 0 a 9 estão implementadas e verificadas. `VALIDATION.md` regista o que foi executado e as limitações conhecidas.
+
 ## Forma de trabalhar
 
 Entregar uma fase utilizável de cada vez. Em cada fase: definir entidades e estados → implementar regras no domínio → construir interface → testar operações, erros, persistência e permissões → rever visualmente → actualizar este roteiro. Uma fase não equivale a um conjunto de ecrãs estáticos. Nenhum botão deve anunciar sucesso sem alterar os dados correspondentes.
@@ -101,7 +103,7 @@ Cada indicador declara o que conta e sobre que denominador, e recalcula com o in
 
 ## Fase 8 — offline, sincronização simulada e recuperação
 
-Estado: próxima fase. RF17, RF18; RNF06, RNF07, secções 43–44.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RF17, RF18; RNF06, RNF07, secções 43–44.
 
 - Migrar adaptador local para IndexedDB; cache da aplicação para abertura/reabertura sem rede; tablets.
 - Outbox com UUID, revisão, utilizador, dispositivo e timestamp; servidor apenas simulado em armazenamento local separado.
@@ -109,14 +111,20 @@ Estado: próxima fase. RF17, RF18; RNF06, RNF07, secções 43–44.
 - Backup JSON validado, restauro, migrações de esquema e recuperação sem apagar dados não confirmados.
 - Aceitação: carregar offline após instalação, registar, recarregar, simular reconexão, interromper e repetir sem duplicar; conflito visível e recuperável.
 
+O adaptador prefere IndexedDB e importa uma única vez o que existir em localStorage, sem apagar a origem antes de a gravação nova ter sucesso; sem IndexedDB a demo continua em localStorage e diz qual o adaptador em uso. O service worker guarda o que a aplicação já abriu: um ecrã nunca visitado antes de perder a rede não fica em cache. O servidor simulado guarda apenas o registo das operações, nunca o processo clínico, e reenviar a mesma operação não a duplica. Aceitar a versão do servidor marca a operação como resolvida sem alterar registos locais — não há merge real porque não há servidor real. O arquivo da fila só remove operações confirmadas, e o restauro preserva as que ainda não foram confirmadas.
+
 ## Fase 9 — validação integral da demo
 
-Estado: por iniciar. RNF01–RNF10 no âmbito demonstrativo.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RNF01–RNF10 no âmbito demonstrativo.
 
 - Cenários completos ambulatório, internamento, exame, farmácia e caixa; testes negativos e isolamento entre unidades.
 - Acessibilidade por teclado, foco, contraste, erros, estados vazios, carregamento, impressão e tablets.
 - Datasets variados e reproduzíveis; revisão com recepção, enfermagem, médicos e gestão.
 - Aceitação: todos os percursos anteriores passam, não existem acções falsas e limitações estão documentadas.
+
+Um único percurso de navegador atravessa recepção, triagem, consulta, exame, internamento, farmácia, caixa e indicadores, verificando dados em cada passo. Os 17 ecrãs passam uma análise automática WCAG 2.1 AA com axe, sem violações, o que obrigou a escurecer o texto secundário do sistema visual. Uma verificação de domínio percorre todos os perfis e confirma que cada operação só é recusada por falta de permissão onde deve ser, e que a Direcção nunca escreve — excepto o registo de acesso. O cenário inicial é validado contra o esquema, é reprodutível a partir da mesma data base, não tem referências órfãs e pertence inteiramente à unidade da demonstração.
+
+A revisão com recepção, enfermagem, médicos e gestão continua por fazer: exige as pessoas, não código. As limitações conhecidas estão em `VALIDATION.md`.
 
 ## Após a demo — projecto separado
 

@@ -173,11 +173,11 @@ export function UsersBoard() {
                   {roles.map((role) => (
                     <td key={role}>
                       {capability.allows(role) ? (
-                        <span className="matrix-yes" aria-label="Permitido">
+                        <span className="matrix-yes" role="img" aria-label="Permitido">
                           <ShieldCheck size={15} />
                         </span>
                       ) : (
-                        <span className="matrix-no" aria-label="Não permitido">
+                        <span className="matrix-no" role="img" aria-label="Não permitido">
                           —
                         </span>
                       )}

@@ -328,9 +328,9 @@ export function PatientDetail({ id }: { id: string }) {
           </Panel>
           <StayHistory patientId={id} />
           <div className="info-line">
-            <Badge tone="info">Próxima fase</Badge>
+            <Badge tone="success">Processo completo</Badge>
             <span>
-              Abertura sem rede, sincronização simulada e restauro de cópias ficam para a fase 8.
+              Esta ficha reúne marcações, episódios, exames e internamentos do mesmo paciente.
             </span>
           </div>
         </div>

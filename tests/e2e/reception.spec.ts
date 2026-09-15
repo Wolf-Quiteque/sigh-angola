@@ -110,7 +110,27 @@ test('tablet e telemóvel, modal por teclado e recuperação de dados inválidos
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await expect(page.getByRole('button', { name: 'Novo paciente' })).toBeFocused();
   await page.screenshot({ path: 'test-results/patients-mobile.png', fullPage: true });
-  await page.evaluate(() => localStorage.setItem('sigh-angola-demo-v1', '{broken'));
+  // Corrompe o estado no adaptador em uso (IndexedDB) e também a origem antiga.
+  await page.evaluate(async () => {
+    localStorage.setItem('sigh-angola-demo-v1', '{broken');
+    const open = indexedDB.open('sigh-angola', 1);
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      open.onupgradeneeded = () => {
+        if (!open.result.objectStoreNames.contains('estado'))
+          open.result.createObjectStore('estado');
+      };
+      open.onsuccess = () => resolve(open.result);
+      open.onerror = () => reject(open.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const request = database
+        .transaction('estado', 'readwrite')
+        .objectStore('estado')
+        .put('{broken', 'sigh-angola-demo-v1');
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject(request.error);
+    });
+  });
   await page.reload();
   await expect(
     page.getByRole('heading', { name: 'Não foi possível abrir os dados' }),

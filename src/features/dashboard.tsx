@@ -227,9 +227,9 @@ export function Dashboard() {
             </Link>
           </Panel>
           <div className="roadmap-card">
-            <Badge tone="success">FASE 7 · ESTATÍSTICA</Badge>
-            <h2>Crescer, passo a passo.</h2>
-            <p>Os mesmos registos tornam-se indicadores de gestão.</p>
+            <Badge tone="success">FASES 0–9 · COMPLETAS</Badge>
+            <h2>Da recepção à gestão.</h2>
+            <p>Todos os módulos do roteiro partilham o mesmo processo e os mesmos dados.</p>
             <Link href="/roteiro">
               Conhecer as próximas fases
               <ArrowUpRightIcon />

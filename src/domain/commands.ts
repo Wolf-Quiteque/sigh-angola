@@ -11,6 +11,7 @@ import {
   canManageUsers,
   accessSchema,
   absenceSchema,
+  outboxSchema,
   admissionSchema,
   cashEntrySchema,
   insurerSchema,
@@ -34,6 +35,7 @@ import {
   type Invoice,
   type Movement,
   type Product,
+  type OutboxEntry,
   type Role,
   type Service,
   type Staff,
@@ -276,6 +278,15 @@ export type AdminCommand =
   | { type: 'user.reset'; userId: string }
   | { type: 'access.log'; area: string; subject: string };
 
+export type SyncCommand =
+  | { type: 'sync.sending'; ids: string[] }
+  | {
+      type: 'sync.settle';
+      results: Array<{ id: string; state: 'Confirmado' | 'Erro' | 'Conflito'; message: string }>;
+    }
+  | { type: 'sync.resolve'; id: string; keep: 'local' | 'servidor' }
+  | { type: 'sync.clearSettled' };
+
 export type Command =
   | ClinicalCommand
   | DiagnosticCommand
@@ -284,6 +295,7 @@ export type Command =
   | FinanceCommand
   | PeopleCommand
   | AdminCommand
+  | SyncCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -1450,14 +1462,90 @@ export function executeCommand(
     action = 'Recuperação de acesso simulada';
     detail = `${user.username} · sem palavra-passe real nesta demonstração`;
   }
+  if (command.type === 'sync.sending') {
+    const marked = db.outbox.filter(
+      (entry) => command.ids.includes(entry.id) && ['Pendente', 'Erro'].includes(entry.state),
+    );
+    if (!marked.length) fail('Não há operações por enviar.');
+    for (const entry of marked) {
+      entry.state = 'Em envio';
+      entry.attempts++;
+      entry.message = '';
+    }
+    entityId = db.unit.id;
+    action = 'Sincronização iniciada';
+    detail = `${marked.length} operação(ões) em envio`;
+  }
+  if (command.type === 'sync.settle') {
+    if (!command.results.length) fail('Nenhum resultado de sincronização a aplicar.');
+    for (const result of command.results) {
+      const entry = db.outbox.find((e) => e.id === result.id);
+      if (!entry || entry.state === 'Confirmado') continue;
+      entry.state = result.state;
+      entry.message = result.message.slice(0, 300);
+      entry.settledAt = result.state === 'Confirmado' ? now : null;
+    }
+    const confirmed = command.results.filter((r) => r.state === 'Confirmado').length;
+    const failed = command.results.filter((r) => r.state === 'Erro').length;
+    const conflicts = command.results.filter((r) => r.state === 'Conflito').length;
+    entityId = db.unit.id;
+    action = 'Sincronização concluída';
+    detail = `${confirmed} confirmada(s), ${failed} com erro, ${conflicts} em conflito`;
+  }
+  if (command.type === 'sync.resolve') {
+    const entry = db.outbox.find((e) => e.id === command.id) ?? fail('Operação não encontrada.');
+    if (entry.state !== 'Conflito') fail('Esta operação não está em conflito.');
+    if (command.keep === 'local') {
+      entry.state = 'Pendente';
+      entry.message = 'Conflito resolvido: a versão local será reenviada.';
+      entry.settledAt = null;
+    } else {
+      entry.state = 'Confirmado';
+      entry.message = 'Conflito resolvido: a versão do servidor prevalece.';
+      entry.settledAt = now;
+    }
+    entityId = entry.id;
+    action = 'Conflito de sincronização resolvido';
+    detail = `${entry.action} · ${command.keep === 'local' ? 'mantida a versão local' : 'aceite a versão do servidor'}`;
+  }
+  if (command.type === 'sync.clearSettled') {
+    const before = db.outbox.length;
+    // Só saem da fila as operações confirmadas: nada por confirmar é apagado.
+    db.outbox = db.outbox.filter((entry) => entry.state !== 'Confirmado');
+    if (db.outbox.length === before) fail('Não há operações confirmadas para arquivar.');
+    entityId = db.unit.id;
+    action = 'Fila de envio arquivada';
+    detail = `${before - db.outbox.length} operação(ões) confirmada(s) removida(s)`;
+  }
   db.revision++;
+  const operationId = crypto.randomUUID();
   db.audit.unshift({
-    id: crypto.randomUUID(),
+    id: operationId,
     at: now,
     actor: `${session.name} (${session.role})`,
     action,
     entityId,
     detail,
   });
+  // As próprias operações de sincronização não voltam a entrar na fila de envio.
+  if (!command.type.startsWith('sync.')) {
+    const entry = outboxSchema.parse({
+      id: operationId,
+      unitId: db.unit.id,
+      at: now,
+      user: session.name,
+      role: session.role,
+      device: db.device.name,
+      revision: db.revision,
+      action,
+      entityId,
+      detail,
+      state: 'Pendente',
+      attempts: 0,
+      message: '',
+      settledAt: null,
+    } satisfies OutboxEntry);
+    db.outbox.unshift(entry);
+  }
   return db;
 }

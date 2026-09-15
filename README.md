@@ -18,7 +18,7 @@ npm.cmd run build
 npm.cmd run start
 ```
 
-## Entrega actual: fases 0 a 7
+## Entrega actual: fases 0 a 9, o roteiro completo
 
 - Painel de recepção com indicadores calculados dos dados.
 - Pesquisa, filtros, paginação, registo e edição de pacientes; ficha demográfica e histórico.
@@ -54,6 +54,13 @@ npm.cmd run start
 - Utilizadores, matriz de permissões derivada do domínio e recuperação de acesso simulada.
 - Cartão do paciente imprimível, com QR que contém apenas o identificador.
 - Auditoria de acesso: quem consultou que ficha e quando, além do registo de alterações.
+- Armazenamento em IndexedDB, com importação do que existir em localStorage e indicação do adaptador.
+- Abertura sem rede dos ecrãs já visitados, com faixa de aviso e registo normal enquanto offline.
+- Fila de envio com identificador, revisão, utilizador, dispositivo e instante de cada operação.
+- Sincronização com servidor simulado: reenvio sem duplicar, erros, conflitos e resolução manual.
+- Cópia de segurança validada e restauro que preserva as operações ainda por confirmar.
+- Percurso integral verificado num só teste, da recepção aos indicadores.
+- Os 17 ecrãs passam uma análise automática WCAG 2.1 AA, sem violações.
 
 O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; Recepcionista opera a recepção; Enfermeiro realiza triagens; Médico realiza consultas, pede e valida exames; Técnico opera laboratório e imagiologia; Enfermeiro e Médico partilham a enfermaria, com admissão e alta reservadas ao Médico; Farmacêutico gere stock e dispensação; Administrativo trata de facturação, caixa e recursos humanos; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
 
@@ -76,9 +83,11 @@ O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; R
 15. Em **Indicadores**, ajustar o intervalo, mudar o nível de agregação e exportar o relatório.
 16. Em **Utilizadores e permissões**, consultar a matriz e a auditoria de acesso.
 17. Na ficha de um paciente, abrir **Cartão do paciente** e imprimir.
-18. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
+18. Em **Sincronização e cópias**, simular a falta de rede, sincronizar, provocar um conflito e resolvê-lo.
+19. Exportar a cópia de segurança e experimentar o restauro com o conteúdo do ficheiro.
+20. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
 
-Funcionamento sem rede, sincronização simulada e recuperação constituem a próxima fase. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
+O roteiro está completo. O que fica para um projecto posterior à demonstração está no [roteiro](docs/ROADMAP.md) e em [VALIDATION.md](docs/VALIDATION.md). Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
 
 ## Estrutura
 
@@ -99,9 +108,9 @@ O repositório é a fronteira para uma futura API. Nenhum ecrã faz chamadas a u
 
 `src/data/demo.json` contém pacientes, profissionais, unidade, marcações, episódios, enfermarias, camas e um percurso clínico histórico com triagem, consultas concluídas, exames em vários estados, um internamento activo, um armazém com lotes e alertas, facturas, movimentos de caixa, o quadro de pessoal com escalas, utilizadores e resumos agregados de unidades fictícias. Os nomes e contactos são fictícios; os documentos usam prefixos de demonstração. Datas relativas são convertidas no primeiro carregamento, conservando-se até repor os dados.
 
-Os dados são guardados na chave `sigh-angola-demo-v1` de localStorage. Alterações só são consideradas bem-sucedidas depois da gravação. Web Locks evita gravações simultâneas entre separadores; a revisão rejeita alterações de um estado obsoleto. Abra a demo em localhost ou num contexto HTTPS compatível.
+Os dados são guardados na chave `sigh-angola-demo-v1`, em IndexedDB quando o navegador o permite e em localStorage caso contrário; o ecrã de sincronização indica o adaptador em uso. Alterações só são consideradas bem-sucedidas depois da gravação. Web Locks evita gravações simultâneas entre separadores; a revisão rejeita alterações de um estado obsoleto. Abra a demo em localhost ou num contexto HTTPS compatível.
 
-Não inclui autenticação real, sincronização, abertura a frio offline, prontuário completo ou integrações. Dados locais não são encriptados nem partilhados entre dispositivos. A exportação é uma cópia JSON; importação/restauro está prevista na fase 8. Esta fase não usa dados reais de pacientes.
+Não inclui autenticação real, sincronização com um servidor verdadeiro, prontuário completo ou integrações. Dados locais não são encriptados nem partilhados entre dispositivos. A exportação é uma cópia JSON validada, restaurável no ecrã de sincronização. Esta fase não usa dados reais de pacientes.
 
 ## Verificações
 
@@ -114,6 +123,6 @@ npx.cmd playwright install chromium
 npm.cmd run test:e2e
 ```
 
-Os testes de navegador iniciam o servidor de produção na porta 3100 e usam contextos isolados. Capturas de desktop, tablet e telemóvel são geradas em `test-results/`. Consulte [VALIDATION.md](docs/VALIDATION.md) para o resultado observado.
+Os testes de navegador iniciam o servidor de produção na porta 3100 e usam contextos isolados. Incluem um percurso integral da recepção aos indicadores e uma análise automática de acessibilidade (axe, WCAG 2.1 AA) a todos os ecrãs. Capturas de desktop, tablet e telemóvel são geradas em `test-results/`. Consulte [VALIDATION.md](docs/VALIDATION.md) para o resultado observado e para as limitações conhecidas.
 
 Referências de projecto: [arquitectura](docs/ARCHITECTURE.md), [roteiro completo](docs/ROADMAP.md) e [requisitos extraídos](docs/source-requirements.txt). Os três ficheiros originais permanecem intactos.
