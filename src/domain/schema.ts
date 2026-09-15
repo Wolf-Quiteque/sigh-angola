@@ -501,8 +501,54 @@ export const absenceSchema = z
     path: ['end'],
   });
 export type Absence = z.infer<typeof absenceSchema>;
+export const userSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  name: z.string().trim().min(3, 'Indique o nome do utilizador.').max(120),
+  username: z
+    .string()
+    .trim()
+    .min(3, 'O nome de utilizador precisa de pelo menos 3 caracteres.')
+    .max(40)
+    .regex(/^[a-z0-9.]+$/, 'Use apenas minúsculas, números e pontos.'),
+  role: z.enum(roles),
+  staffId: z.string().nullable(),
+  active: z.boolean(),
+  createdAt: z.string(),
+  /** Marca uma recuperação de acesso simulada; não existe palavra-passe nesta demo. */
+  resetRequestedAt: z.string().nullable(),
+});
+export type User = z.infer<typeof userSchema>;
+export const accessSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  at: z.string(),
+  actor: z.string(),
+  role: z.enum(roles),
+  area: z.string(),
+  subject: z.string(),
+});
+export type AccessRecord = z.infer<typeof accessSchema>;
+/** Resumos agregados de outras unidades. Não contêm processos individuais. */
+export const networkUnitSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  municipality: z.string(),
+  province: z.string(),
+  consultations: z.number().int().min(0),
+  emergencies: z.number().int().min(0),
+  admissions: z.number().int().min(0),
+  discharges: z.number().int().min(0),
+  deaths: z.number().int().min(0),
+  births: z.number().int().min(0),
+  surgeries: z.number().int().min(0),
+  exams: z.number().int().min(0),
+  beds: z.number().int().min(0),
+  occupiedBeds: z.number().int().min(0),
+});
+export type NetworkUnit = z.infer<typeof networkUnitSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(6),
+  version: z.literal(7),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -532,6 +578,9 @@ export const databaseSchema = z.object({
   shifts: z.array(shiftSchema),
   attendance: z.array(attendanceSchema),
   absences: z.array(absenceSchema),
+  users: z.array(userSchema),
+  access: z.array(accessSchema),
+  network: z.array(networkUnitSchema),
   audit: z.array(
     z.object({
       id: z.string(),
@@ -553,6 +602,7 @@ export const canTriage = (session: Session) =>
 export const canConsult = (session: Session) => ['Administrador', 'Médico'].includes(session.role);
 export const canDiagnostics = (session: Session) =>
   ['Administrador', 'Técnico'].includes(session.role);
+export const canManageUsers = (session: Session) => session.role === 'Administrador';
 /** Facturação, caixa e recursos humanos partilham o perfil administrativo. */
 export const canAdministration = (session: Session) =>
   ['Administrador', 'Administrativo'].includes(session.role);

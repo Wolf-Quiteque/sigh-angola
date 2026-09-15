@@ -309,13 +309,13 @@ const phases = [
   },
   {
     title: 'Administração e estatística',
-    status: 'Próxima fase',
+    status: 'Disponível',
     text: 'Perfis completos, cartão de paciente, indicadores e relatórios da unidade ao nível nacional.',
     items: ['Permissões', 'Indicadores', 'Agregação territorial'],
   },
   {
     title: 'Offline e sincronização simulada',
-    status: 'Planeada',
+    status: 'Próxima fase',
     text: 'Abertura sem rede, armazenamento robusto, fila de envio simulada, conflitos e recuperação.',
     items: ['IndexedDB e cache', 'Simulação de conflitos', 'Backup e restauro'],
   },
@@ -336,8 +336,8 @@ export function Roadmap() {
       />
       <div className="roadmap-intro">
         <div>
-          <Badge tone="success">FASES 0–6 · CONCLUÍDAS</Badge>
-          <h2>Do registo do paciente à caixa e à escala.</h2>
+          <Badge tone="success">FASES 0–7 · CONCLUÍDAS</Badge>
+          <h2>Do registo do paciente aos indicadores de gestão.</h2>
           <p>
             A demo evolui a partir dos requisitos do SIGH-ANGOLA. Cada fase liga novos processos aos
             mesmos dados de pacientes e episódios.
@@ -351,15 +351,15 @@ export function Roadmap() {
       </div>
       <div className="phase-list">
         {phases.map((phase, i) => (
-          <Panel className={i === 6 ? 'current-phase' : ''} key={phase.title}>
+          <Panel className={i === 7 ? 'current-phase' : ''} key={phase.title}>
             <div className="phase-row">
-              <span className={`phase-number ${i < 7 ? 'done' : ''}`}>
+              <span className={`phase-number ${i < 8 ? 'done' : ''}`}>
                 {i === 0 ? <Check size={22} /> : String(i).padStart(2, '0')}
               </span>
               <div className="phase-content">
                 <div className="phase-title">
                   <h2>{phase.title}</h2>
-                  <Badge tone={i < 7 ? 'success' : i === 7 ? 'info' : ''}>{phase.status}</Badge>
+                  <Badge tone={i < 8 ? 'success' : i === 8 ? 'info' : ''}>{phase.status}</Badge>
                 </div>
                 <p>{phase.text}</p>
                 <div className="phase-tags">
@@ -368,7 +368,7 @@ export function Roadmap() {
                   ))}
                 </div>
               </div>
-              {i === 7 && <ArrowRight className="muted" size={22} />}
+              {i === 8 && <ArrowRight className="muted" size={22} />}
             </div>
           </Panel>
         ))}

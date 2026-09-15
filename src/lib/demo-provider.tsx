@@ -22,6 +22,8 @@ type Context = {
   notice: string;
   setRole: (role: Role) => void;
   run: (command: Command) => Promise<void>;
+  /** Executa sem notificação: usado pelo registo de acesso, que não é uma acção do utilizador. */
+  runQuiet: (command: Command) => Promise<void>;
   reset: () => Promise<void>;
   reload: () => Promise<void>;
 };
@@ -63,6 +65,14 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     setDb(next);
     setNotice(next.audit[0].action + ' com sucesso.');
   }
+  async function runQuiet(command: Command) {
+    if (!db) return;
+    try {
+      setDb(await repository.commit(command, session, db.revision));
+    } catch {
+      // Um registo de acesso perdido não deve interromper a consulta do utilizador.
+    }
+  }
   async function reset() {
     const next = await repository.reset(session);
     setDb(next);
@@ -79,6 +89,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         notice,
         setRole: (role) => setSession(sessions[role]),
         run,
+        runQuiet,
         reset,
         reload,
       }}

@@ -1,8 +1,8 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { Plus, ArrowLeft, Pencil, CalendarPlus, LogIn, ArrowUpRight } from 'lucide-react';
+import { Plus, ArrowLeft, Pencil, CalendarPlus, LogIn, ArrowUpRight, IdCard } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
 import { canReception } from '@/domain/schema';
 import { PageHeader, Panel, SearchInput, PatientCell, Badge, Empty, Status } from '@/components/ui';
@@ -10,6 +10,7 @@ import { formatDate, normalize, age, initials } from '@/lib/format';
 import { PatientForm, AppointmentForm, AdmissionForm } from './reception/forms';
 import { ExamCard } from './diagnostics/episode-exams';
 import { StayHistory } from './inpatient/stay';
+import { PatientCard } from './admin/patient-card';
 
 export function Patients() {
   const { db, session } = useDemo();
@@ -146,8 +147,20 @@ export function Patients() {
   );
 }
 export function PatientDetail({ id }: { id: string }) {
-  const { db, session } = useDemo();
+  const { db, session, runQuiet } = useDemo();
   const [form, setForm] = useState('');
+  const logged = useRef('');
+  const patientRecord = db?.patients.find((p) => p.id === id);
+  // Abrir uma ficha é um acesso a informação clínica e fica registado uma vez por sessão e paciente.
+  useEffect(() => {
+    if (!patientRecord || logged.current === patientRecord.id) return;
+    logged.current = patientRecord.id;
+    void runQuiet({
+      type: 'access.log',
+      area: 'Ficha do paciente',
+      subject: `${patientRecord.number} · ${patientRecord.name}`,
+    });
+  }, [patientRecord, runQuiet]);
   if (!db) return null;
   const patient = db.patients.find((p) => p.id === id);
   if (!patient)
@@ -193,6 +206,10 @@ export function PatientDetail({ id }: { id: string }) {
             </button>
           </>
         )}
+        <button className="button secondary" onClick={() => setForm('card')}>
+          <IdCard size={17} />
+          Cartão do paciente
+        </button>
       </PageHeader>
       <div className="detail-grid">
         <Panel>
@@ -312,13 +329,18 @@ export function PatientDetail({ id }: { id: string }) {
           <StayHistory patientId={id} />
           <div className="info-line">
             <Badge tone="info">Próxima fase</Badge>
-            <span>Facturação, caixa e gestão de colaboradores serão integrados na fase 6.</span>
+            <span>
+              Abertura sem rede, sincronização simulada e restauro de cópias ficam para a fase 8.
+            </span>
           </div>
         </div>
       </div>
       {form === 'edit' && <PatientForm patient={patient} onClose={() => setForm('')} />}
       {form === 'appointment' && <AppointmentForm patientId={id} onClose={() => setForm('')} />}
       {form === 'admission' && <AdmissionForm patientId={id} onClose={() => setForm('')} />}
+      {form === 'card' && (
+        <PatientCard patient={patient} unit={db.unit} onClose={() => setForm('')} />
+      )}
     </>
   );
 }

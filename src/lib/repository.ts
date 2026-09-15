@@ -66,6 +66,13 @@ function migrate(parsed: Record<string, unknown>) {
     parsed.attendance = [];
     parsed.absences = [];
   }
+  if (parsed.version === 6) {
+    parsed.version = 7;
+    const reference = createSeed();
+    parsed.users = reference.users;
+    parsed.network = reference.network;
+    parsed.access = [];
+  }
   return parsed.version !== from;
 }
 function read(): Database {

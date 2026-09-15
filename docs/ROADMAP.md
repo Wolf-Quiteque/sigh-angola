@@ -89,7 +89,7 @@ Cada pagamento gera um recibo numerado e entra na caixa como receita, pelo que o
 
 ## Fase 7 — administração, estatística e níveis de gestão
 
-Estado: próxima fase. RF01, RF02, RF15, RF16, RF19, RF20.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RF01, RF02, RF15, RF16, RF19, RF20.
 
 - Gestão de utilizadores e todos os perfis do documento, matriz de permissões, sessão simulada, inactivação e simulação de recuperação de acesso.
 - Cartão de paciente imprimível e QR contendo somente identificador; responsáveis e identificação de emergência.
@@ -97,9 +97,11 @@ Estado: próxima fase. RF01, RF02, RF15, RF16, RF19, RF20.
 - Filtros e agregação unidade → município → província → nacional; relatórios exportáveis, qualidade de dados e auditoria de acesso.
 - Aceitação: totais reconciliados com os registos e filtros; perfis agregados sem exposição de processos individuais.
 
+Cada indicador declara o que conta e sobre que denominador, e recalcula com o intervalo escolhido. A matriz de permissões é lida das mesmas funções que autorizam as operações, pelo que não pode divergir do comportamento real. A unidade local é a única com processos; as outras linhas da agregação são resumos de unidades fictícias, sem qualquer registo individual. Não existem palavras-passe: a recuperação de acesso regista o pedido, a autoria e a data. Abrir a ficha de um paciente fica registado na auditoria de acesso, em qualquer perfil, uma vez por minuto e por paciente.
+
 ## Fase 8 — offline, sincronização simulada e recuperação
 
-Estado: por iniciar. RF17, RF18; RNF06, RNF07, secções 43–44.
+Estado: próxima fase. RF17, RF18; RNF06, RNF07, secções 43–44.
 
 - Migrar adaptador local para IndexedDB; cache da aplicação para abertura/reabertura sem rede; tablets.
 - Outbox com UUID, revisão, utilizador, dispositivo e timestamp; servidor apenas simulado em armazenamento local separado.

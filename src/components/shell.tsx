@@ -15,6 +15,8 @@ import {
   Pill,
   Wallet,
   UsersRound,
+  ChartColumn,
+  KeyRound,
   ShieldCheck,
   Settings2,
   Route,
@@ -41,6 +43,8 @@ const navigation = [
   { href: '/farmacia', label: 'Farmácia e armazém', icon: Pill },
   { href: '/financas', label: 'Facturação e caixa', icon: Wallet },
   { href: '/recursos-humanos', label: 'Colaboradores', icon: UsersRound },
+  { href: '/indicadores', label: 'Indicadores', icon: ChartColumn },
+  { href: '/utilizadores', label: 'Utilizadores e permissões', icon: KeyRound },
   { href: '/auditoria', label: 'Registo de actividade', icon: ShieldCheck },
   { href: '/configuracoes', label: 'Configurações', icon: Settings2 },
   { href: '/roteiro', label: 'Roteiro da plataforma', icon: Route },
@@ -81,7 +85,7 @@ export function Shell({ children }: { children: ReactNode }) {
         <nav aria-label="Navegação principal">
           {navigation.map(({ href, label, icon: Icon }) => (
             <div key={href}>
-              {href === '/auditoria' && <div className="nav-section">GESTÃO E SISTEMA</div>}
+              {href === '/indicadores' && <div className="nav-section">GESTÃO E SISTEMA</div>}
               <Link
                 href={href}
                 onClick={() => setOpen(false)}

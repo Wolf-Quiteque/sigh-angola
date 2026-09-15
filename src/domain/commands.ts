@@ -8,6 +8,8 @@ import {
   canWard,
   canPharmacy,
   canAdministration,
+  canManageUsers,
+  accessSchema,
   absenceSchema,
   admissionSchema,
   cashEntrySchema,
@@ -16,6 +18,7 @@ import {
   serviceSchema,
   shiftSchema,
   staffSchema,
+  userSchema,
   productSchema,
   supplierSchema,
   examSchema,
@@ -31,8 +34,10 @@ import {
   type Invoice,
   type Movement,
   type Product,
+  type Role,
   type Service,
   type Staff,
+  type User,
   type PatientInput,
   type Session,
 } from './schema';
@@ -258,6 +263,19 @@ export type PeopleCommand =
       note: string;
     };
 
+export type AdminCommand =
+  | {
+      type: 'user.save';
+      id?: string;
+      name: string;
+      username: string;
+      role: Role;
+      staffId: string | null;
+      active: boolean;
+    }
+  | { type: 'user.reset'; userId: string }
+  | { type: 'access.log'; area: string; subject: string };
+
 export type Command =
   | ClinicalCommand
   | DiagnosticCommand
@@ -265,6 +283,7 @@ export type Command =
   | PharmacyCommand
   | FinanceCommand
   | PeopleCommand
+  | AdminCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -294,6 +313,32 @@ export function executeCommand(
   session: Session,
   now = new Date().toISOString(),
 ): Database {
+  // O registo de acesso não é uma alteração do utilizador: acontece em qualquer perfil, leitura incluída.
+  if (command.type === 'access.log') {
+    const parsed = accessSchema.safeParse({
+      id: crypto.randomUUID(),
+      unitId: current.unit.id,
+      at: now,
+      actor: session.name,
+      role: session.role,
+      area: command.area,
+      subject: command.subject,
+    });
+    if (!parsed.success) return current;
+    const recent = current.access.find(
+      (a) =>
+        a.actor === session.name &&
+        a.area === command.area &&
+        a.subject === command.subject &&
+        new Date(now).getTime() - new Date(a.at).getTime() < 60000,
+    );
+    if (recent) return current;
+    const logged = structuredClone(current);
+    logged.access.unshift(parsed.data!);
+    logged.access = logged.access.slice(0, 300);
+    logged.revision++;
+    return logged;
+  }
   if (!canWrite(session)) fail('O perfil Direcção tem acesso apenas de leitura.');
   if (
     ['patient.save', 'appointment.save', 'appointment.status', 'admission.create'].includes(
@@ -1360,6 +1405,50 @@ export function executeCommand(
     entityId = absence.id;
     action = `Ausência registada: ${absence.type}`;
     detail = `${staff.name} · ${absence.start} a ${absence.end}`;
+  }
+  if (command.type === 'user.save') {
+    if (!canManageUsers(session)) fail('Apenas o administrador gere utilizadores.');
+    const previous = command.id
+      ? (db.users.find((u) => u.id === command.id) ?? fail('Utilizador não encontrado.'))
+      : undefined;
+    if (command.staffId && !db.staff.some((s) => s.id === command.staffId))
+      fail('Colaborador não encontrado nesta unidade.');
+    const parsed = userSchema.safeParse({
+      ...command,
+      id: command.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+      username: command.username.trim().toLowerCase(),
+      createdAt: previous?.createdAt ?? now,
+      resetRequestedAt: previous?.resetRequestedAt ?? null,
+    });
+    if (!parsed.success)
+      fail(parsed.error.issues[0]?.message || 'Verifique os dados do utilizador.');
+    const user = parsed.data! as User;
+    if (db.users.some((u) => u.id !== user.id && u.username === user.username))
+      fail(`O nome de utilizador ${user.username} já está atribuído.`);
+    if (previous?.role === 'Administrador' && user.role !== 'Administrador') {
+      const admins = db.users.filter((u) => u.role === 'Administrador' && u.active);
+      if (admins.length <= 1) fail('A unidade tem de manter pelo menos um administrador activo.');
+    }
+    if (previous?.active && !user.active && previous.role === 'Administrador') {
+      const admins = db.users.filter((u) => u.role === 'Administrador' && u.active);
+      if (admins.length <= 1) fail('A unidade tem de manter pelo menos um administrador activo.');
+    }
+    if (previous) Object.assign(previous, user);
+    else db.users.push(user);
+    entityId = user.id;
+    action = previous ? 'Utilizador actualizado' : 'Utilizador criado';
+    detail = `${user.username} · ${user.role}${user.active ? '' : ' · inactivo'}`;
+  }
+  if (command.type === 'user.reset') {
+    if (!canManageUsers(session)) fail('Apenas o administrador inicia recuperações de acesso.');
+    const user =
+      db.users.find((u) => u.id === command.userId) ?? fail('Utilizador não encontrado.');
+    if (!user.active) fail('Um utilizador inactivo não pode recuperar o acesso.');
+    user.resetRequestedAt = now;
+    entityId = user.id;
+    action = 'Recuperação de acesso simulada';
+    detail = `${user.username} · sem palavra-passe real nesta demonstração`;
   }
   db.revision++;
   db.audit.unshift({

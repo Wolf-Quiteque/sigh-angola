@@ -15,7 +15,7 @@ const stamp = <T extends Offset>(value: T | null, base: string) => {
 export function createSeed(base = today()): Database {
   const unitId = seed.unit.id;
   return databaseSchema.parse({
-    version: 6,
+    version: 7,
     revision: 0,
     unit: seed.unit,
     professionals: seed.professionals,
@@ -134,6 +134,17 @@ export function createSeed(base = today()): Database {
       start: dayOffset(startOffset, base),
       end: dayOffset(endOffset, base),
     })),
+    users: seed.users.map(({ createdOffset, ...user }) => ({
+      ...user,
+      unitId,
+      createdAt: `${dayOffset(createdOffset, base)}T08:00:00+01:00`,
+    })),
+    access: seed.access.map(({ dayOffset: offset, time, ...record }) => ({
+      ...record,
+      unitId,
+      at: `${dayOffset(offset, base)}T${time}:00+01:00`,
+    })),
+    network: seed.network,
     audit: [
       {
         id: 'initial',

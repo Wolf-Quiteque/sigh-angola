@@ -1415,5 +1415,182 @@
       "endOffset": 12,
       "note": "Formação em saúde materna, Menongue."
     }
+  ],
+  "users": [
+    {
+      "id": "u-1",
+      "name": "Ana Manuel",
+      "username": "ana.manuel",
+      "role": "Administrador",
+      "staffId": null,
+      "active": true,
+      "createdOffset": -400,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-2",
+      "name": "João Domingos",
+      "username": "joao.domingos",
+      "role": "Recepcionista",
+      "staffId": "st-8",
+      "active": true,
+      "createdOffset": -300,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-3",
+      "name": "Enf. Carlos Vunge",
+      "username": "carlos.vunge",
+      "role": "Enfermeiro",
+      "staffId": "st-4",
+      "active": true,
+      "createdOffset": -350,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-4",
+      "name": "Dra. Helena Manuel",
+      "username": "helena.manuel",
+      "role": "Médico",
+      "staffId": "st-1",
+      "active": true,
+      "createdOffset": -380,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-5",
+      "name": "Téc. Manuel Sacala",
+      "username": "manuel.sacala",
+      "role": "Técnico",
+      "staffId": "st-6",
+      "active": true,
+      "createdOffset": -200,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-6",
+      "name": "Farm. Rosa Cahama",
+      "username": "rosa.cahama",
+      "role": "Farmacêutico",
+      "staffId": "st-7",
+      "active": true,
+      "createdOffset": -250,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-7",
+      "name": "Sr. Pedro Kiala",
+      "username": "pedro.kiala",
+      "role": "Administrativo",
+      "staffId": "st-9",
+      "active": true,
+      "createdOffset": -260,
+      "resetRequestedAt": null
+    },
+    {
+      "id": "u-8",
+      "name": "Isabel Francisco",
+      "username": "isabel.francisco",
+      "role": "Direcção",
+      "staffId": null,
+      "active": true,
+      "createdOffset": -410,
+      "resetRequestedAt": null
+    }
+  ],
+  "access": [
+    {
+      "id": "acc-1",
+      "dayOffset": 0,
+      "time": "08:12",
+      "actor": "Dra. Helena Manuel",
+      "role": "Médico",
+      "area": "Ficha do paciente",
+      "subject": "SIGH-000002 · António José da Costa"
+    },
+    {
+      "id": "acc-2",
+      "dayOffset": 0,
+      "time": "08:20",
+      "actor": "Enf. Carlos Vunge",
+      "role": "Enfermeiro",
+      "area": "Processo clínico",
+      "subject": "SIGH-000005 · Beatriz Joaquim Kapenda"
+    },
+    {
+      "id": "acc-3",
+      "dayOffset": -1,
+      "time": "15:45",
+      "actor": "Isabel Francisco",
+      "role": "Direcção",
+      "area": "Indicadores",
+      "subject": "Resumo da unidade"
+    }
+  ],
+  "network": [
+    {
+      "id": "net-1",
+      "name": "Hospital Municipal do Cuito Cuanavale",
+      "municipality": "Cuito Cuanavale",
+      "province": "Cubango",
+      "consultations": 1240,
+      "emergencies": 410,
+      "admissions": 180,
+      "discharges": 172,
+      "deaths": 6,
+      "births": 64,
+      "surgeries": 38,
+      "exams": 980,
+      "beds": 60,
+      "occupiedBeds": 41
+    },
+    {
+      "id": "net-2",
+      "name": "Centro de Saúde de Chitembo",
+      "municipality": "Chitembo",
+      "province": "Cubango",
+      "consultations": 860,
+      "emergencies": 265,
+      "admissions": 72,
+      "discharges": 70,
+      "deaths": 2,
+      "births": 41,
+      "surgeries": 9,
+      "exams": 430,
+      "beds": 24,
+      "occupiedBeds": 13
+    },
+    {
+      "id": "net-3",
+      "name": "Hospital Provincial da Huíla",
+      "municipality": "Lubango",
+      "province": "Huíla",
+      "consultations": 3120,
+      "emergencies": 1180,
+      "admissions": 540,
+      "discharges": 522,
+      "deaths": 21,
+      "births": 210,
+      "surgeries": 145,
+      "exams": 2640,
+      "beds": 180,
+      "occupiedBeds": 142
+    },
+    {
+      "id": "net-4",
+      "name": "Centro Materno-Infantil do Namibe",
+      "municipality": "Moçâmedes",
+      "province": "Namibe",
+      "consultations": 1480,
+      "emergencies": 390,
+      "admissions": 260,
+      "discharges": 255,
+      "deaths": 5,
+      "births": 186,
+      "surgeries": 52,
+      "exams": 1120,
+      "beds": 80,
+      "occupiedBeds": 57
+    }
   ]
 }
