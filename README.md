@@ -18,7 +18,7 @@ npm.cmd run build
 npm.cmd run start
 ```
 
-## Entrega actual: fases 0 a 5
+## Entrega actual: fases 0 a 6
 
 - Painel de recepção com indicadores calculados dos dados.
 - Pesquisa, filtros, paginação, registo e edição de pacientes; ficha demográfica e histórico.
@@ -44,8 +44,12 @@ npm.cmd run start
 - Entradas, saídas, requisições para serviços e ajustes de inventário justificados, com saldo em cada movimento.
 - Dispensação parcial ou total ligada à prescrição, com bloqueio de stock negativo e de lotes expirados.
 - Alertas de stock mínimo e de validade próxima ou ultrapassada.
+- Tabela de serviços em kwanzas, convénios com comparticipação e facturas de demonstração.
+- Pagamentos totais ou parciais com recibo numerado, anulação justificada e caixa reconciliada.
+- Colaboradores, funções e departamentos; escalas sem sobreposição e presenças do dia.
+- Férias, licenças e formação, incompatíveis com turnos já atribuídos.
 
-O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; Recepcionista opera a recepção; Enfermeiro realiza triagens; Médico realiza consultas, pede e valida exames; Técnico opera laboratório e imagiologia; Enfermeiro e Médico partilham a enfermaria, com admissão e alta reservadas ao Médico; Farmacêutico gere stock e dispensação; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
+O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; Recepcionista opera a recepção; Enfermeiro realiza triagens; Médico realiza consultas, pede e valida exames; Técnico opera laboratório e imagiologia; Enfermeiro e Médico partilham a enfermaria, com admissão e alta reservadas ao Médico; Farmacêutico gere stock e dispensação; Administrativo trata de facturação, caixa e recursos humanos; Direcção consulta em modo de leitura. A sessão demo regressa ao Administrador ao recarregar.
 
 ## Percurso de demonstração
 
@@ -61,9 +65,11 @@ O perfil é seleccionado no cabeçalho. Administrador opera todos os módulos; R
 10. Concluir uma consulta com destino **Internamento** e, em **Enfermarias e camas**, internar o paciente.
 11. Registar cuidados, transferir de cama e dar alta; confirmar a cama livre e o internamento na ficha.
 12. Com o perfil Farmacêutico, em **Farmácia e armazém**, dar entrada de stock e dispensar uma prescrição pendente.
-13. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
+13. Com o perfil Administrativo, em **Facturação e caixa**, emitir uma factura e registar o pagamento.
+14. Em **Colaboradores**, atribuir um turno, registar a presença e consultar as ausências.
+15. Em **Configurações**, exportar o JSON ou repor o cenário com confirmação.
 
-Finanças e recursos humanos constituem a próxima fase. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
+Administração, estatística e níveis de gestão constituem a próxima fase. Os módulos restantes têm âmbito e critérios de aceitação no [roteiro](docs/ROADMAP.md), também disponível no ecrã **Roteiro da plataforma**.
 
 ## Estrutura
 
@@ -82,7 +88,7 @@ O repositório é a fronteira para uma futura API. Nenhum ecrã faz chamadas a u
 
 ## Dados e limites
 
-`src/data/demo.json` contém pacientes, profissionais, unidade, marcações, episódios, enfermarias, camas e um percurso clínico histórico com triagem, consultas concluídas, exames em vários estados, um internamento activo e um armazém com lotes, validades e alertas. Os nomes e contactos são fictícios; os documentos usam prefixos de demonstração. Datas relativas são convertidas no primeiro carregamento, conservando-se até repor os dados.
+`src/data/demo.json` contém pacientes, profissionais, unidade, marcações, episódios, enfermarias, camas e um percurso clínico histórico com triagem, consultas concluídas, exames em vários estados, um internamento activo, um armazém com lotes e alertas, facturas, movimentos de caixa e o quadro de pessoal com escalas. Os nomes e contactos são fictícios; os documentos usam prefixos de demonstração. Datas relativas são convertidas no primeiro carregamento, conservando-se até repor os dados.
 
 Os dados são guardados na chave `sigh-angola-demo-v1` de localStorage. Alterações só são consideradas bem-sucedidas depois da gravação. Web Locks evita gravações simultâneas entre separadores; a revisão rejeita alterações de um estado obsoleto. Abra a demo em localhost ou num contexto HTTPS compatível.
 

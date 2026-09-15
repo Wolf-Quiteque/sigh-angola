@@ -17,6 +17,14 @@ describe('Migração de esquema', () => {
     delete legacy.products;
     delete legacy.batches;
     delete legacy.movements;
+    delete legacy.services;
+    delete legacy.insurers;
+    delete legacy.invoices;
+    delete legacy.cash;
+    delete legacy.staff;
+    delete legacy.shifts;
+    delete legacy.attendance;
+    delete legacy.absences;
     const values = new Map([[STORAGE_KEY, JSON.stringify(legacy)]]);
     vi.stubGlobal('localStorage', {
       getItem: (key: string) => values.get(key) ?? null,
@@ -26,7 +34,7 @@ describe('Migração de esquema', () => {
       locks: { request: async (_key: string, callback: () => unknown) => callback() },
     });
     const migrated = await repository.load();
-    expect(migrated.version).toBe(5);
+    expect(migrated.version).toBe(6);
     expect(migrated.revision).toBe(12);
     expect(migrated.patients).toHaveLength(current.patients.length);
     expect(migrated.appointments).toHaveLength(current.appointments.length);
@@ -38,6 +46,10 @@ describe('Migração de esquema', () => {
     expect(migrated.wards).toEqual(current.wards);
     expect(migrated.beds.every((b) => b.status !== 'Ocupada')).toBe(true);
     expect(migrated.products).toEqual(current.products);
+    expect(migrated.services).toEqual(current.services);
+    expect(migrated.staff).toEqual(current.staff);
+    expect(migrated.invoices).toEqual([]);
+    expect(migrated.cash).toEqual([]);
     expect(migrated.consultations.every((c) => c.prescriptions.every((p) => p.quantity >= 0))).toBe(
       true,
     );

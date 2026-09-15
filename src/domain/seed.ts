@@ -15,7 +15,7 @@ const stamp = <T extends Offset>(value: T | null, base: string) => {
 export function createSeed(base = today()): Database {
   const unitId = seed.unit.id;
   return databaseSchema.parse({
-    version: 5,
+    version: 6,
     revision: 0,
     unit: seed.unit,
     professionals: seed.professionals,
@@ -99,6 +99,41 @@ export function createSeed(base = today()): Database {
         prescriptionItemId: null,
       }))
       .sort((a, b) => b.at.localeCompare(a.at)),
+    services: seed.services.map((s) => ({ ...s, unitId })),
+    insurers: seed.insurers.map((i) => ({ ...i, unitId })),
+    invoices: seed.invoices.map(({ issued, payments, ...invoice }) => ({
+      ...invoice,
+      unitId,
+      issuedAt: at(issued, base),
+      payments: payments.map((payment) => stamp(payment, base)),
+    })),
+    cash: seed.cash.map(({ dayOffset: offset, time, ...entry }) => ({
+      ...entry,
+      unitId,
+      at: `${dayOffset(offset, base)}T${time}:00+01:00`,
+    })),
+    staff: seed.staff.map(({ hiredOffset, ...member }) => ({
+      ...member,
+      unitId,
+      hiredAt: dayOffset(hiredOffset, base),
+    })),
+    shifts: seed.shifts.map(({ dayOffset: offset, ...shift }) => ({
+      ...shift,
+      unitId,
+      date: dayOffset(offset, base),
+    })),
+    attendance: seed.attendance.map(({ dayOffset: offset, recordedTime, ...record }) => ({
+      ...record,
+      unitId,
+      date: dayOffset(offset, base),
+      recordedAt: `${dayOffset(offset, base)}T${recordedTime}:00+01:00`,
+    })),
+    absences: seed.absences.map(({ startOffset, endOffset, ...absence }) => ({
+      ...absence,
+      unitId,
+      start: dayOffset(startOffset, base),
+      end: dayOffset(endOffset, base),
+    })),
     audit: [
       {
         id: 'initial',

@@ -2780,3 +2780,73 @@ textarea {
   color: #b36358;
   font-weight: 500;
 }
+
+/* Fase 6 — finanças e recursos humanos */
+.stat-value.money {
+  font-size: 22px;
+  letter-spacing: -0.2px;
+}
+.invoice-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr auto;
+  gap: 10px;
+  align-items: end;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.invoice-row:last-child {
+  border-bottom: 0;
+}
+.invoice-total {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: var(--primary-soft);
+}
+.invoice-total > div {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+}
+.invoice-total dd {
+  margin: 0;
+  color: var(--ink);
+}
+.invoice-total strong {
+  font-size: 14px;
+  color: var(--primary);
+}
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--primary);
+  text-align: left;
+  cursor: pointer;
+}
+.link-button:disabled {
+  color: var(--ink);
+  cursor: default;
+}
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink);
+}
+.checkbox-field input {
+  width: auto;
+}
+td.align-right {
+  text-align: right;
+}
+@media (max-width: 700px) {
+  .invoice-row {
+    grid-template-columns: 1fr;
+  }
+}

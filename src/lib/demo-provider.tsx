@@ -11,6 +11,7 @@ const sessions: Record<Role, Session> = {
   Médico: { name: 'Dra. Helena Manuel', role: 'Médico' },
   Técnico: { name: 'Téc. Manuel Sacala', role: 'Técnico' },
   Farmacêutico: { name: 'Farm. Rosa Cahama', role: 'Farmacêutico' },
+  Administrativo: { name: 'Sr. Pedro Kiala', role: 'Administrativo' },
   Direcção: { name: 'Isabel Francisco', role: 'Direcção' },
 };
 type Context = {

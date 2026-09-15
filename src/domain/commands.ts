@@ -7,7 +7,15 @@ import {
   canDiagnostics,
   canWard,
   canPharmacy,
+  canAdministration,
+  absenceSchema,
   admissionSchema,
+  cashEntrySchema,
+  insurerSchema,
+  invoiceSchema,
+  serviceSchema,
+  shiftSchema,
+  staffSchema,
   productSchema,
   supplierSchema,
   examSchema,
@@ -20,8 +28,11 @@ import {
   type Batch,
   type Exam,
   type ExamStatus,
+  type Invoice,
   type Movement,
   type Product,
+  type Service,
+  type Staff,
   type PatientInput,
   type Session,
 } from './schema';
@@ -171,11 +182,89 @@ export type PharmacyCommand =
       quantity: number;
     };
 
+export type FinanceCommand =
+  | {
+      type: 'service.save';
+      id?: string;
+      code: string;
+      name: string;
+      category: 'Consulta' | 'Exame' | 'Internamento' | 'Procedimento' | 'Outro';
+      price: number;
+    }
+  | { type: 'insurer.save'; id?: string; name: string; coverage: number; contact: string }
+  | {
+      type: 'invoice.issue';
+      patientId: string;
+      episodeId: string | null;
+      insurerId: string | null;
+      lines: Array<{ serviceId: string; quantity: number }>;
+    }
+  | {
+      type: 'invoice.pay';
+      invoiceId: string;
+      amount: number;
+      method: 'Numerário' | 'Multicaixa' | 'Transferência';
+    }
+  | { type: 'invoice.cancel'; invoiceId: string; reason: string }
+  | {
+      type: 'cash.entry';
+      entryType: 'Receita' | 'Despesa';
+      category: string;
+      description: string;
+      amount: number;
+      method: 'Numerário' | 'Multicaixa' | 'Transferência';
+    };
+
+export type PeopleCommand =
+  | {
+      type: 'staff.save';
+      id?: string;
+      name: string;
+      role:
+        | 'Médico'
+        | 'Enfermeiro'
+        | 'Técnico de diagnóstico'
+        | 'Farmacêutico'
+        | 'Recepcionista'
+        | 'Administrativo'
+        | 'Auxiliar';
+      department: string;
+      phone: string;
+      hiredAt: string;
+      active: boolean;
+    }
+  | {
+      type: 'shift.save';
+      staffId: string;
+      date: string;
+      start: string;
+      end: string;
+      department: string;
+    }
+  | { type: 'shift.remove'; shiftId: string }
+  | {
+      type: 'attendance.mark';
+      staffId: string;
+      date: string;
+      status: 'Presente' | 'Falta' | 'Falta justificada';
+      note: string;
+    }
+  | {
+      type: 'absence.save';
+      staffId: string;
+      absenceType: 'Férias' | 'Licença' | 'Formação';
+      start: string;
+      end: string;
+      note: string;
+    };
+
 export type Command =
   | ClinicalCommand
   | DiagnosticCommand
   | InpatientCommand
   | PharmacyCommand
+  | FinanceCommand
+  | PeopleCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -953,6 +1042,324 @@ export function executeCommand(
     entityId = batch.id;
     action = item.dispensed >= item.quantity ? 'Dispensação total' : 'Dispensação parcial';
     detail = `${patientFor(consultation.patientId).name} · ${product.name} · ${command.quantity} ${product.measure}`;
+  }
+  const financial = [
+    'service.save',
+    'insurer.save',
+    'invoice.issue',
+    'invoice.pay',
+    'invoice.cancel',
+    'cash.entry',
+    'staff.save',
+    'shift.save',
+    'shift.remove',
+    'attendance.mark',
+    'absence.save',
+  ];
+  if (financial.includes(command.type) && !canAdministration(session))
+    fail('Este perfil não tem permissão para operar finanças e recursos humanos.');
+  const serviceFor = (id: string): Service =>
+    db.services.find((s) => s.id === id && s.unitId === db.unit.id) ??
+    fail('Serviço não encontrado na tabela de preços.');
+  const invoiceFor = (id: string): Invoice =>
+    db.invoices.find((i) => i.id === id) ?? fail('Factura não encontrada.');
+  const staffFor = (id: string): Staff =>
+    db.staff.find((s) => s.id === id && s.unitId === db.unit.id) ??
+    fail('Colaborador não encontrado nesta unidade.');
+  const paidOf = (invoice: Invoice) => invoice.payments.reduce((sum, p) => sum + p.amount, 0);
+  const sequence = (prefix: string, count: number) =>
+    `${prefix}-${String(count + 1).padStart(6, '0')}`;
+  /** Períodos de dias inteiros: os extremos contam como sobreposição. */
+  const datesOverlap = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+    aStart <= bEnd && bStart <= aEnd;
+  /** Horários do mesmo dia: turnos que se tocam na hora de passagem não se sobrepõem. */
+  const hoursOverlap = (aStart: string, aEnd: string, bStart: string, bEnd: string) =>
+    aStart < bEnd && bStart < aEnd;
+  if (command.type === 'service.save') {
+    const parsed = serviceSchema.safeParse({
+      ...command,
+      id: command.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+      code: command.code.trim().toUpperCase(),
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique os dados do serviço.');
+    const service = parsed.data!;
+    if (db.services.some((s) => s.id !== service.id && s.code === service.code))
+      fail(`O código ${service.code} já pertence a outro serviço.`);
+    const previous = command.id ? serviceFor(command.id) : undefined;
+    if (previous) Object.assign(previous, service);
+    else db.services.push(service);
+    entityId = service.id;
+    action = previous ? 'Serviço actualizado' : 'Serviço registado';
+    detail = `${service.code} · ${service.name}`;
+  }
+  if (command.type === 'insurer.save') {
+    const parsed = insurerSchema.safeParse({
+      ...command,
+      id: command.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique o convénio.');
+    const insurer = parsed.data!;
+    const previous = command.id
+      ? (db.insurers.find((i) => i.id === command.id) ?? fail('Convénio não encontrado.'))
+      : undefined;
+    if (previous) Object.assign(previous, insurer);
+    else db.insurers.push(insurer);
+    entityId = insurer.id;
+    action = previous ? 'Convénio actualizado' : 'Convénio registado';
+    detail = `${insurer.name} · ${insurer.coverage}% de comparticipação`;
+  }
+  if (command.type === 'invoice.issue') {
+    const patient = patientFor(command.patientId);
+    if (command.episodeId && !db.episodes.some((e) => e.id === command.episodeId))
+      fail('Episódio não encontrado.');
+    const insurer = command.insurerId
+      ? (db.insurers.find((i) => i.id === command.insurerId) ?? fail('Convénio não encontrado.'))
+      : null;
+    if (!command.lines.length) fail('Escolha pelo menos um serviço para facturar.');
+    const lines = command.lines.map((line) => {
+      const service = serviceFor(line.serviceId);
+      if (!Number.isInteger(line.quantity) || line.quantity <= 0)
+        fail(`Indique uma quantidade válida para ${service.name}.`);
+      return {
+        id: crypto.randomUUID(),
+        serviceId: service.id,
+        description: service.name,
+        quantity: line.quantity,
+        unitPrice: service.price,
+        total: service.price * line.quantity,
+      };
+    });
+    const subtotal = lines.reduce((sum, l) => sum + l.total, 0);
+    // A comparticipação é arredondada a favor do paciente, ao kwanza.
+    const covered = insurer ? Math.floor((subtotal * insurer.coverage) / 100) : 0;
+    const parsed = invoiceSchema.safeParse({
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      number: sequence('FT', db.invoices.length),
+      patientId: patient.id,
+      episodeId: command.episodeId,
+      insurerId: insurer?.id ?? null,
+      issuedAt: now,
+      issuedBy: session.name,
+      lines,
+      subtotal,
+      covered,
+      due: subtotal - covered,
+      status: subtotal - covered === 0 ? 'Paga' : 'Emitida',
+      payments: [],
+      cancellation: null,
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique a factura.');
+    db.invoices.push(parsed.data!);
+    entityId = parsed.data!.id;
+    action = 'Factura emitida';
+    detail = `${parsed.data!.number} · ${patient.name} · ${parsed.data!.due} AOA a pagar`;
+  }
+  if (command.type === 'invoice.pay') {
+    const invoice = invoiceFor(command.invoiceId);
+    if (invoice.status === 'Anulada') fail('Uma factura anulada não recebe pagamentos.');
+    if (invoice.status === 'Paga') fail('Esta factura já está paga na totalidade.');
+    if (!Number.isInteger(command.amount) || command.amount <= 0)
+      fail('Indique um valor inteiro e positivo em kwanzas.');
+    const outstanding = invoice.due - paidOf(invoice);
+    if (command.amount > outstanding)
+      fail(`Faltam ${outstanding} AOA. O pagamento não pode exceder o valor em dívida.`);
+    const twin = invoice.payments.find(
+      (p) =>
+        p.amount === command.amount &&
+        p.method === command.method &&
+        new Date(now).getTime() - new Date(p.at).getTime() < 120000,
+    );
+    if (twin)
+      fail(
+        `O recibo ${twin.receipt} regista o mesmo valor e meio de pagamento há menos de dois minutos. Confirme antes de repetir.`,
+      );
+    const receipt = sequence(
+      'REC',
+      db.invoices.reduce((sum, i) => sum + i.payments.length, 0),
+    );
+    invoice.payments.push({
+      id: crypto.randomUUID(),
+      receipt,
+      at: now,
+      author: session.name,
+      amount: command.amount,
+      method: command.method,
+    });
+    invoice.status = paidOf(invoice) >= invoice.due ? 'Paga' : 'Parcialmente paga';
+    // O pagamento entra na caixa como receita, para o saldo bater com os movimentos.
+    db.cash.unshift({
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      at: now,
+      author: session.name,
+      type: 'Receita',
+      category: 'Facturação',
+      description: `Recibo ${receipt} · factura ${invoice.number}`,
+      amount: command.amount,
+      method: command.method,
+      invoiceId: invoice.id,
+    });
+    entityId = invoice.id;
+    action = invoice.status === 'Paga' ? 'Factura paga' : 'Pagamento parcial';
+    detail = `${invoice.number} · ${patientFor(invoice.patientId).name} · recibo ${receipt}`;
+  }
+  if (command.type === 'invoice.cancel') {
+    const invoice = invoiceFor(command.invoiceId);
+    if (invoice.status === 'Anulada') fail('Esta factura já está anulada.');
+    if (invoice.payments.length)
+      fail('Uma factura com pagamentos não pode ser anulada nesta demonstração.');
+    if (command.reason.trim().length < 3) fail('Indique o motivo da anulação.');
+    invoice.status = 'Anulada';
+    invoice.cancellation = { at: now, author: session.name, reason: command.reason.trim() };
+    entityId = invoice.id;
+    action = 'Factura anulada';
+    detail = `${invoice.number} · ${command.reason.trim()}`;
+  }
+  if (command.type === 'cash.entry') {
+    const parsed = cashEntrySchema.safeParse({
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      at: now,
+      author: session.name,
+      type: command.entryType,
+      category: command.category,
+      description: command.description,
+      amount: command.amount,
+      method: command.method,
+      invoiceId: null,
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique o movimento de caixa.');
+    db.cash.unshift(parsed.data!);
+    entityId = parsed.data!.id;
+    action = command.entryType === 'Receita' ? 'Receita registada' : 'Despesa registada';
+    detail = `${parsed.data!.category} · ${parsed.data!.amount} AOA`;
+  }
+  if (command.type === 'staff.save') {
+    const previous = command.id ? staffFor(command.id) : undefined;
+    const parsed = staffSchema.safeParse({
+      ...command,
+      id: command.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+      number: previous?.number ?? sequence('COL', db.staff.length),
+    });
+    if (!parsed.success)
+      fail(parsed.error.issues[0]?.message || 'Verifique os dados do colaborador.');
+    const staff = parsed.data!;
+    if (db.staff.some((s) => s.id !== staff.id && normalize(s.name) === normalize(staff.name)))
+      fail(`Já existe um colaborador com o nome ${staff.name}.`);
+    if (previous && previous.active && !staff.active) {
+      const upcoming = db.shifts.filter((s) => s.staffId === staff.id && s.date >= today());
+      if (upcoming.length)
+        fail(
+          `Este colaborador tem ${upcoming.length} turno(s) por cumprir. Remova-os antes de o inactivar.`,
+        );
+    }
+    if (previous) Object.assign(previous, staff);
+    else db.staff.push(staff);
+    entityId = staff.id;
+    action = previous ? 'Colaborador actualizado' : 'Colaborador registado';
+    detail = `${staff.number} · ${staff.name} · ${staff.role}`;
+  }
+  if (command.type === 'shift.save') {
+    const staff = staffFor(command.staffId);
+    if (!staff.active) fail('Um colaborador inactivo não pode ser escalado.');
+    const parsed = shiftSchema.safeParse({
+      ...command,
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+    });
+    if (!parsed.success) fail('Verifique a data e as horas do turno.');
+    const shift = parsed.data!;
+    if (shift.end <= shift.start) fail('A hora de fim tem de ser posterior à de início.');
+    if (shift.date < today()) fail('Não é possível escalar para uma data passada.');
+    if (
+      db.shifts.some(
+        (other) =>
+          other.staffId === shift.staffId &&
+          other.date === shift.date &&
+          hoursOverlap(shift.start, shift.end, other.start, other.end),
+      )
+    )
+      fail(`${staff.name} já tem um turno sobreposto neste dia.`);
+    const absence = db.absences.find(
+      (a) => a.staffId === staff.id && a.start <= shift.date && shift.date <= a.end,
+    );
+    if (absence)
+      fail(
+        `${staff.name} está de ${absence.type.toLowerCase()} entre ${absence.start} e ${absence.end}.`,
+      );
+    db.shifts.push(shift);
+    entityId = shift.id;
+    action = 'Turno atribuído';
+    detail = `${staff.name} · ${shift.date} ${shift.start}–${shift.end} · ${shift.department}`;
+  }
+  if (command.type === 'shift.remove') {
+    const shift = db.shifts.find((s) => s.id === command.shiftId) ?? fail('Turno não encontrado.');
+    if (db.attendance.some((a) => a.staffId === shift.staffId && a.date === shift.date))
+      fail('Este turno já tem presença registada.');
+    db.shifts = db.shifts.filter((s) => s.id !== shift.id);
+    entityId = shift.id;
+    action = 'Turno removido';
+    detail = `${staffFor(shift.staffId).name} · ${shift.date} ${shift.start}–${shift.end}`;
+  }
+  if (command.type === 'attendance.mark') {
+    const staff = staffFor(command.staffId);
+    if (!db.shifts.some((s) => s.staffId === staff.id && s.date === command.date))
+      fail('Só é possível registar presença num dia com turno atribuído.');
+    if (command.date > today()) fail('Não é possível registar presença numa data futura.');
+    if (command.status === 'Falta justificada' && command.note.trim().length < 3)
+      fail('Uma falta justificada precisa da justificação.');
+    const existing = db.attendance.find((a) => a.staffId === staff.id && a.date === command.date);
+    const record = {
+      id: existing?.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+      staffId: staff.id,
+      date: command.date,
+      status: command.status,
+      note: command.note.trim(),
+      recordedBy: session.name,
+      recordedAt: now,
+    };
+    if (existing) Object.assign(existing, record);
+    else db.attendance.push(record);
+    entityId = record.id;
+    action = 'Presença registada';
+    detail = `${staff.name} · ${command.date} · ${command.status}`;
+  }
+  if (command.type === 'absence.save') {
+    const staff = staffFor(command.staffId);
+    const parsed = absenceSchema.safeParse({
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      staffId: staff.id,
+      type: command.absenceType,
+      start: command.start,
+      end: command.end,
+      note: command.note,
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique as datas da ausência.');
+    const absence = parsed.data!;
+    const clash = db.absences.find(
+      (other) =>
+        other.staffId === absence.staffId &&
+        datesOverlap(absence.start, absence.end, other.start, other.end),
+    );
+    if (clash)
+      fail(`${staff.name} já tem ${clash.type.toLowerCase()} entre ${clash.start} e ${clash.end}.`);
+    const scheduled = db.shifts.filter(
+      (s) => s.staffId === staff.id && absence.start <= s.date && s.date <= absence.end,
+    );
+    if (scheduled.length)
+      fail(
+        `${staff.name} tem ${scheduled.length} turno(s) neste período. Remova-os antes de registar a ausência.`,
+      );
+    db.absences.push(absence);
+    entityId = absence.id;
+    action = `Ausência registada: ${absence.type}`;
+    detail = `${staff.name} · ${absence.start} a ${absence.end}`;
   }
   db.revision++;
   db.audit.unshift({

@@ -79,15 +79,17 @@ A prescrição passa a ter quantidade; as receitas anteriores à fase 5 ficam co
 
 ## Fase 6 — finanças e recursos humanos
 
-Estado: próxima fase. Secções 28–29.
+Estado: implementada; consultar `VALIDATION.md` para evidência. Secções 28–29.
 
 - Tabelas de serviços, facturação demo, pagamentos parciais, recibos de demonstração, caixa, despesas, receitas, contas e convénios/seguros; valores em kwanzas.
 - Colaboradores, funções, departamentos, escalas, presenças, férias, formação e unidade.
 - Aceitação: saldo reconciliado com movimentos; pagamentos duplicados rejeitados; sobreposição de escalas e ausências controlada. Documentos fiscais reais ficam fora da demo.
 
+Cada pagamento gera um recibo numerado e entra na caixa como receita, pelo que o saldo é sempre a soma dos movimentos listados. Um pagamento igual em valor e meio ao anterior, feito há menos de dois minutos, é recusado; uma factura com pagamentos não pode ser anulada. Os turnos podem tocar-se na hora de passagem mas não sobrepor-se, e não são atribuídos durante férias, licença ou formação. O perfil Administrativo opera finanças e recursos humanos.
+
 ## Fase 7 — administração, estatística e níveis de gestão
 
-Estado: por iniciar. RF01, RF02, RF15, RF16, RF19, RF20.
+Estado: próxima fase. RF01, RF02, RF15, RF16, RF19, RF20.
 
 - Gestão de utilizadores e todos os perfis do documento, matriz de permissões, sessão simulada, inactivação e simulação de recuperação de acesso.
 - Cartão de paciente imprimível e QR contendo somente identificador; responsáveis e identificação de emergência.

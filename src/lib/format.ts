@@ -53,3 +53,10 @@ export function initials(name: string) {
   const parts = name.split(' ');
   return `${parts[0][0]}${parts.at(-1)?.[0] ?? ''}`;
 }
+export function formatKwanza(value: number) {
+  return new Intl.NumberFormat('pt-AO', {
+    style: 'currency',
+    currency: 'AOA',
+    maximumFractionDigits: 0,
+  }).format(value);
+}

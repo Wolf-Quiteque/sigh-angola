@@ -1,4 +1,4 @@
-# Verificação — fases 0 a 5
+# Verificação — fases 0 a 6
 
 Validado em 14 de Setembro de 2026, Windows, Node.js 22.20.0, Next.js 16.3.4 e Chromium através de Playwright.
 
@@ -8,9 +8,9 @@ Validado em 14 de Setembro de 2026, Windows, Node.js 22.20.0, Next.js 16.3.4 e C
 | ----------------------------------------- | -------------------------------------------------------------- |
 | TypeScript estrito                        | Sem erros                                                      |
 | ESLint                                    | Sem erros ou avisos                                            |
-| Testes de domínio, repositório e migração | 53 passaram                                                    |
-| Build de produção                         | Concluído; 13 ecrãs e 2 fichas dinâmicas                       |
-| Testes de navegador                       | 14 passaram                                                    |
+| Testes de domínio, repositório e migração | 66 passaram                                                    |
+| Build de produção                         | Concluído; 15 ecrãs e 2 fichas dinâmicas                       |
+| Testes de navegador                       | 17 passaram                                                    |
 | Migração dos dados das fases anteriores   | Pacientes, marcações, episódios, clínica e revisão preservados |
 | Pedidos externos no painel                | Nenhum pedido externo de API, fonte ou asset                   |
 | Inspecção visual                          | Desktop 1440 px, tablet 768 px e telemóvel 390 px              |
@@ -32,6 +32,19 @@ Validado em 14 de Setembro de 2026, Windows, Node.js 22.20.0, Next.js 16.3.4 e C
 13. Bloqueio e manutenção de camas com justificação; camas ocupadas não mudam de estado e ficam fora do denominador da ocupação.
 14. Entrada de stock com lote e fornecedor → requisição para um serviço → ajuste de inventário justificado → dispensação parcial ligada à prescrição, com saldo visível no livro de movimentos e mantida após recarregar.
 15. Alertas de stock mínimo, de validade próxima e de lote expirado; saída acima do disponível e dispensação de lote expirado são recusadas.
+16. Emissão de factura a partir da tabela de serviços com comparticipação de convénio → pagamento parcial com recibo → movimento de caixa correspondente → despesa registada, tudo mantido após recarregar.
+17. Atribuição de turno com recusa de sobreposição → presença registada com justificação obrigatória → ausência recusada por existirem turnos no período.
+
+## Regras de fase 6 confirmadas por teste
+
+- A factura calcula-se da tabela de serviços; a comparticipação é arredondada a favor do paciente.
+- Nenhum pagamento excede o valor em dívida; uma factura paga ou anulada não recebe mais pagamentos.
+- Um pagamento igual ao anterior em valor e meio, há menos de dois minutos, é recusado.
+- Uma factura com pagamentos não pode ser anulada; a anulação exige motivo.
+- O saldo de caixa é sempre a soma dos movimentos, incluindo os recibos gerados pelos pagamentos.
+- Turnos do mesmo colaborador não se sobrepõem, não caem em datas passadas nem em períodos de ausência.
+- As presenças só existem em dias com turno, não são futuras e uma falta justificada exige justificação.
+- Ausências não se sobrepõem entre si nem cobrem turnos já atribuídos; um colaborador com turnos por cumprir não é inactivado.
 
 ## Regras de fase 5 confirmadas por teste
 
@@ -69,4 +82,4 @@ A prioridade da triagem é sempre seleccionada pelo profissional. Não existe al
 
 Sem certificação de acessibilidade, validação clínica, testes de carga, autenticação real, sincronização, abertura a frio offline, restauro de backups ou hardware hospitalar. Os perfis são simulações e o armazenamento local não protege informação clínica real. Os ficheiros de resultado são nomes de exemplo, sem conteúdo anexado; DICOM e PACS ficam para uma integração posterior.
 
-A facturação em kwanzas, a caixa e a gestão de colaboradores serão implementadas na fase 6. Os movimentos de stock são locais e não constituem um sistema de gestão de existências certificado.
+As facturas e recibos são documentos de demonstração, sem valor fiscal, e o módulo não implementa contabilidade nem processamento salarial. Os indicadores agregados, o cartão do paciente e os relatórios exportáveis serão implementados na fase 7.

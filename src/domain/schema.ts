@@ -7,6 +7,7 @@ export const roles = [
   'Médico',
   'Técnico',
   'Farmacêutico',
+  'Administrativo',
   'Direcção',
 ] as const;
 export type Role = (typeof roles)[number];
@@ -361,8 +362,147 @@ export const movementSchema = z.object({
   prescriptionItemId: z.string().nullable(),
 });
 export type Movement = z.infer<typeof movementSchema>;
+export const serviceCategories = [
+  'Consulta',
+  'Exame',
+  'Internamento',
+  'Procedimento',
+  'Outro',
+] as const;
+export const paymentMethods = ['Numerário', 'Multicaixa', 'Transferência'] as const;
+export type PaymentMethod = (typeof paymentMethods)[number];
+export const serviceSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  code: z.string().trim().min(2, 'Indique o código do serviço.').max(20),
+  name: z.string().trim().min(2, 'Indique a designação do serviço.').max(120),
+  category: z.enum(serviceCategories),
+  /** Preço em kwanzas inteiros. */
+  price: z.number().int().min(0).max(100000000),
+});
+export type Service = z.infer<typeof serviceSchema>;
+export const insurerSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  name: z.string().trim().min(2, 'Indique o convénio ou seguradora.').max(120),
+  coverage: z.number().int().min(0).max(100),
+  contact: z.string().trim().max(160),
+});
+export type Insurer = z.infer<typeof insurerSchema>;
+export const invoiceSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  number: z.string(),
+  patientId: z.string(),
+  episodeId: z.string().nullable(),
+  insurerId: z.string().nullable(),
+  issuedAt: z.string(),
+  issuedBy: z.string(),
+  lines: z
+    .array(
+      z.object({
+        id: z.string(),
+        serviceId: z.string(),
+        description: z.string(),
+        quantity: z.number().int().min(1).max(1000),
+        unitPrice: z.number().int().min(0),
+        total: z.number().int().min(0),
+      }),
+    )
+    .min(1, 'A factura tem de ter pelo menos um serviço.'),
+  subtotal: z.number().int().min(0),
+  covered: z.number().int().min(0),
+  due: z.number().int().min(0),
+  status: z.enum(['Emitida', 'Parcialmente paga', 'Paga', 'Anulada']),
+  payments: z.array(
+    z.object({
+      id: z.string(),
+      receipt: z.string(),
+      at: z.string(),
+      author: z.string(),
+      amount: z.number().int().min(1),
+      method: z.enum(paymentMethods),
+    }),
+  ),
+  cancellation: z
+    .object({ at: z.string(), author: z.string(), reason: z.string().trim().min(3) })
+    .nullable(),
+});
+export type Invoice = z.infer<typeof invoiceSchema>;
+export const cashEntrySchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  at: z.string(),
+  author: z.string(),
+  type: z.enum(['Receita', 'Despesa']),
+  category: z.string().trim().min(2).max(60),
+  description: z.string().trim().min(3, 'Descreva o movimento de caixa.').max(200),
+  amount: z.number().int().min(1, 'O valor tem de ser positivo.').max(100000000),
+  method: z.enum(paymentMethods),
+  invoiceId: z.string().nullable(),
+});
+export type CashEntry = z.infer<typeof cashEntrySchema>;
+export const staffRoles = [
+  'Médico',
+  'Enfermeiro',
+  'Técnico de diagnóstico',
+  'Farmacêutico',
+  'Recepcionista',
+  'Administrativo',
+  'Auxiliar',
+] as const;
+export const absenceTypes = ['Férias', 'Licença', 'Formação'] as const;
+export const attendanceStatuses = ['Presente', 'Falta', 'Falta justificada'] as const;
+export const staffSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  number: z.string(),
+  name: z.string().trim().min(3, 'Indique o nome do colaborador.').max(120),
+  role: z.enum(staffRoles),
+  department: z.string().trim().min(2, 'Indique o departamento.').max(80),
+  phone: z.string().trim().max(30),
+  hiredAt: z.string(),
+  active: z.boolean(),
+});
+export type Staff = z.infer<typeof staffSchema>;
+export const shiftSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  staffId: z.string(),
+  date: z.string(),
+  start: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  end: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
+  department: z.string().trim().min(2).max(80),
+});
+export type Shift = z.infer<typeof shiftSchema>;
+export const attendanceSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  staffId: z.string(),
+  date: z.string(),
+  status: z.enum(attendanceStatuses),
+  note: z.string().max(200),
+  recordedBy: z.string(),
+  recordedAt: z.string(),
+});
+export type Attendance = z.infer<typeof attendanceSchema>;
+export const absenceSchema = z
+  .object({
+    id: z.string(),
+    unitId: z.string(),
+    staffId: z.string(),
+    type: z.enum(absenceTypes),
+    start: z.string(),
+    end: z.string(),
+    note: z.string().max(200),
+  })
+  .refine((a) => a.end >= a.start, {
+    message: 'A data de fim não pode ser anterior ao início.',
+    path: ['end'],
+  });
+export type Absence = z.infer<typeof absenceSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(5),
+  version: z.literal(6),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -384,6 +524,14 @@ export const databaseSchema = z.object({
   products: z.array(productSchema),
   batches: z.array(batchSchema),
   movements: z.array(movementSchema),
+  services: z.array(serviceSchema),
+  insurers: z.array(insurerSchema),
+  invoices: z.array(invoiceSchema),
+  cash: z.array(cashEntrySchema),
+  staff: z.array(staffSchema),
+  shifts: z.array(shiftSchema),
+  attendance: z.array(attendanceSchema),
+  absences: z.array(absenceSchema),
   audit: z.array(
     z.object({
       id: z.string(),
@@ -405,6 +553,9 @@ export const canTriage = (session: Session) =>
 export const canConsult = (session: Session) => ['Administrador', 'Médico'].includes(session.role);
 export const canDiagnostics = (session: Session) =>
   ['Administrador', 'Técnico'].includes(session.role);
+/** Facturação, caixa e recursos humanos partilham o perfil administrativo. */
+export const canAdministration = (session: Session) =>
+  ['Administrador', 'Administrativo'].includes(session.role);
 export const canPharmacy = (session: Session) =>
   ['Administrador', 'Farmacêutico'].includes(session.role);
 /** Enfermaria: enfermeiros e médicos registam cuidados; a admissão continua a ser um acto médico. */

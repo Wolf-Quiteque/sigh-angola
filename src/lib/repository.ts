@@ -54,6 +54,18 @@ function migrate(parsed: Record<string, unknown>) {
         item.dispensed ??= 0;
       }
   }
+  if (parsed.version === 5) {
+    parsed.version = 6;
+    const reference = createSeed();
+    parsed.services = reference.services;
+    parsed.insurers = reference.insurers;
+    parsed.staff = reference.staff;
+    parsed.invoices = [];
+    parsed.cash = [];
+    parsed.shifts = [];
+    parsed.attendance = [];
+    parsed.absences = [];
+  }
   return parsed.version !== from;
 }
 function read(): Database {
