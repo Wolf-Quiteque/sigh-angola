@@ -1154,8 +1154,13 @@ textarea {
   color: #5d707b;
 }
 .timeline-item small {
+  display: block;
   font-size: 11px;
   color: #5d707b;
+}
+/* Um atalho dentro da linha do tempo fica na sua própria linha. */
+.timeline-item .text-link {
+  margin-top: 6px;
 }
 .appointment-list {
   padding: 0 23px 10px;
