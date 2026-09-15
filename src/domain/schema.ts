@@ -6,6 +6,7 @@ export const roles = [
   'Enfermeiro',
   'Médico',
   'Técnico',
+  'Farmacêutico',
   'Direcção',
 ] as const;
 export type Role = (typeof roles)[number];
@@ -104,6 +105,9 @@ export const prescriptionItemSchema = z.object({
   route: z.string().trim().min(1),
   frequency: z.string().trim().min(1),
   duration: z.string().trim().min(1),
+  /** Quantidade total a dispensar. Zero significa «não registada», como nas receitas anteriores à fase 5. */
+  quantity: z.number().int().min(0).max(1000),
+  dispensed: z.number().int().min(0).max(1000),
   notes: z.string().max(500),
 });
 export type PrescriptionItem = z.infer<typeof prescriptionItemSchema>;
@@ -290,8 +294,75 @@ export const admissionSchema = z.object({
     .nullable(),
 });
 export type Admission = z.infer<typeof admissionSchema>;
+export const productCategories = [
+  'Medicamento',
+  'Material gastável',
+  'Consumível',
+  'Equipamento',
+] as const;
+export type ProductCategory = (typeof productCategories)[number];
+export const movementTypes = [
+  'Entrada',
+  'Saída',
+  'Ajuste',
+  'Transferência',
+  'Dispensação',
+] as const;
+export type MovementType = (typeof movementTypes)[number];
+export const supplierSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  name: z.string().trim().min(2, 'Indique o nome do fornecedor.').max(120),
+  contact: z.string().trim().max(160),
+});
+export type Supplier = z.infer<typeof supplierSchema>;
+export const productSchema = z
+  .object({
+    id: z.string(),
+    unitId: z.string(),
+    code: z.string().trim().min(2, 'Indique o código do artigo.').max(20),
+    name: z.string().trim().min(2, 'Indique a designação do artigo.').max(120),
+    category: z.enum(productCategories),
+    measure: z.string().trim().min(1, 'Indique a unidade de medida.').max(30),
+    minimumStock: z.number().int().min(0).max(100000),
+    maximumStock: z.number().int().min(0).max(100000),
+  })
+  .refine((p) => p.maximumStock === 0 || p.maximumStock >= p.minimumStock, {
+    message: 'O stock máximo não pode ser inferior ao mínimo.',
+    path: ['maximumStock'],
+  });
+export type Product = z.infer<typeof productSchema>;
+export const batchSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  productId: z.string(),
+  code: z.string().trim().min(1).max(40),
+  /** Nulo em artigos sem prazo, como equipamentos. */
+  expiry: z.string().nullable(),
+  quantity: z.number().int().min(0).max(1000000),
+  supplierId: z.string().nullable(),
+  receivedAt: z.string(),
+});
+export type Batch = z.infer<typeof batchSchema>;
+export const movementSchema = z.object({
+  id: z.string(),
+  unitId: z.string(),
+  productId: z.string(),
+  batchId: z.string().nullable(),
+  type: z.enum(movementTypes),
+  /** Sempre positiva; o tipo indica o sentido. Num ajuste, é a diferença aplicada. */
+  quantity: z.number().int(),
+  balance: z.number().int().min(0),
+  at: z.string(),
+  author: z.string(),
+  reason: z.string().max(500),
+  destination: z.string().max(160),
+  patientId: z.string().nullable(),
+  prescriptionItemId: z.string().nullable(),
+});
+export type Movement = z.infer<typeof movementSchema>;
 export const databaseSchema = z.object({
-  version: z.literal(4),
+  version: z.literal(5),
   revision: z.number().int().nonnegative(),
   unit: z.object({
     id: z.string(),
@@ -309,6 +380,10 @@ export const databaseSchema = z.object({
   wards: z.array(wardSchema),
   beds: z.array(bedSchema),
   admissions: z.array(admissionSchema),
+  suppliers: z.array(supplierSchema),
+  products: z.array(productSchema),
+  batches: z.array(batchSchema),
+  movements: z.array(movementSchema),
   audit: z.array(
     z.object({
       id: z.string(),
@@ -330,6 +405,8 @@ export const canTriage = (session: Session) =>
 export const canConsult = (session: Session) => ['Administrador', 'Médico'].includes(session.role);
 export const canDiagnostics = (session: Session) =>
   ['Administrador', 'Técnico'].includes(session.role);
+export const canPharmacy = (session: Session) =>
+  ['Administrador', 'Farmacêutico'].includes(session.role);
 /** Enfermaria: enfermeiros e médicos registam cuidados; a admissão continua a ser um acto médico. */
 export const canWard = (session: Session) =>
   ['Administrador', 'Enfermeiro', 'Médico'].includes(session.role);

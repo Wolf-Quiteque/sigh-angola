@@ -6,7 +6,10 @@ import {
   canConsult,
   canDiagnostics,
   canWard,
+  canPharmacy,
   admissionSchema,
+  productSchema,
+  supplierSchema,
   examSchema,
   triageSchema,
   prescriptionItemSchema,
@@ -14,8 +17,11 @@ import {
   type Admission,
   type Bed,
   type Database,
+  type Batch,
   type Exam,
   type ExamStatus,
+  type Movement,
+  type Product,
   type PatientInput,
   type Session,
 } from './schema';
@@ -53,6 +59,7 @@ export type ClinicalCommand =
         route: string;
         frequency: string;
         duration: string;
+        quantity: number;
         notes: string;
       }>;
     }
@@ -126,10 +133,49 @@ export type InpatientCommand =
       note: string;
     };
 
+export type PharmacyCommand =
+  | {
+      type: 'product.save';
+      id?: string;
+      code: string;
+      name: string;
+      category: 'Medicamento' | 'Material gastável' | 'Consumível' | 'Equipamento';
+      measure: string;
+      minimumStock: number;
+      maximumStock: number;
+    }
+  | { type: 'supplier.save'; id?: string; name: string; contact: string }
+  | {
+      type: 'stock.entry';
+      productId: string;
+      batchCode: string;
+      expiry: string | null;
+      quantity: number;
+      supplierId: string | null;
+      reason: string;
+    }
+  | { type: 'stock.exit'; batchId: string; quantity: number; reason: string }
+  | {
+      type: 'stock.transfer';
+      batchId: string;
+      quantity: number;
+      destination: string;
+      reason: string;
+    }
+  | { type: 'stock.adjust'; batchId: string; counted: number; reason: string }
+  | {
+      type: 'pharmacy.dispense';
+      consultationId: string;
+      prescriptionItemId: string;
+      batchId: string;
+      quantity: number;
+    };
+
 export type Command =
   | ClinicalCommand
   | DiagnosticCommand
   | InpatientCommand
+  | PharmacyCommand
   | { type: 'patient.save'; id?: string; input: PatientInput }
   | {
       type: 'appointment.save';
@@ -360,9 +406,23 @@ export function executeCommand(
       fail('Consulta não encontrada.');
     if (consultation.status !== 'Em curso')
       fail('Uma consulta concluída não pode ser alterada. Utilize uma adenda.');
-    const prescriptions = command.prescriptions.map((item) =>
-      prescriptionItemSchema.parse({ ...item, id: item.id || crypto.randomUUID() }),
-    );
+    // A quantidade já dispensada pertence à farmácia: é preservada, nunca recebida do formulário.
+    const prescriptions = command.prescriptions.map((item) => {
+      const existing = consultation.prescriptions.find((p) => p.id === item.id);
+      const dispensed = existing?.dispensed ?? 0;
+      if (dispensed > item.quantity)
+        fail(
+          `Já foram dispensadas ${dispensed} unidade(s) de ${item.medication}. A quantidade não pode ser inferior.`,
+        );
+      return prescriptionItemSchema.parse({
+        ...item,
+        id: item.id || crypto.randomUUID(),
+        dispensed,
+      });
+    });
+    for (const previous of consultation.prescriptions)
+      if (previous.dispensed > 0 && !prescriptions.some((p) => p.id === previous.id))
+        fail(`${previous.medication} já foi dispensado e não pode ser removido da prescrição.`);
     Object.assign(consultation, {
       history: command.history.trim(),
       allergies: command.allergies.trim(),
@@ -704,6 +764,195 @@ export function executeCommand(
     entityId = bed.id;
     action = 'Estado da cama actualizado';
     detail = `${bedLabel(bed)} · ${command.status}`;
+  }
+  const productFor = (id: string): Product =>
+    db.products.find((p) => p.id === id && p.unitId === db.unit.id) ??
+    fail('Artigo não encontrado no armazém.');
+  const batchFor = (id: string): Batch =>
+    db.batches.find((b) => b.id === id && b.unitId === db.unit.id) ?? fail('Lote não encontrado.');
+  const stockOf = (productId: string) =>
+    db.batches.filter((b) => b.productId === productId).reduce((sum, b) => sum + b.quantity, 0);
+  const expired = (batch: Batch) => !!batch.expiry && batch.expiry < today();
+  /** Toda a saída de stock passa por aqui: valida a quantidade e deixa o saldo no movimento. */
+  const move = (
+    batch: Batch,
+    type: Movement['type'],
+    quantity: number,
+    extra: Partial<Movement> = {},
+  ) => {
+    const movement: Movement = {
+      id: crypto.randomUUID(),
+      unitId: db.unit.id,
+      productId: batch.productId,
+      batchId: batch.id,
+      type,
+      quantity,
+      balance: stockOf(batch.productId),
+      at: now,
+      author: session.name,
+      reason: '',
+      destination: '',
+      patientId: null,
+      prescriptionItemId: null,
+      ...extra,
+    };
+    db.movements.unshift(movement);
+    return movement;
+  };
+  const withdraw = (batchId: string, quantity: number, label: string) => {
+    const batch = batchFor(batchId);
+    if (!Number.isInteger(quantity) || quantity <= 0)
+      fail(`Indique uma quantidade inteira e positiva para ${label}.`);
+    if (quantity > batch.quantity)
+      fail(
+        `Só existem ${batch.quantity} unidade(s) no lote ${batch.code}. O stock não pode ficar negativo.`,
+      );
+    batch.quantity -= quantity;
+    return batch;
+  };
+  if (command.type === 'product.save') {
+    if (!canPharmacy(session)) fail('Este perfil não tem permissão para gerir o armazém.');
+    const parsed = productSchema.safeParse({
+      ...command,
+      id: command.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+      code: command.code.trim().toUpperCase(),
+    });
+    if (!parsed.success) fail(parsed.error.issues[0]?.message || 'Verifique os dados do artigo.');
+    const product = parsed.data!;
+    if (db.products.some((p) => p.id !== product.id && p.code === product.code))
+      fail(`O código ${product.code} já pertence a outro artigo.`);
+    const previous = command.id ? productFor(command.id) : undefined;
+    if (previous) Object.assign(previous, product);
+    else db.products.push(product);
+    entityId = product.id;
+    action = previous ? 'Artigo actualizado' : 'Artigo registado';
+    detail = `${product.code} · ${product.name}`;
+  }
+  if (command.type === 'supplier.save') {
+    if (!canPharmacy(session)) fail('Este perfil não tem permissão para gerir fornecedores.');
+    const parsed = supplierSchema.safeParse({
+      ...command,
+      id: command.id ?? crypto.randomUUID(),
+      unitId: db.unit.id,
+    });
+    if (!parsed.success)
+      fail(parsed.error.issues[0]?.message || 'Verifique os dados do fornecedor.');
+    const supplier = parsed.data!;
+    const previous = command.id
+      ? (db.suppliers.find((s) => s.id === command.id) ?? fail('Fornecedor não encontrado.'))
+      : undefined;
+    if (previous) Object.assign(previous, supplier);
+    else db.suppliers.push(supplier);
+    entityId = supplier.id;
+    action = previous ? 'Fornecedor actualizado' : 'Fornecedor registado';
+    detail = supplier.name;
+  }
+  if (command.type === 'stock.entry') {
+    if (!canPharmacy(session)) fail('Este perfil não tem permissão para dar entrada de stock.');
+    const product = productFor(command.productId);
+    const code = command.batchCode.trim().toUpperCase();
+    if (!code) fail('Indique o lote ou a referência da entrada.');
+    if (!Number.isInteger(command.quantity) || command.quantity <= 0)
+      fail('Indique uma quantidade inteira e positiva.');
+    if (command.expiry) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(command.expiry)) fail('Verifique a data de validade.');
+      if (command.expiry <= today()) fail('Não é possível dar entrada a um lote já expirado.');
+    }
+    if (command.supplierId && !db.suppliers.some((s) => s.id === command.supplierId))
+      fail('Seleccione um fornecedor válido.');
+    const existing = db.batches.find(
+      (b) => b.productId === product.id && b.code === code && b.expiry === (command.expiry ?? null),
+    );
+    const batch =
+      existing ??
+      (() => {
+        const created: Batch = {
+          id: crypto.randomUUID(),
+          unitId: db.unit.id,
+          productId: product.id,
+          code,
+          expiry: command.expiry ?? null,
+          quantity: 0,
+          supplierId: command.supplierId ?? null,
+          receivedAt: now,
+        };
+        db.batches.push(created);
+        return created;
+      })();
+    batch.quantity += command.quantity;
+    const total = stockOf(product.id);
+    if (product.maximumStock > 0 && total > product.maximumStock)
+      fail(
+        `Esta entrada ultrapassa o stock máximo de ${product.maximumStock} ${product.measure}. Reveja a quantidade.`,
+      );
+    move(batch, 'Entrada', command.quantity, { reason: command.reason.trim() });
+    entityId = batch.id;
+    action = 'Entrada de stock';
+    detail = `${product.name} · lote ${code} · +${command.quantity} ${product.measure}`;
+  }
+  if (command.type === 'stock.exit' || command.type === 'stock.transfer') {
+    if (!canPharmacy(session)) fail('Este perfil não tem permissão para movimentar stock.');
+    if (!command.reason.trim()) fail('Justifique o movimento de stock.');
+    if (command.type === 'stock.transfer' && !command.destination.trim())
+      fail('Indique o serviço de destino da requisição.');
+    const batch = withdraw(command.batchId, command.quantity, 'a saída');
+    const product = productFor(batch.productId);
+    move(batch, command.type === 'stock.exit' ? 'Saída' : 'Transferência', command.quantity, {
+      reason: command.reason.trim(),
+      destination: command.type === 'stock.transfer' ? command.destination.trim() : '',
+    });
+    entityId = batch.id;
+    action = command.type === 'stock.exit' ? 'Saída de stock' : 'Requisição de serviço';
+    detail =
+      `${product.name} · lote ${batch.code} · -${command.quantity} ${product.measure}` +
+      (command.type === 'stock.transfer' ? ` · ${command.destination.trim()}` : '');
+  }
+  if (command.type === 'stock.adjust') {
+    if (!canPharmacy(session)) fail('Este perfil não tem permissão para ajustar inventário.');
+    const batch = batchFor(command.batchId);
+    if (!Number.isInteger(command.counted) || command.counted < 0)
+      fail('A contagem tem de ser um número inteiro igual ou superior a zero.');
+    if (command.counted === batch.quantity) fail('A contagem é igual ao stock registado.');
+    if (!command.reason.trim()) fail('Justifique o ajuste de inventário.');
+    const difference = command.counted - batch.quantity;
+    const product = productFor(batch.productId);
+    batch.quantity = command.counted;
+    move(batch, 'Ajuste', difference, { reason: command.reason.trim() });
+    entityId = batch.id;
+    action = 'Ajuste de inventário';
+    detail = `${product.name} · lote ${batch.code} · ${difference > 0 ? '+' : ''}${difference} ${product.measure}`;
+  }
+  if (command.type === 'pharmacy.dispense') {
+    if (!canPharmacy(session)) fail('Este perfil não tem permissão para dispensar medicamentos.');
+    const consultation =
+      db.consultations.find((c) => c.id === command.consultationId) ??
+      fail('Consulta não encontrada.');
+    const item =
+      consultation.prescriptions.find((p) => p.id === command.prescriptionItemId) ??
+      fail('Medicamento não encontrado nesta prescrição.');
+    if (item.quantity === 0)
+      fail('Esta prescrição não tem quantidade registada e não pode ser dispensada.');
+    const remaining = item.quantity - item.dispensed;
+    if (remaining <= 0) fail('Este medicamento já foi totalmente dispensado.');
+    if (!Number.isInteger(command.quantity) || command.quantity <= 0)
+      fail('Indique uma quantidade inteira e positiva.');
+    if (command.quantity > remaining)
+      fail(`Faltam dispensar ${remaining} unidade(s). Reveja a quantidade.`);
+    const candidate = batchFor(command.batchId);
+    if (expired(candidate))
+      fail(`O lote ${candidate.code} expirou em ${candidate.expiry}. Escolha outro lote.`);
+    const batch = withdraw(command.batchId, command.quantity, 'a dispensação');
+    const product = productFor(batch.productId);
+    item.dispensed += command.quantity;
+    move(batch, 'Dispensação', command.quantity, {
+      reason: `${item.medication} ${item.dose}`,
+      patientId: consultation.patientId,
+      prescriptionItemId: item.id,
+    });
+    entityId = batch.id;
+    action = item.dispensed >= item.quantity ? 'Dispensação total' : 'Dispensação parcial';
+    detail = `${patientFor(consultation.patientId).name} · ${product.name} · ${command.quantity} ${product.measure}`;
   }
   db.revision++;
   db.audit.unshift({

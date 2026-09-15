@@ -68,16 +68,18 @@ A consulta com destino «Internamento» coloca o episódio a aguardar cama em ve
 
 ## Fase 5 — farmácia e armazém
 
-Estado: próxima fase. RF13, RF14.
+Estado: implementada; consultar `VALIDATION.md` para evidência. RF13, RF14.
 
 - Medicamentos, materiais, consumíveis, equipamentos, fornecedores, lotes, validades e limites de stock.
 - Entrada, saída, inventário, ajuste justificado, requisição e transferência.
 - Dispensação ligada à prescrição, parcial/total, com movimentos rastreáveis e alertas de validade/stock.
 - Aceitação: impedir stock negativo, lote expirado e dispensação superior ao restante; consumo alimenta indicadores.
 
+A prescrição passa a ter quantidade; as receitas anteriores à fase 5 ficam com quantidade zero e não são dispensáveis. Requisição e transferência para um serviço são a mesma operação na demo. Cada movimento guarda o saldo resultante, a autoria e a justificação; a quantidade dispensada pertence à farmácia e não é alterada pelo formulário da consulta.
+
 ## Fase 6 — finanças e recursos humanos
 
-Estado: por iniciar. Secções 28–29.
+Estado: próxima fase. Secções 28–29.
 
 - Tabelas de serviços, facturação demo, pagamentos parciais, recibos de demonstração, caixa, despesas, receitas, contas e convénios/seguros; valores em kwanzas.
 - Colaboradores, funções, departamentos, escalas, presenças, férias, formação e unidade.

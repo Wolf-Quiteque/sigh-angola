@@ -165,6 +165,7 @@ export function Settings() {
               ],
               ['Médico', 'Atender, prescrever, pedir e validar exames, internar e dar alta.'],
               ['Técnico', 'Operar laboratório e imagiologia: colheita, realização e resultados.'],
+              ['Farmacêutico', 'Gerir catálogo, lotes, movimentos de stock e dispensação.'],
               ['Direcção', 'Consultar dados e indicadores, sem alterações.'],
             ].map(([role, desc]) => (
               <div key={role}>
@@ -295,13 +296,13 @@ const phases = [
   },
   {
     title: 'Farmácia e armazém',
-    status: 'Próxima fase',
+    status: 'Disponível',
     text: 'Dispensação ligada à prescrição, lotes, validades, inventário e movimentos de stock.',
     items: ['Dispensação', 'Lotes e validades', 'Fornecedores'],
   },
   {
     title: 'Finanças e recursos humanos',
-    status: 'Planeada',
+    status: 'Próxima fase',
     text: 'Facturação demo em kwanzas, pagamentos, caixa, colaboradores, escalas e ausências.',
     items: ['Caixa e facturação', 'Convênios', 'Equipa e escalas'],
   },
@@ -334,8 +335,8 @@ export function Roadmap() {
       />
       <div className="roadmap-intro">
         <div>
-          <Badge tone="success">FASES 0–4 · CONCLUÍDAS</Badge>
-          <h2>Do registo à alta de internamento.</h2>
+          <Badge tone="success">FASES 0–5 · CONCLUÍDAS</Badge>
+          <h2>Do registo à dispensação de medicamentos.</h2>
           <p>
             A demo evolui a partir dos requisitos do SIGH-ANGOLA. Cada fase liga novos processos aos
             mesmos dados de pacientes e episódios.
@@ -349,15 +350,15 @@ export function Roadmap() {
       </div>
       <div className="phase-list">
         {phases.map((phase, i) => (
-          <Panel className={i === 4 ? 'current-phase' : ''} key={phase.title}>
+          <Panel className={i === 5 ? 'current-phase' : ''} key={phase.title}>
             <div className="phase-row">
-              <span className={`phase-number ${i < 5 ? 'done' : ''}`}>
+              <span className={`phase-number ${i < 6 ? 'done' : ''}`}>
                 {i === 0 ? <Check size={22} /> : String(i).padStart(2, '0')}
               </span>
               <div className="phase-content">
                 <div className="phase-title">
                   <h2>{phase.title}</h2>
-                  <Badge tone={i < 5 ? 'success' : i === 5 ? 'info' : ''}>{phase.status}</Badge>
+                  <Badge tone={i < 6 ? 'success' : i === 6 ? 'info' : ''}>{phase.status}</Badge>
                 </div>
                 <p>{phase.text}</p>
                 <div className="phase-tags">
@@ -366,7 +367,7 @@ export function Roadmap() {
                   ))}
                 </div>
               </div>
-              {i === 5 && <ArrowRight className="muted" size={22} />}
+              {i === 6 && <ArrowRight className="muted" size={22} />}
             </div>
           </Panel>
         ))}

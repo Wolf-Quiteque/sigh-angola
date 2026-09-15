@@ -312,9 +312,7 @@ export function PatientDetail({ id }: { id: string }) {
           <StayHistory patientId={id} />
           <div className="info-line">
             <Badge tone="info">Próxima fase</Badge>
-            <span>
-              Dispensação de medicamentos e movimentos de stock serão integrados na fase 5.
-            </span>
+            <span>Facturação, caixa e gestão de colaboradores serão integrados na fase 6.</span>
           </div>
         </div>
       </div>

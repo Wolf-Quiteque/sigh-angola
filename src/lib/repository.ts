@@ -38,6 +38,22 @@ function migrate(parsed: Record<string, unknown>) {
     );
     parsed.admissions = [];
   }
+  if (parsed.version === 4) {
+    parsed.version = 5;
+    const reference = createSeed();
+    parsed.suppliers = reference.suppliers;
+    parsed.products = reference.products;
+    parsed.batches = reference.batches;
+    parsed.movements = reference.movements;
+    // Receitas anteriores à fase 5 não têm quantidade; ficam a zero e não são dispensáveis.
+    for (const consultation of (parsed.consultations ?? []) as Array<{
+      prescriptions: Array<Record<string, unknown>>;
+    }>)
+      for (const item of consultation.prescriptions) {
+        item.quantity ??= 0;
+        item.dispensed ??= 0;
+      }
+  }
   return parsed.version !== from;
 }
 function read(): Database {

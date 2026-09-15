@@ -15,7 +15,7 @@ const stamp = <T extends Offset>(value: T | null, base: string) => {
 export function createSeed(base = today()): Database {
   const unitId = seed.unit.id;
   return databaseSchema.parse({
-    version: 4,
+    version: 5,
     revision: 0,
     unit: seed.unit,
     professionals: seed.professionals,
@@ -71,6 +71,34 @@ export function createSeed(base = today()): Database {
       admittedAt: at(admitted, base),
       notes: notes.map((note) => stamp(note, base)),
     })),
+    suppliers: seed.suppliers.map((s) => ({ ...s, unitId })),
+    products: seed.products.map((p) => ({ ...p, unitId })),
+    batches: seed.batches.map(({ expiryOffset, receivedOffset, ...b }) => ({
+      ...b,
+      unitId,
+      expiry: expiryOffset === null ? null : dayOffset(expiryOffset, base),
+      receivedAt: `${dayOffset(receivedOffset, base)}T09:00:00+01:00`,
+    })),
+    // Cada lote inicial corresponde a uma entrada registada, para o livro de movimentos não nascer vazio.
+    movements: seed.batches
+      .map(({ id, productId, quantity, receivedOffset }) => ({
+        id: `mov-${id}`,
+        unitId,
+        productId,
+        batchId: id,
+        type: 'Entrada' as const,
+        quantity,
+        balance: seed.batches
+          .filter((b) => b.productId === productId && b.receivedOffset <= receivedOffset)
+          .reduce((sum, b) => sum + b.quantity, 0),
+        at: `${dayOffset(receivedOffset, base)}T09:00:00+01:00`,
+        author: 'Farm. Rosa Cahama',
+        reason: 'Entrada inicial do cenário de demonstração',
+        destination: '',
+        patientId: null,
+        prescriptionItemId: null,
+      }))
+      .sort((a, b) => b.at.localeCompare(a.at)),
     audit: [
       {
         id: 'initial',

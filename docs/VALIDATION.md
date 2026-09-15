@@ -1,4 +1,4 @@
-# Verificação — fases 0 a 4
+# Verificação — fases 0 a 5
 
 Validado em 14 de Setembro de 2026, Windows, Node.js 22.20.0, Next.js 16.3.4 e Chromium através de Playwright.
 
@@ -8,9 +8,9 @@ Validado em 14 de Setembro de 2026, Windows, Node.js 22.20.0, Next.js 16.3.4 e C
 | ----------------------------------------- | -------------------------------------------------------------- |
 | TypeScript estrito                        | Sem erros                                                      |
 | ESLint                                    | Sem erros ou avisos                                            |
-| Testes de domínio, repositório e migração | 42 passaram                                                    |
-| Build de produção                         | Concluído; 12 ecrãs e 2 fichas dinâmicas                       |
-| Testes de navegador                       | 11 passaram                                                    |
+| Testes de domínio, repositório e migração | 53 passaram                                                    |
+| Build de produção                         | Concluído; 13 ecrãs e 2 fichas dinâmicas                       |
+| Testes de navegador                       | 14 passaram                                                    |
 | Migração dos dados das fases anteriores   | Pacientes, marcações, episódios, clínica e revisão preservados |
 | Pedidos externos no painel                | Nenhum pedido externo de API, fonte ou asset                   |
 | Inspecção visual                          | Desktop 1440 px, tablet 768 px e telemóvel 390 px              |
@@ -30,6 +30,17 @@ Validado em 14 de Setembro de 2026, Windows, Node.js 22.20.0, Next.js 16.3.4 e C
 11. Consulta com destino «Internamento» → aguardar cama → admissão → registo de cuidados → transferência → alta; a cama de origem fica livre e a de destino ocupada na mesma operação.
 12. Internamento visível no processo clínico e na ficha do paciente, com alta, notas e contrarreferência, mantido após recarregar.
 13. Bloqueio e manutenção de camas com justificação; camas ocupadas não mudam de estado e ficam fora do denominador da ocupação.
+14. Entrada de stock com lote e fornecedor → requisição para um serviço → ajuste de inventário justificado → dispensação parcial ligada à prescrição, com saldo visível no livro de movimentos e mantida após recarregar.
+15. Alertas de stock mínimo, de validade próxima e de lote expirado; saída acima do disponível e dispensação de lote expirado são recusadas.
+
+## Regras de fase 5 confirmadas por teste
+
+- Nenhuma saída, requisição ou dispensação deixa o stock negativo; a entrada acima do stock máximo é recusada.
+- Lotes expirados não podem receber entradas nem ser dispensados.
+- A dispensação nunca excede o que falta da prescrição; parcial e total ficam distinguidas na auditoria.
+- Saídas, requisições e ajustes exigem justificação; o ajuste guarda a diferença entre o registado e a contagem.
+- A quantidade já dispensada é preservada quando a consulta é reeditada e impede a remoção do medicamento.
+- Só o perfil Farmacêutico (ou Administrador) movimenta stock; códigos de artigo são únicos.
 
 ## Regras de fase 4 confirmadas por teste
 
@@ -58,4 +69,4 @@ A prioridade da triagem é sempre seleccionada pelo profissional. Não existe al
 
 Sem certificação de acessibilidade, validação clínica, testes de carga, autenticação real, sincronização, abertura a frio offline, restauro de backups ou hardware hospitalar. Os perfis são simulações e o armazenamento local não protege informação clínica real. Os ficheiros de resultado são nomes de exemplo, sem conteúdo anexado; DICOM e PACS ficam para uma integração posterior.
 
-A dispensação de medicamentos ligada à prescrição e os movimentos de stock serão implementados na fase 5.
+A facturação em kwanzas, a caixa e a gestão de colaboradores serão implementadas na fase 6. Os movimentos de stock são locais e não constituem um sistema de gestão de existências certificado.

@@ -2743,3 +2743,40 @@ textarea {
     padding: 14px 16px 16px;
   }
 }
+
+/* Fase 5 — farmácia e armazém */
+.batch-list {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.batch-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+}
+.batch-list li span {
+  min-width: 96px;
+  color: var(--ink);
+}
+.batch-list li em {
+  font-style: normal;
+}
+.batch-list li small {
+  margin-left: auto;
+  padding-left: 10px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.movement-in {
+  color: #367353;
+  font-weight: 500;
+}
+.movement-out {
+  color: #b36358;
+  font-weight: 500;
+}

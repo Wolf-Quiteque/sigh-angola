@@ -24,6 +24,11 @@ const statusTone: Record<string, string> = {
   Bloqueada: 'danger',
   'Em manutenção': 'warning',
   'Aguarda internamento': 'orange',
+  Entrada: 'success',
+  Saída: 'warning',
+  Ajuste: 'orange',
+  Transferência: 'info',
+  Dispensação: 'info',
 };
 export function Status({ value }: { value: string }) {
   return <Badge tone={statusTone[value] ?? 'info'}>{value}</Badge>;

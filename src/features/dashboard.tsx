@@ -227,9 +227,9 @@ export function Dashboard() {
             </Link>
           </Panel>
           <div className="roadmap-card">
-            <Badge tone="success">FASE 4 · INTERNAMENTO</Badge>
+            <Badge tone="success">FASE 5 · FARMÁCIA</Badge>
             <h2>Crescer, passo a passo.</h2>
-            <p>Recepção, clínica, exames e enfermaria partilham o mesmo processo.</p>
+            <p>Recepção, clínica, exames, enfermaria e farmácia num só processo.</p>
             <Link href="/roteiro">
               Conhecer as próximas fases
               <ArrowUpRightIcon />

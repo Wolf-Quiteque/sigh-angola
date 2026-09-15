@@ -35,6 +35,7 @@ test('fase 2: triagem, consulta, prescrição, conclusão e processo longitudina
   await page.getByLabel('Dose').fill('20 mg');
   await page.getByLabel('Frequência').fill('1 vez por dia');
   await page.getByLabel('Duração').fill('7 dias');
+  await page.getByLabel('Quantidade').fill('7');
   await page.screenshot({ path: 'test-results/clinical-workspace.png', fullPage: true });
   await page.getByRole('button', { name: 'Guardar rascunho' }).click();
   await expect(page.getByRole('status')).toContainText('Consulta guardada');
@@ -52,6 +53,7 @@ test('fase 2: triagem, consulta, prescrição, conclusão e processo longitudina
   await expect(page.getByRole('heading', { name: 'Consulta concluída' })).toBeVisible();
   await expect(page.getByText('Gastrite aguda de demonstração')).toBeVisible();
   await expect(page.getByText(/Omeprazol · 20 mg/)).toBeVisible();
+  await expect(page.getByText('Dispensado 0 de 7')).toBeVisible();
   await page.reload();
   await expect(page.getByText('Gastrite aguda de demonstração')).toBeVisible();
   await page.getByRole('button', { name: 'Nova adenda' }).click();

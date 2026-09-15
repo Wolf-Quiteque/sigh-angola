@@ -314,7 +314,9 @@
           "route": "Oral",
           "frequency": "12/12 horas",
           "duration": "3 dias",
-          "notes": "Tomar com alimento."
+          "notes": "Tomar com alimento.",
+          "quantity": 6,
+          "dispensed": 6
         },
         {
           "id": "rx2",
@@ -323,7 +325,9 @@
           "route": "Oral",
           "frequency": "8/8 horas",
           "duration": "3 dias",
-          "notes": "Apenas em caso de febre."
+          "notes": "Apenas em caso de febre.",
+          "quantity": 9,
+          "dispensed": 9
         }
       ],
       "amendments": []
@@ -356,7 +360,9 @@
           "route": "Intravenosa",
           "frequency": "8/8 horas",
           "duration": "2 dias",
-          "notes": "Reavaliar tolerância oral."
+          "notes": "Reavaliar tolerância oral.",
+          "quantity": 6,
+          "dispensed": 0
         }
       ],
       "amendments": []
@@ -663,6 +669,234 @@
       "transfers": [],
       "events": [],
       "discharge": null
+    }
+  ],
+  "suppliers": [
+    {
+      "id": "s1",
+      "name": "Farmédica Angola, Lda.",
+      "contact": "geral@demo.ao · 923000100"
+    },
+    {
+      "id": "s2",
+      "name": "Depósito Provincial do Cubango",
+      "contact": "deposito@demo.ao"
+    },
+    {
+      "id": "s3",
+      "name": "Materiais Clínicos do Sul",
+      "contact": "923000102"
+    }
+  ],
+  "products": [
+    {
+      "id": "med-001",
+      "code": "MED-001",
+      "name": "Paracetamol 500 mg",
+      "category": "Medicamento",
+      "measure": "Comprimido",
+      "minimumStock": 200,
+      "maximumStock": 2000
+    },
+    {
+      "id": "med-002",
+      "code": "MED-002",
+      "name": "Amoxicilina 500 mg",
+      "category": "Medicamento",
+      "measure": "Cápsula",
+      "minimumStock": 100,
+      "maximumStock": 1000
+    },
+    {
+      "id": "med-003",
+      "code": "MED-003",
+      "name": "Artemeter + lumefantrina 80/480 mg",
+      "category": "Medicamento",
+      "measure": "Comprimido",
+      "minimumStock": 60,
+      "maximumStock": 600
+    },
+    {
+      "id": "med-004",
+      "code": "MED-004",
+      "name": "Soro fisiológico 0,9% 500 mL",
+      "category": "Medicamento",
+      "measure": "Frasco",
+      "minimumStock": 40,
+      "maximumStock": 400
+    },
+    {
+      "id": "med-005",
+      "code": "MED-005",
+      "name": "Omeprazol 20 mg",
+      "category": "Medicamento",
+      "measure": "Cápsula",
+      "minimumStock": 60,
+      "maximumStock": 600
+    },
+    {
+      "id": "med-006",
+      "code": "MED-006",
+      "name": "Diazepam 10 mg",
+      "category": "Medicamento",
+      "measure": "Ampola",
+      "minimumStock": 20,
+      "maximumStock": 200
+    },
+    {
+      "id": "mat-001",
+      "code": "MAT-001",
+      "name": "Seringa de 5 mL",
+      "category": "Material gastável",
+      "measure": "Unidade",
+      "minimumStock": 200,
+      "maximumStock": 2000
+    },
+    {
+      "id": "mat-002",
+      "code": "MAT-002",
+      "name": "Luvas de exame, tamanho M",
+      "category": "Material gastável",
+      "measure": "Caixa",
+      "minimumStock": 20,
+      "maximumStock": 200
+    },
+    {
+      "id": "mat-003",
+      "code": "MAT-003",
+      "name": "Compressa esterilizada",
+      "category": "Material gastável",
+      "measure": "Pacote",
+      "minimumStock": 100,
+      "maximumStock": 800
+    },
+    {
+      "id": "con-001",
+      "code": "CON-001",
+      "name": "Álcool a 70%, 1 L",
+      "category": "Consumível",
+      "measure": "Frasco",
+      "minimumStock": 10,
+      "maximumStock": 100
+    },
+    {
+      "id": "eqp-001",
+      "code": "EQP-001",
+      "name": "Termómetro digital",
+      "category": "Equipamento",
+      "measure": "Unidade",
+      "minimumStock": 2,
+      "maximumStock": 20
+    }
+  ],
+  "batches": [
+    {
+      "id": "b-par-1",
+      "productId": "med-001",
+      "code": "L-PAR-2411",
+      "quantity": 620,
+      "expiryOffset": 300,
+      "supplierId": "s1",
+      "receivedOffset": -45
+    },
+    {
+      "id": "b-amx-1",
+      "productId": "med-002",
+      "code": "L-AMX-2405",
+      "quantity": 80,
+      "expiryOffset": 120,
+      "supplierId": "s1",
+      "receivedOffset": -60
+    },
+    {
+      "id": "b-act-1",
+      "productId": "med-003",
+      "code": "L-ACT-2409",
+      "quantity": 54,
+      "expiryOffset": 20,
+      "supplierId": "s2",
+      "receivedOffset": -90
+    },
+    {
+      "id": "b-sf-1",
+      "productId": "med-004",
+      "code": "L-SF-2501",
+      "quantity": 160,
+      "expiryOffset": 400,
+      "supplierId": "s1",
+      "receivedOffset": -30
+    },
+    {
+      "id": "b-ome-1",
+      "productId": "med-005",
+      "code": "L-OME-2312",
+      "quantity": 240,
+      "expiryOffset": -10,
+      "supplierId": "s2",
+      "receivedOffset": -200
+    },
+    {
+      "id": "b-ome-2",
+      "productId": "med-005",
+      "code": "L-OME-2502",
+      "quantity": 150,
+      "expiryOffset": 250,
+      "supplierId": "s1",
+      "receivedOffset": -20
+    },
+    {
+      "id": "b-dzp-1",
+      "productId": "med-006",
+      "code": "L-DZP-2408",
+      "quantity": 40,
+      "expiryOffset": 200,
+      "supplierId": "s2",
+      "receivedOffset": -70
+    },
+    {
+      "id": "b-ser-1",
+      "productId": "mat-001",
+      "code": "L-SER-01",
+      "quantity": 900,
+      "expiryOffset": 900,
+      "supplierId": "s3",
+      "receivedOffset": -50
+    },
+    {
+      "id": "b-luv-1",
+      "productId": "mat-002",
+      "code": "L-LUV-03",
+      "quantity": 45,
+      "expiryOffset": null,
+      "supplierId": "s3",
+      "receivedOffset": -40
+    },
+    {
+      "id": "b-comp-1",
+      "productId": "mat-003",
+      "code": "L-COMP-11",
+      "quantity": 300,
+      "expiryOffset": 600,
+      "supplierId": "s3",
+      "receivedOffset": -35
+    },
+    {
+      "id": "b-alc-1",
+      "productId": "con-001",
+      "code": "L-ALC-07",
+      "quantity": 24,
+      "expiryOffset": 365,
+      "supplierId": "s3",
+      "receivedOffset": -25
+    },
+    {
+      "id": "b-eqp-1",
+      "productId": "eqp-001",
+      "code": "EQ-2026",
+      "quantity": 6,
+      "expiryOffset": null,
+      "supplierId": "s2",
+      "receivedOffset": -120
     }
   ]
 }

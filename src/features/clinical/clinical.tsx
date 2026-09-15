@@ -310,6 +310,8 @@ const blankRx = (): RxDraft => ({
   route: 'Oral',
   frequency: '',
   duration: '',
+  quantity: 0,
+  dispensed: 0,
   notes: '',
 });
 
@@ -638,9 +640,30 @@ export function ClinicalWorkspace({ episodeId }: { episodeId: string }) {
                             }
                           />
                         </Field>
+                        <Field label="Quantidade *">
+                          <input
+                            type="number"
+                            min={1}
+                            max={1000}
+                            required
+                            value={rx.quantity || ''}
+                            placeholder="Ex.: 21"
+                            onChange={(e) =>
+                              setPrescriptions(
+                                prescriptions.map((p, i) =>
+                                  i === index ? { ...p, quantity: Number(e.target.value) } : p,
+                                ),
+                              )
+                            }
+                          />
+                        </Field>
                         <button
                           type="button"
                           className="button small secondary"
+                          disabled={rx.dispensed > 0}
+                          title={
+                            rx.dispensed > 0 ? 'Já existe dispensação para este medicamento.' : ''
+                          }
                           onClick={() =>
                             setPrescriptions(prescriptions.filter((_, i) => i !== index))
                           }
@@ -765,6 +788,13 @@ function CompletedConsultation({
             <p>
               {rx.route} · {rx.frequency} · {rx.duration}
             </p>
+            {rx.quantity > 0 && (
+              <Badge tone={rx.dispensed >= rx.quantity ? 'success' : 'warning'}>
+                {rx.dispensed >= rx.quantity
+                  ? 'Dispensado'
+                  : `Dispensado ${rx.dispensed} de ${rx.quantity}`}
+              </Badge>
+            )}
           </div>
         ))}
       </div>

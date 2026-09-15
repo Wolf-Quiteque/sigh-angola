@@ -80,6 +80,7 @@ describe('Fase 2: fluxo clínico', () => {
             route: 'Oral',
             frequency: '1 vez por dia',
             duration: '7 dias',
+            quantity: 7,
             notes: '',
           },
         ],
