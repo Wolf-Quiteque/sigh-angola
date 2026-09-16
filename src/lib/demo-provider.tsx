@@ -100,7 +100,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     const next = await repository.reset(session);
     apply(next);
     setError('');
-    setNotice('Cenário de demonstração reposto.');
+    setNotice('Dados iniciais repostos.');
   }
   return (
     <DemoContext.Provider

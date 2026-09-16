@@ -1,7 +1,7 @@
 {
-  "name": "SIGH-ANGOLA · demonstração",
+  "name": "SIGH-ANGOLA",
   "short_name": "SIGH-ANGOLA",
-  "description": "Demonstração do Sistema Integrado de Gestão Hospitalar de Angola.",
+  "description": "Sistema Integrado de Gestão Hospitalar de Angola.",
   "lang": "pt-AO",
   "start_url": "/",
   "scope": "/",

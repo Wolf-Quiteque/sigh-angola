@@ -169,8 +169,8 @@ function ExamRequestForm({
           </Field>
         </div>
         <div className="clinical-warning">
-          <FlaskConical size={15} /> A demo não interpreta valores nem sugere exames. O pedido segue
-          a decisão do médico.
+          <FlaskConical size={15} /> O sistema não interpreta valores nem sugere exames. O pedido
+          segue a decisão do médico.
         </div>
       </ActionForm>
     </Modal>

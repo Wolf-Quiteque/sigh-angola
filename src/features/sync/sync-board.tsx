@@ -64,7 +64,7 @@ export function SyncBoard() {
     setError('');
     const target = db!.outbox.find((entry) => entry.state !== 'Confirmado');
     if (!target) {
-      setError('Registe primeiro uma operação para depois simular o conflito.');
+      setError('Registe primeiro uma operação para poder receber uma alteração concorrente.');
       return;
     }
     await seedServerChange(target.entityId, target.action);
@@ -75,7 +75,7 @@ export function SyncBoard() {
       <PageHeader
         eyebrow="OFFLINE E SINCRONIZAÇÃO"
         title="Fila de envio e cópias de segurança"
-        description="O que está por enviar, o que já foi confirmado e como recuperar os dados desta demonstração."
+        description="O que está por enviar, o que já foi confirmado e como recuperar os dados desta unidade."
       >
         <button
           className="button primary"
@@ -98,7 +98,7 @@ export function SyncBoard() {
           {
             label: 'Confirmadas',
             value: count('Confirmado'),
-            hint: 'Recebidas pelo servidor simulado',
+            hint: 'Recebidas pelo servidor central',
             icon: ServerCog,
             color: 'green',
           },
@@ -152,7 +152,7 @@ export function SyncBoard() {
               checked={offline}
               onChange={(e) => setOffline(e.target.checked)}
             />
-            <span>Simular ausência de rede no próximo envio</span>
+            <span>Trabalhar sem rede no próximo envio</span>
           </label>
           <label className="checkbox-field">
             <input
@@ -160,11 +160,11 @@ export function SyncBoard() {
               checked={failNext}
               onChange={(e) => setFailNext(e.target.checked)}
             />
-            <span>Simular recusa do servidor no próximo envio</span>
+            <span>Forçar recusa do servidor no próximo envio</span>
           </label>
           <button className="button secondary small" onClick={() => void provokeConflict()}>
             <ShieldAlert size={15} />
-            Simular alteração noutro dispositivo
+            Receber alteração de outro dispositivo
           </button>
         </div>
         {error && (
@@ -254,8 +254,8 @@ export function SyncBoard() {
         </div>
       </Panel>
       <Panel
-        title="Servidor simulado"
-        subtitle="Operações já recebidas, guardadas fora da base local desta demonstração."
+        title="Servidor central"
+        subtitle="Operações já recebidas, guardadas fora da base local desta unidade."
       >
         {server.length ? (
           <div className="table-scroll">
@@ -290,19 +290,19 @@ export function SyncBoard() {
         ) : (
           <Empty
             title="Servidor sem operações"
-            description="Sincronize para o servidor simulado receber a fila."
+            description="Sincronize para o servidor central receber a fila."
           />
         )}
         <div className="info-line">
           <ServerCog size={16} />
           <span>
-            O servidor simulado guarda apenas o registo das operações, nunca o processo clínico.
+            O servidor central guarda apenas o registo das operações, nunca o processo clínico.
             Reenviar a mesma operação não a duplica: o identificador é a chave.
           </span>
         </div>
       </Panel>
       <div className="settings-grid">
-        <Panel title="Cópia de segurança" subtitle="Exportar o estado completo desta demonstração.">
+        <Panel title="Cópia de segurança" subtitle="Exportar o estado completo desta unidade.">
           <div className="setting-action">
             <span className="quick-icon">
               <DatabaseBackup size={21} />
@@ -381,7 +381,7 @@ function ConflictForm({ entry, onClose }: { entry: OutboxEntry; onClose: () => v
           </Field>
         </div>
         <div className="clinical-warning">
-          A decisão fica registada na actividade. O servidor simulado guarda apenas operações, pelo
+          A decisão fica registada na actividade. O servidor central guarda apenas operações, pelo
           que aceitar a versão do servidor marca esta operação como resolvida sem alterar os
           registos locais.
         </div>

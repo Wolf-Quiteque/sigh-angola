@@ -1266,8 +1266,7 @@ export function executeCommand(
   if (command.type === 'invoice.cancel') {
     const invoice = invoiceFor(command.invoiceId);
     if (invoice.status === 'Anulada') fail('Esta factura já está anulada.');
-    if (invoice.payments.length)
-      fail('Uma factura com pagamentos não pode ser anulada nesta demonstração.');
+    if (invoice.payments.length) fail('Uma factura com pagamentos não pode ser anulada.');
     if (command.reason.trim().length < 3) fail('Indique o motivo da anulação.');
     invoice.status = 'Anulada';
     invoice.cancellation = { at: now, author: session.name, reason: command.reason.trim() };
@@ -1459,8 +1458,8 @@ export function executeCommand(
     if (!user.active) fail('Um utilizador inactivo não pode recuperar o acesso.');
     user.resetRequestedAt = now;
     entityId = user.id;
-    action = 'Recuperação de acesso simulada';
-    detail = `${user.username} · sem palavra-passe real nesta demonstração`;
+    action = 'Recuperação de acesso iniciada';
+    detail = `${user.username} · pedido registado para atribuição de novo acesso`;
   }
   if (command.type === 'sync.sending') {
     const marked = db.outbox.filter(

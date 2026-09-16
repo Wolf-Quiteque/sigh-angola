@@ -5,7 +5,7 @@ import { OfflineWatcher } from '@/components/offline';
 import './globals.css';
 export const metadata: Metadata = {
   title: { default: 'SIGH-ANGOLA · Visão geral', template: '%s · SIGH-ANGOLA' },
-  description: 'Demonstração do Sistema Integrado de Gestão Hospitalar de Angola.',
+  description: 'Sistema Integrado de Gestão Hospitalar de Angola.',
   manifest: '/manifest.webmanifest',
   applicationName: 'SIGH-ANGOLA',
 };

@@ -18,7 +18,7 @@ const ratio = (numerator: number, denominator: number) =>
   denominator === 0 ? 0 : (numerator / denominator) * 100;
 
 /**
- * Todos os indicadores saem dos mesmos registos que a demo mostra nos ecrãs.
+ * Todos os indicadores saem dos mesmos registos que a aplicação mostra nos ecrãs.
  * Nada é estimado: cada valor conta ocorrências dentro do intervalo indicado.
  */
 export function computeIndicators(db: Database, range: Range): Indicator[] {

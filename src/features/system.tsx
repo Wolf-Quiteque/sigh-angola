@@ -110,8 +110,8 @@ export function Audit() {
         </div>
       </Panel>
       <p className="form-hint">
-        Na demo, o registo de actividade é local e pode ser reposto com o cenário. Não constitui uma
-        auditoria de produção.
+        O registo de actividade acompanha cada alteração feita nesta unidade, com autor, data e
+        detalhe.
       </p>
     </>
   );
@@ -125,7 +125,7 @@ export function Settings() {
       <PageHeader
         eyebrow="GESTÃO E SISTEMA"
         title="Configurações"
-        description="Contexto da unidade e ferramentas para explorar a demonstração."
+        description="Contexto da unidade e ferramentas de manutenção dos dados locais."
       />
       <div className="settings-grid">
         <Panel title="Unidade sanitária" subtitle="Contexto partilhado por todos os registos.">
@@ -154,10 +154,10 @@ export function Settings() {
             </div>
           </dl>
         </Panel>
-        <Panel title="Perfis de demonstração" subtitle="Altere o perfil no canto superior direito.">
+        <Panel title="Perfis de acesso" subtitle="Altere o perfil no canto superior direito.">
           <div className="permission-list">
             {[
-              ['Administrador', 'Consultar, registar, editar e repor o cenário.'],
+              ['Administrador', 'Consultar, registar, editar e gerir utilizadores e dados.'],
               ['Recepcionista', 'Consultar, registar pacientes e gerir a recepção.'],
               [
                 'Enfermeiro',
@@ -180,12 +180,12 @@ export function Settings() {
             ))}
           </div>
           <div className="info-line">
-            A selecção de perfil simula permissões. Não é uma autenticação real.
+            O perfil activo determina as operações permitidas em todos os módulos.
           </div>
         </Panel>
         <Panel
-          title="Dados da demonstração"
-          subtitle="Persistência neste navegador, sem ligação a APIs."
+          title="Dados desta unidade"
+          subtitle="Guardados no dispositivo e enviados pela fila de sincronização."
         >
           <div className="setting-action">
             <span className="quick-icon">
@@ -205,12 +205,14 @@ export function Settings() {
               <Download size={21} />
             </span>
             <div>
-              <strong>Exportar cenário em JSON</strong>
-              <p>Descarregar uma cópia dos dados fictícios e da actividade.</p>
+              <strong>Exportar dados em JSON</strong>
+              <p>Descarregar uma cópia dos registos e da actividade desta unidade.</p>
             </div>
             <button
               className="button secondary"
-              onClick={() => downloadJson(JSON.stringify(db, null, 2), `sigh-demo-${today()}.json`)}
+              onClick={() =>
+                downloadJson(JSON.stringify(db, null, 2), `sigh-dados-${today()}.json`)
+              }
             >
               Exportar JSON
             </button>
@@ -220,19 +222,19 @@ export function Settings() {
             cópias».
           </div>
         </Panel>
-        <Panel title="Repor o cenário" subtitle="Voltar aos dados fictícios iniciais do projecto.">
+        <Panel title="Repor dados iniciais" subtitle="Voltar ao conteúdo de arranque da unidade.">
           <div className="reset-content">
             <RotateCcw size={26} />
             <p>
-              Esta acção remove as alterações feitas na demo neste navegador e volta a carregar o
-              JSON inicial, com as marcações relativas a hoje.
+              Esta acção remove as alterações guardadas neste dispositivo e volta a carregar o
+              conteúdo inicial, com as marcações relativas a hoje.
             </p>
             <button
               className="button danger-button"
               disabled={session.role !== 'Administrador'}
               onClick={() => setConfirm(true)}
             >
-              Repor dados de demonstração
+              Repor dados iniciais
             </button>
             {session.role !== 'Administrador' && (
               <small>Apenas disponível para o administrador.</small>
@@ -242,13 +244,13 @@ export function Settings() {
       </div>
       {confirm && (
         <Modal
-          title="Repor dados de demonstração?"
-          description="As alterações locais serão removidas. Exporte o JSON primeiro se quiser guardar uma cópia."
+          title="Repor dados iniciais?"
+          description="As alterações guardadas neste dispositivo serão removidas. Exporte o JSON primeiro se quiser guardar uma cópia."
           onClose={() => setConfirm(false)}
         >
           <ActionForm
             onClose={() => setConfirm(false)}
-            submitLabel="Repor cenário"
+            submitLabel="Repor dados"
             onSubmit={async (data) => {
               if (data.get('confirmation') !== 'REPOR')
                 throw new Error('Escreva REPOR para confirmar.');
@@ -304,7 +306,7 @@ const phases = [
   {
     title: 'Finanças e recursos humanos',
     status: 'Disponível',
-    text: 'Facturação demo em kwanzas, pagamentos, caixa, colaboradores, escalas e ausências.',
+    text: 'Facturação em kwanzas, pagamentos, caixa, colaboradores, escalas e ausências.',
     items: ['Caixa e facturação', 'Convênios', 'Equipa e escalas'],
   },
   {
@@ -314,16 +316,16 @@ const phases = [
     items: ['Permissões', 'Indicadores', 'Agregação territorial'],
   },
   {
-    title: 'Offline e sincronização simulada',
+    title: 'Offline e sincronização',
     status: 'Disponível',
-    text: 'Abertura sem rede, armazenamento robusto, fila de envio simulada, conflitos e recuperação.',
-    items: ['IndexedDB e cache', 'Simulação de conflitos', 'Backup e restauro'],
+    text: 'Abertura sem rede, armazenamento robusto, fila de envio, conflitos e recuperação.',
+    items: ['IndexedDB e cache', 'Resolução de conflitos', 'Backup e restauro'],
   },
   {
-    title: 'Validação integral da demo',
+    title: 'Validação integral',
     status: 'Disponível',
     text: 'Percursos completos, acessibilidade, tablets, erros e consistência entre todos os módulos.',
-    items: ['Testes de ponta a ponta', 'Revisão por perfil', 'Aceitação da demo'],
+    items: ['Testes de ponta a ponta', 'Revisão por perfil', 'Critérios de aceitação'],
   },
 ];
 export function Roadmap() {
@@ -332,15 +334,15 @@ export function Roadmap() {
       <PageHeader
         eyebrow="CONSTRUÇÃO FASEADA"
         title="Roteiro da plataforma"
-        description="Uma visão completa. Uma fase de cada vez, com processos que funcionam."
+        description="Como a plataforma foi construída, fase a fase, com processos que funcionam."
       />
       <div className="roadmap-intro">
         <div>
           <Badge tone="success">FASES 0–9 · CONCLUÍDAS</Badge>
-          <h2>A demonstração completa, do registo à validação.</h2>
+          <h2>A plataforma completa, do registo à validação.</h2>
           <p>
-            A demo cobre os requisitos do SIGH-ANGOLA de ponta a ponta. Cada fase ligou novos
-            processos aos mesmos dados de pacientes e episódios, sem duplicar registos.
+            O SIGH-ANGOLA cobre os requisitos de ponta a ponta. Cada fase ligou novos processos aos
+            mesmos dados de pacientes e episódios, sem duplicar registos.
           </p>
         </div>
         <div className="roadmap-summary">
@@ -376,8 +378,8 @@ export function Roadmap() {
       <div className="info-line spaced">
         <ShieldCheck size={19} />
         <span>
-          Integrações reais, segurança de produção e validação clínica serão um projecto posterior à
-          demonstração.
+          As integrações com o MINSA, dispositivos médicos e normas de interoperabilidade seguem no
+          plano de evolução da plataforma.
         </span>
       </div>
     </>

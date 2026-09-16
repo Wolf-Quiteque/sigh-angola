@@ -54,18 +54,18 @@ test('duplicado mostra erro e perfil de direcção não pode escrever', async ({
   await page.getByRole('button', { name: 'Novo paciente' }).click();
   await page.getByLabel('Nome completo').fill('Outro Nome de Teste');
   await page.getByLabel('Data de nascimento').fill('1990-01-01');
-  await page.getByLabel('Bilhete de identidade').fill('DEMO000001');
+  await page.getByLabel('Bilhete de identidade').fill('004521367LA041');
   await page.getByRole('button', { name: 'Registar paciente', exact: true }).click();
   await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Já existe um paciente');
   await page.getByRole('button', { name: 'Fechar', exact: true }).click();
-  await page.getByLabel('Perfil de demonstração').selectOption('Direcção');
+  await page.getByLabel('Perfil do utilizador').selectOption('Direcção');
   await expect(page.getByRole('button', { name: 'Novo paciente' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Agenda de consultas', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Marcar consulta' })).toHaveCount(0);
   await page.getByRole('link', { name: 'Configurações', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Repor dados de demonstração' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Repor dados iniciais' })).toBeDisabled();
 });
-test('reagendamento, cancelamento, exportação e reset alteram dados reais da demo', async ({
+test('reagendamento, cancelamento, exportação e reposição alteram dados reais', async ({
   page,
 }) => {
   await page.goto('/agenda');
@@ -82,10 +82,10 @@ test('reagendamento, cancelamento, exportação e reset alteram dados reais da d
   await page.getByRole('link', { name: 'Configurações', exact: true }).click();
   const downloaded = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Exportar JSON' }).click();
-  expect((await downloaded).suggestedFilename()).toMatch(/^sigh-demo-.*\.json$/);
-  await page.getByRole('button', { name: 'Repor dados de demonstração' }).click();
+  expect((await downloaded).suggestedFilename()).toMatch(/^sigh-dados-.*\.json$/);
+  await page.getByRole('button', { name: 'Repor dados iniciais' }).click();
   await page.getByLabel('Escreva REPOR').fill('REPOR');
-  await page.getByRole('button', { name: 'Repor cenário', exact: true }).click();
+  await page.getByRole('button', { name: 'Repor dados', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
   await page.getByRole('link', { name: 'Agenda de consultas', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: 'Lúcia Domingos Mateus' })).toContainText(
@@ -112,7 +112,7 @@ test('tablet e telemóvel, modal por teclado e recuperação de dados inválidos
   await page.screenshot({ path: 'test-results/patients-mobile.png', fullPage: true });
   // Corrompe o estado no adaptador em uso (IndexedDB) e também a origem antiga.
   await page.evaluate(async () => {
-    localStorage.setItem('sigh-angola-demo-v1', '{broken');
+    localStorage.setItem('sigh-angola-unidade-v1', '{broken');
     const open = indexedDB.open('sigh-angola', 1);
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
       open.onupgradeneeded = () => {
@@ -126,7 +126,7 @@ test('tablet e telemóvel, modal por teclado e recuperação de dados inválidos
       const request = database
         .transaction('estado', 'readwrite')
         .objectStore('estado')
-        .put('{broken', 'sigh-angola-demo-v1');
+        .put('{broken', 'sigh-angola-unidade-v1');
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });

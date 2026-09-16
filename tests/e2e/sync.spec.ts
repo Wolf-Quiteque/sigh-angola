@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('fase 8: fila de envio, reenvio idempotente e conflito resolvido à mão', async ({ page }) => {
   await page.goto('/triagem');
-  await page.getByLabel('Perfil de demonstração').selectOption('Enfermeiro');
+  await page.getByLabel('Perfil do utilizador').selectOption('Enfermeiro');
   await page
     .getByRole('row')
     .filter({ hasText: 'Esperança Manuel Zua' })
@@ -20,16 +20,16 @@ test('fase 8: fila de envio, reenvio idempotente e conflito resolvido à mão', 
   await expect(page.getByText('Armazenamento: IndexedDB')).toBeVisible();
 
   // Sem rede: a operação fica com erro mas nunca se perde.
-  await page.getByLabel('Simular ausência de rede no próximo envio').check();
+  await page.getByLabel('Trabalhar sem rede no próximo envio').check();
   await page.getByRole('button', { name: 'Sincronizar agora' }).click();
   await expect(queued).toContainText('Erro');
   await expect(queued).toContainText('Sem ligação ao servidor');
   await expect(queued).toContainText('1 tentativa(s)');
 
-  await page.getByLabel('Simular ausência de rede no próximo envio').uncheck();
+  await page.getByLabel('Trabalhar sem rede no próximo envio').uncheck();
   await page.getByRole('button', { name: 'Sincronizar agora' }).click();
   await expect(queued).toContainText('Confirmado');
-  const serverPanel = page.locator('.panel').filter({ hasText: 'Servidor simulado' });
+  const serverPanel = page.locator('.panel').filter({ hasText: 'Servidor central' });
   await expect(serverPanel.getByRole('row').filter({ hasText: 'Triagem concluída' })).toHaveCount(
     1,
   );
@@ -37,7 +37,7 @@ test('fase 8: fila de envio, reenvio idempotente e conflito resolvido à mão', 
 
   // Uma nova operação entra na fila e entra em conflito com o servidor.
   await page.getByRole('link', { name: 'Consultas médicas' }).click();
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   await page
     .getByRole('row')
     .filter({ hasText: 'Esperança Manuel Zua' })
@@ -45,7 +45,7 @@ test('fase 8: fila de envio, reenvio idempotente e conflito resolvido à mão', 
     .click();
   await page.getByRole('button', { name: 'Iniciar consulta' }).click();
   await page.getByRole('link', { name: 'Sincronização e cópias' }).click();
-  await page.getByRole('button', { name: 'Simular alteração noutro dispositivo' }).click();
+  await page.getByRole('button', { name: 'Receber alteração de outro dispositivo' }).click();
   await page.getByRole('button', { name: 'Sincronizar agora' }).click();
   const conflicted = queue.getByRole('row').filter({ hasText: 'Consulta iniciada' });
   await expect(conflicted).toContainText('Conflito');
@@ -122,7 +122,7 @@ test('fase 8: restauro valida a cópia e preserva o que não foi confirmado', as
         const request = database
           .transaction('estado', 'readonly')
           .objectStore('estado')
-          .get('sigh-angola-demo-v1');
+          .get('sigh-angola-unidade-v1');
         request.onsuccess = () => resolve(typeof request.result === 'string');
         request.onerror = () => resolve(false);
       });
@@ -144,7 +144,7 @@ test('fase 8: restauro valida a cópia e preserva o que não foi confirmado', as
       const request = database
         .transaction('estado', 'readonly')
         .objectStore('estado')
-        .get('sigh-angola-demo-v1');
+        .get('sigh-angola-unidade-v1');
       request.onsuccess = () => resolve(request.result as string);
       request.onerror = () => reject(request.error);
     });

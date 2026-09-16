@@ -1,13 +1,13 @@
 /**
- * Camada de armazenamento local da demonstração.
+ * Camada de armazenamento local da aplicação.
  *
  * O adaptador preferido é IndexedDB, que suporta volumes maiores e sobrevive
  * melhor a sessões longas em tablets. Quando o navegador não o disponibiliza —
- * janelas privadas restritas, por exemplo — a demo continua em localStorage e
+ * janelas privadas restritas, por exemplo — a aplicação continua em localStorage e
  * diz qual o adaptador em uso. Os dados já gravados em localStorage são
  * importados uma única vez para o IndexedDB, sem serem apagados de imediato.
  */
-export const STORAGE_KEY = 'sigh-angola-demo-v1';
+export const STORAGE_KEY = 'sigh-angola-unidade-v1';
 export const SERVER_KEY = 'sigh-angola-servidor-v1';
 const DB_NAME = 'sigh-angola';
 const DB_VERSION = 1;

@@ -66,7 +66,7 @@ export function FinanceBoard() {
       <PageHeader
         eyebrow="FINANÇAS"
         title="Facturação e caixa"
-        description="Tabela de serviços, facturas de demonstração, recibos e movimentos de caixa em kwanzas."
+        description="Tabela de serviços, facturas, recibos e movimentos de caixa em kwanzas."
       >
         {canAdministration(session) && (
           <button className="button primary" onClick={() => setIssue(true)}>
@@ -246,14 +246,12 @@ export function FinanceBoard() {
           ) : (
             <Empty
               title="Sem facturas emitidas"
-              description="Emita a primeira factura de demonstração a partir da tabela de serviços."
+              description="Emita a primeira factura a partir da tabela de serviços."
             />
           )}
           <div className="info-line">
             <Receipt size={16} />
-            <span>
-              Os recibos são numerados pela demonstração e não substituem documentos fiscais.
-            </span>
+            <span>Os recibos são numerados automaticamente, por ordem de emissão.</span>
           </div>
         </Panel>
       )}

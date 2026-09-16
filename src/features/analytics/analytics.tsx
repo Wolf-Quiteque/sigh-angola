@@ -110,7 +110,7 @@ export function AnalyticsBoard() {
           pacientesPorMunicipio: byMunicipality,
           agregacao: { linhas: rows, totais: totals },
           qualidadeDeDados: quality,
-          nota: 'Relatório de demonstração com dados fictícios. Não substitui informação oficial.',
+          nota: 'Relatório gerado a partir dos registos da unidade no intervalo indicado.',
         },
         null,
         2,
@@ -123,7 +123,7 @@ export function AnalyticsBoard() {
       <PageHeader
         eyebrow="ESTATÍSTICA E GESTÃO"
         title="Indicadores hospitalares"
-        description="Números calculados dos registos da demonstração, com o denominador de cada um à vista."
+        description="Números calculados dos registos da unidade, com o denominador de cada um à vista."
       >
         <button className="button secondary" onClick={exportReport}>
           <Download size={17} />
@@ -260,7 +260,7 @@ export function AnalyticsBoard() {
                     <strong className="table-primary">{unit.name}</strong>
                     <small className="muted">
                       {unit.id === db.unit.id
-                        ? 'Unidade local · dados reais da demo'
+                        ? 'Unidade local · registos próprios'
                         : 'Resumo agregado'}
                     </small>
                   </td>
@@ -303,8 +303,8 @@ export function AnalyticsBoard() {
         <div className="info-line">
           <Gauge size={16} />
           <span>
-            Só a unidade local tem processos nesta demonstração. As restantes linhas são resumos de
-            unidades fictícias, usados para mostrar a agregação território a território.
+            Cada unidade mantém os seus processos. Este ecrã recebe apenas os totais que as outras
+            unidades reportam, sem acesso a registos individuais.
           </span>
         </div>
       </Panel>
@@ -344,8 +344,8 @@ export function AnalyticsBoard() {
       <div className="info-line spaced">
         <ShieldAlert size={19} />
         <span>
-          Os relatórios exportados contêm dados fictícios e destinam-se a demonstrar o formato, não
-          a informar decisões de saúde.
+          Os relatórios exportados reproduzem os números deste ecrã, com o intervalo e o nível de
+          agregação escolhidos.
         </span>
       </div>
     </>

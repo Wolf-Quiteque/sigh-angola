@@ -113,7 +113,7 @@ export function PatientForm({ patient, onClose }: { patient?: Patient; onClose: 
             />
           </Field>
         </div>
-        <p className="form-hint">Utilize apenas dados fictícios neste ambiente de demonstração.</p>
+        <p className="form-hint">Confirme a identificação do paciente antes de guardar.</p>
       </ActionForm>
     </Modal>
   );

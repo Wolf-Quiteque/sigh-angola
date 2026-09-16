@@ -1,7 +1,7 @@
 /*
  * Cache da aplicação para abertura sem rede.
  *
- * Guarda os pedidos de navegação e os ficheiros estáticos que a demo já
+ * Guarda os pedidos de navegação e os ficheiros estáticos que a aplicação já
  * carregou e, quando não há rede, serve a última versão guardada. Só serve
  * para a aplicação abrir: os dados continuam no armazenamento local do
  * navegador e nada é enviado para fora do dispositivo.

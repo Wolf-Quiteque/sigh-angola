@@ -515,7 +515,7 @@ export const userSchema = z.object({
   staffId: z.string().nullable(),
   active: z.boolean(),
   createdAt: z.string(),
-  /** Marca uma recuperação de acesso simulada; não existe palavra-passe nesta demo. */
+  /** Marca um pedido de recuperação de acesso; as palavras-passe não são guardadas aqui. */
   resetRequestedAt: z.string().nullable(),
 });
 export type User = z.infer<typeof userSchema>;
@@ -604,7 +604,7 @@ export const databaseSchema = z.object({
   users: z.array(userSchema),
   access: z.array(accessSchema),
   network: z.array(networkUnitSchema),
-  /** Identificador do dispositivo onde a demo foi aberta pela primeira vez. */
+  /** Identificador do dispositivo onde a aplicação foi aberta pela primeira vez. */
   device: z.object({ id: z.string(), name: z.string() }),
   outbox: z.array(outboxSchema),
   audit: z.array(

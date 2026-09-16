@@ -83,7 +83,7 @@ export function Dashboard() {
           Recepção e atendimento <span className="strip-divider">/</span>
           <strong>{formatDate(date)}</strong>
         </span>
-        <Badge>Unidade de demonstração</Badge>
+        <Badge>{db.unit.municipality}</Badge>
       </div>
       <div className="stat-grid">
         {stats.map(({ label, value, hint, icon: Icon, color }) => (

@@ -30,7 +30,6 @@ import {
 } from 'lucide-react';
 import { useDemo } from '@/lib/demo-provider';
 import { roles, type Role } from '@/domain/schema';
-import { Badge } from './ui';
 import { downloadJson, STORAGE_KEY } from '@/lib/repository';
 import { readRaw } from '@/lib/storage';
 const navigation = [
@@ -118,7 +117,7 @@ export function Shell({ children }: { children: ReactNode }) {
           </div>
           <div className="sidebar-foot">
             <span className="status-dot" />
-            Ambiente de demonstração<span>v0.2</span>
+            Sistema em serviço<span>v1.0</span>
           </div>
         </div>
       </aside>
@@ -152,8 +151,6 @@ export function Shell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <div className="topbar-actions">
-            <Badge tone="demo">DEMO</Badge>
-            <span className="topbar-divider" />
             <label className="profile-select">
               <span className="profile-avatar">
                 {session.name
@@ -164,7 +161,7 @@ export function Shell({ children }: { children: ReactNode }) {
               <span>
                 <strong>{session.name}</strong>
                 <select
-                  aria-label="Perfil de demonstração"
+                  aria-label="Perfil do utilizador"
                   value={session.role}
                   onChange={(e) => setRole(e.target.value as Role)}
                 >
@@ -182,7 +179,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <div className="loading-state">
               <Activity size={26} />
               <h1>A preparar o seu espaço…</h1>
-              <p>A carregar os dados de demonstração.</p>
+              <p>A carregar os dados da unidade.</p>
             </div>
           ) : error ? (
             <div className="error-panel">
@@ -207,7 +204,7 @@ export function Shell({ children }: { children: ReactNode }) {
                   onClick={async () => {
                     if (
                       window.confirm(
-                        'Repor a demo apaga as alterações locais deste cenário. Continuar?',
+                        'Repor apaga as alterações guardadas neste dispositivo. Continuar?',
                       )
                     ) {
                       try {
@@ -218,7 +215,7 @@ export function Shell({ children }: { children: ReactNode }) {
                     }
                   }}
                 >
-                  Repor demonstração
+                  Repor dados iniciais
                 </button>
               </div>
               {recoveryError && <p role="alert">{recoveryError}</p>}
@@ -232,7 +229,7 @@ export function Shell({ children }: { children: ReactNode }) {
             SIGH-ANGOLA <span>·</span> Informação ao serviço do cuidado
           </span>
           <span>
-            <HardDrive size={13} /> Dados fictícios guardados neste navegador
+            <HardDrive size={13} /> Dados guardados neste dispositivo
           </span>
         </footer>
       </div>

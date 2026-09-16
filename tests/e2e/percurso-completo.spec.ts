@@ -6,7 +6,7 @@ import { test, expect, type Page } from '@playwright/test';
  * que conta o que aconteceu. Cada passo verifica dados, não apenas ecrãs.
  */
 const profile = (page: Page, role: string) =>
-  page.getByLabel('Perfil de demonstração').selectOption(role);
+  page.getByLabel('Perfil do utilizador').selectOption(role);
 
 test('percurso integral: recepção, clínica, exame, internamento, farmácia, caixa e indicadores', async ({
   page,

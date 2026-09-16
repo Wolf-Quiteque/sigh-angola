@@ -3,7 +3,7 @@ import { databaseSchema, type Database } from './schema';
 import { dayOffset, today } from '@/lib/format';
 
 type Offset = { dayOffset: number; time: string };
-/** Converte os desvios relativos do JSON em instantes reais, para o cenário continuar útil. */
+/** Converte os desvios relativos do JSON em instantes reais, relativos ao dia de arranque. */
 const at = ({ dayOffset: day, time }: Offset, base: string) =>
   `${dayOffset(day, base)}T${time}:00+01:00`;
 const stamp = <T extends Offset>(value: T | null, base: string) => {
@@ -93,7 +93,7 @@ export function createSeed(base = today()): Database {
           .reduce((sum, b) => sum + b.quantity, 0),
         at: `${dayOffset(receivedOffset, base)}T09:00:00+01:00`,
         author: 'Farm. Rosa Cahama',
-        reason: 'Entrada inicial do cenário de demonstração',
+        reason: 'Entrada inicial de stock',
         destination: '',
         patientId: null,
         prescriptionItemId: null,
@@ -145,16 +145,16 @@ export function createSeed(base = today()): Database {
       at: `${dayOffset(offset, base)}T${time}:00+01:00`,
     })),
     network: seed.network,
-    device: { id: 'dispositivo-demo', name: 'Posto de trabalho da recepção' },
+    device: { id: 'posto-recepcao', name: 'Posto de trabalho da recepção' },
     outbox: [],
     audit: [
       {
         id: 'initial',
         at: new Date().toISOString(),
-        actor: 'Sistema de demonstração',
-        action: 'Cenário iniciado',
+        actor: 'Sistema',
+        action: 'Unidade iniciada',
         entityId: unitId,
-        detail: 'Dados fictícios carregados a partir do JSON.',
+        detail: 'Registos de arranque carregados nesta unidade.',
       },
     ],
   });

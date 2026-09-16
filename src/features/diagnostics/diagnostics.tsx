@@ -405,7 +405,11 @@ function ExamActionForm({
                 <textarea name="findings" maxLength={4000} />
               </Field>
               <Field label="Ficheiro de exemplo" wide>
-                <input name="attachment" maxLength={160} placeholder="Ex.: rx-torax-demo.pdf" />
+                <input
+                  name="attachment"
+                  maxLength={160}
+                  placeholder="Ex.: rx-torax-2026-0142.pdf"
+                />
               </Field>
             </>
           )}

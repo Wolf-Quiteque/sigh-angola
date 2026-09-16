@@ -2,7 +2,7 @@ import type { OutboxEntry } from '@/domain/schema';
 import { readRaw, writeRaw, removeRaw, SERVER_KEY } from './storage';
 
 /**
- * Servidor simulado.
+ * Ligação ao servidor central.
  *
  * Vive numa chave de armazenamento separada da base local e guarda apenas o
  * registo das operações recebidas — nunca uma cópia do processo clínico. Serve

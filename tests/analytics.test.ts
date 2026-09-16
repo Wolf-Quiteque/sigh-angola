@@ -173,7 +173,7 @@ describe('Fase 7: utilizadores e auditoria de acesso', () => {
     );
     const reset = run(db, { type: 'user.reset', userId: 'u-2' }, admin);
     expect(reset.users.find((u) => u.id === 'u-2')?.resetRequestedAt).toBeTruthy();
-    expect(reset.audit[0].action).toBe('Recuperação de acesso simulada');
+    expect(reset.audit[0].action).toBe('Recuperação de acesso iniciada');
     const inactive = run(
       reset,
       {

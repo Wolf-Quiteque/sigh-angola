@@ -15,7 +15,7 @@ export interface HospitalRepository {
 async function locked<T>(operation: () => Promise<T>): Promise<T> {
   if (!navigator.locks)
     throw new Error(
-      'Este navegador não permite gravação segura entre separadores. Abra a demo em localhost num navegador actualizado.',
+      'Este navegador não permite gravação segura entre separadores. Utilize um navegador actualizado.',
     );
   return navigator.locks.request(STORAGE_KEY, operation);
 }
@@ -84,7 +84,7 @@ function migrate(parsed: Record<string, unknown>) {
   }
   return parsed.version !== from;
 }
-/** Identidade do dispositivo: acompanha cada operação enviada para o servidor simulado. */
+/** Identidade do dispositivo: acompanha cada operação enviada para o servidor. */
 function createDevice() {
   const id = crypto.randomUUID();
   return { id, name: `Dispositivo ${id.slice(0, 8).toUpperCase()}` };
@@ -101,7 +101,7 @@ async function read(): Promise<Database> {
     parsed = JSON.parse(raw) as Record<string, unknown>;
   } catch {
     throw new Error(
-      'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a demonstração.',
+      'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a unidade.',
     );
   }
   const migrated = migrate(parsed);
@@ -110,7 +110,7 @@ async function read(): Promise<Database> {
     database = databaseSchema.parse(parsed);
   } catch {
     throw new Error(
-      'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a demonstração.',
+      'Os dados locais não puderam ser lidos. Pode descarregar o conteúdo original antes de repor a unidade.',
     );
   }
   if (migrated) await writeRaw(STORAGE_KEY, JSON.stringify(database));
@@ -143,7 +143,7 @@ export const repository: HospitalRepository = {
   },
   async reset(session) {
     if (session.role !== 'Administrador')
-      throw new Error('Apenas o administrador pode repor os dados de demonstração.');
+      throw new Error('Apenas o administrador pode repor os dados iniciais.');
     return locked(async () => {
       const next = databaseSchema.parse({ ...createSeed(), device: createDevice() });
       await write(next);
@@ -161,7 +161,7 @@ export const repository: HospitalRepository = {
         candidate = databaseSchema.parse(JSON.parse(value));
       } catch {
         throw new Error(
-          'A cópia não corresponde ao formato desta demonstração. O restauro foi cancelado e os dados actuais mantêm-se.',
+          'A cópia não corresponde ao formato desta aplicação. O restauro foi cancelado e os dados actuais mantêm-se.',
         );
       }
       const current = await read();

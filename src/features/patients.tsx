@@ -167,7 +167,7 @@ export function PatientDetail({ id }: { id: string }) {
     return (
       <Empty
         title="Paciente não encontrado"
-        description="O identificador não existe neste cenário de demonstração."
+        description="O identificador não corresponde a nenhum paciente desta unidade."
       >
         <Link href="/pacientes" className="button secondary">
           Voltar aos pacientes

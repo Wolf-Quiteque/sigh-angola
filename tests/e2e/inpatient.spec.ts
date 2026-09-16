@@ -4,7 +4,7 @@ test('fase 4: consulta encaminha, internamento ocupa cama, transferência e alta
   page,
 }) => {
   await page.goto('/triagem');
-  await page.getByLabel('Perfil de demonstração').selectOption('Enfermeiro');
+  await page.getByLabel('Perfil do utilizador').selectOption('Enfermeiro');
   const triageRow = page.getByRole('row').filter({ hasText: 'Esperança Manuel Zua' });
   await triageRow.getByRole('button', { name: 'Realizar triagem' }).click();
   const triageDialog = page.getByRole('dialog');
@@ -14,7 +14,7 @@ test('fase 4: consulta encaminha, internamento ocupa cama, transferência e alta
   await expect(triageDialog).not.toBeVisible();
 
   await page.getByRole('link', { name: 'Consultas médicas' }).click();
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   await page
     .getByRole('row')
     .filter({ hasText: 'Esperança Manuel Zua' })
@@ -45,7 +45,7 @@ test('fase 4: consulta encaminha, internamento ocupa cama, transferência e alta
     .getByRole('row')
     .filter({ hasText: 'Esperança Manuel Zua' })
     .filter({ hasText: 'MI-01' });
-  await page.getByLabel('Perfil de demonstração').selectOption('Enfermeiro');
+  await page.getByLabel('Perfil do utilizador').selectOption('Enfermeiro');
   await stayRow.getByRole('button', { name: 'Registar cuidados' }).click();
   const noteDialog = page.getByRole('dialog');
   await noteDialog.getByLabel('Tipo de registo').selectOption('Administração de medicamento');
@@ -77,7 +77,7 @@ test('fase 4: consulta encaminha, internamento ocupa cama, transferência e alta
     .filter({ hasText: 'Esperança Manuel Zua' })
     .filter({ hasText: 'MI-02' });
   await expect(movedRow.getByRole('button', { name: 'Dar alta' })).toBeDisabled();
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   await movedRow.getByRole('button', { name: 'Dar alta' }).click();
   const dischargeDialog = page.getByRole('dialog');
   await dischargeDialog.getByLabel('Tipo de alta').selectOption('Alta clínica');
@@ -103,7 +103,7 @@ test('fase 4: consulta encaminha, internamento ocupa cama, transferência e alta
 
 test('camas bloqueadas e em manutenção ficam fora da ocupação', async ({ page }) => {
   await page.goto('/internamento');
-  await page.getByLabel('Perfil de demonstração').selectOption('Enfermeiro');
+  await page.getByLabel('Perfil do utilizador').selectOption('Enfermeiro');
   await expect(page.getByRole('button', { name: /Cama MI-07/ })).toContainText('Bloqueada');
   await expect(page.getByRole('button', { name: /Cama PED-05/ })).toContainText('Em manutenção');
   await page.getByRole('button', { name: /Cama MI-04/ }).click();

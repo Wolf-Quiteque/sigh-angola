@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('fase 6: emitir factura, cobrar e reconciliar o saldo de caixa', async ({ page }) => {
   await page.goto('/financas');
-  await page.getByLabel('Perfil de demonstração').selectOption('Administrativo');
+  await page.getByLabel('Perfil do utilizador').selectOption('Administrativo');
 
   await page.getByRole('button', { name: 'Emitir factura' }).click();
   const issue = page.getByRole('dialog');
@@ -50,7 +50,7 @@ test('pagamento acima da dívida é recusado e a tabela de serviços alimenta a 
   page,
 }) => {
   await page.goto('/financas');
-  await page.getByLabel('Perfil de demonstração').selectOption('Administrativo');
+  await page.getByLabel('Perfil do utilizador').selectOption('Administrativo');
   const open = page.getByRole('row').filter({ hasText: 'FT-000002' });
   await open.getByRole('button', { name: 'Registar pagamento' }).click();
   const pay = page.getByRole('dialog');
@@ -68,7 +68,7 @@ test('pagamento acima da dívida é recusado e a tabela de serviços alimenta a 
 
 test('fase 6: escalas sem sobreposição, presenças e ausências', async ({ page }) => {
   await page.goto('/recursos-humanos');
-  await page.getByLabel('Perfil de demonstração').selectOption('Administrativo');
+  await page.getByLabel('Perfil do utilizador').selectOption('Administrativo');
   await expect(page.getByRole('row').filter({ hasText: 'Dr. Paulo Chissola' })).toContainText(
     'Activo',
   );

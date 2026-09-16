@@ -145,8 +145,8 @@ export function UsersBoard() {
         <div className="info-line">
           <LockKeyhole size={16} />
           <span>
-            A demonstração não guarda palavras-passe. A recuperação de acesso apenas marca o pedido
-            e fica registada na actividade.
+            As palavras-passe não são guardadas neste ecrã. A recuperação de acesso marca o pedido e
+            fica registada na actividade.
           </span>
         </div>
       </Panel>
@@ -242,7 +242,7 @@ function UserForm({ user, onClose }: { user?: User; onClose: () => void }) {
   return (
     <Modal
       title={user ? 'Editar utilizador' : 'Novo utilizador'}
-      description={user ? user.username : 'Perfil simulado desta demonstração.'}
+      description={user ? user.username : 'Novo acesso à unidade.'}
       onClose={onClose}
     >
       <ActionForm
@@ -307,8 +307,8 @@ function UserForm({ user, onClose }: { user?: User; onClose: () => void }) {
           </Field>
         </div>
         <div className="clinical-warning">
-          Sem palavras-passe nem sessões reais: o perfil activo continua a ser escolhido no
-          cabeçalho da demonstração.
+          O perfil define o que este utilizador pode fazer em cada módulo. A matriz de permissões
+          mostra o alcance de cada um.
         </div>
       </ActionForm>
     </Modal>
@@ -319,7 +319,7 @@ function ResetForm({ user, onClose }: { user: User; onClose: () => void }) {
   const { run } = useDemo();
   return (
     <Modal
-      title="Simular recuperação de acesso"
+      title="Recuperação de acesso"
       description={user.name + ' · ' + user.username}
       onClose={onClose}
     >
@@ -329,8 +329,8 @@ function ResetForm({ user, onClose }: { user: User; onClose: () => void }) {
         onSubmit={async () => run({ type: 'user.reset', userId: user.id })}
       >
         <p className="form-hint">
-          A demonstração regista o pedido, a autoria e a data. Não existe palavra-passe para
-          substituir nem mensagem enviada ao utilizador.
+          Fica registado o pedido, a autoria e a data. O novo acesso é entregue ao utilizador pelo
+          administrador da unidade.
         </p>
       </ActionForm>
     </Modal>

@@ -4,7 +4,7 @@ test('fase 2: triagem, consulta, prescrição, conclusão e processo longitudina
   page,
 }) => {
   await page.goto('/triagem');
-  await page.getByLabel('Perfil de demonstração').selectOption('Enfermeiro');
+  await page.getByLabel('Perfil do utilizador').selectOption('Enfermeiro');
   const patientRow = page.getByRole('row').filter({ hasText: 'Esperança Manuel Zua' });
   await patientRow.getByRole('button', { name: 'Realizar triagem' }).click();
   const dialog = page.getByRole('dialog');
@@ -17,7 +17,7 @@ test('fase 2: triagem, consulta, prescrição, conclusão e processo longitudina
   await expect(patientRow).toHaveCount(0);
 
   await page.getByRole('link', { name: 'Consultas médicas' }).click();
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   const consultRow = page.getByRole('row').filter({ hasText: 'Esperança Manuel Zua' });
   await expect(consultRow).toContainText('Laranja');
   await consultRow.getByRole('link', { name: 'Abrir consulta' }).click();
@@ -65,7 +65,7 @@ test('fase 2: triagem, consulta, prescrição, conclusão e processo longitudina
 
 test('perfil de recepção não consegue executar acções clínicas', async ({ page }) => {
   await page.goto('/triagem');
-  await page.getByLabel('Perfil de demonstração').selectOption('Recepcionista');
+  await page.getByLabel('Perfil do utilizador').selectOption('Recepcionista');
   await expect(page.getByRole('button', { name: 'Realizar triagem' }).first()).toBeDisabled();
   await page.goto('/clinica/e1');
   await expect(page.getByRole('button', { name: 'Iniciar consulta' })).toBeDisabled();

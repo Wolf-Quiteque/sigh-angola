@@ -90,7 +90,7 @@ export function PatientCard({
             </div>
           </dl>
           <small>
-            {unit.municipality}, {unit.province} · cartão de demonstração sem valor oficial
+            {unit.municipality}, {unit.province} · apresentar em cada atendimento
           </small>
         </div>
         <div className="patient-card-qr">

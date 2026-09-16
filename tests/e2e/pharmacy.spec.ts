@@ -4,7 +4,7 @@ test('fase 5: entrada, requisição, ajuste e dispensação parcial ligada à pr
   page,
 }) => {
   await page.goto('/farmacia');
-  await page.getByLabel('Perfil de demonstração').selectOption('Farmacêutico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Farmacêutico');
   const paracetamol = page.getByRole('row').filter({ hasText: 'Paracetamol 500 mg' });
   await expect(paracetamol).toContainText('620 Comprimido');
 
@@ -65,7 +65,7 @@ test('fase 5: entrada, requisição, ajuste e dispensação parcial ligada à pr
 
 test('alertas de stock mínimo e de validade bloqueiam o que devem bloquear', async ({ page }) => {
   await page.goto('/farmacia');
-  await page.getByLabel('Perfil de demonstração').selectOption('Farmacêutico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Farmacêutico');
   const amoxicilina = page.getByRole('row').filter({ hasText: 'Amoxicilina 500 mg' });
   await expect(amoxicilina).toContainText('Abaixo do mínimo');
   const omeprazol = page.getByRole('row').filter({ hasText: 'Omeprazol 20 mg' });
@@ -94,7 +94,7 @@ test('alertas de stock mínimo e de validade bloqueiam o que devem bloquear', as
 
 test('perfis sem farmácia não movimentam stock', async ({ page }) => {
   await page.goto('/farmacia');
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   await expect(
     page
       .getByRole('row')

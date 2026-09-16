@@ -404,7 +404,7 @@ function StaffForm({ member, onClose }: { member?: Staff; onClose: () => void })
   return (
     <Modal
       title={member ? 'Editar colaborador' : 'Novo colaborador'}
-      description={member ? member.number : 'Afecto à unidade de demonstração.'}
+      description={member ? member.number : 'Afecto a esta unidade.'}
       onClose={onClose}
     >
       <ActionForm

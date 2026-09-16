@@ -4,7 +4,7 @@ test('fase 3: pedido em consulta, colheita, resultado, validação e processo cl
   page,
 }) => {
   await page.goto('/triagem');
-  await page.getByLabel('Perfil de demonstração').selectOption('Enfermeiro');
+  await page.getByLabel('Perfil do utilizador').selectOption('Enfermeiro');
   const triageRow = page.getByRole('row').filter({ hasText: 'Miguel Domingos Chaves' });
   await triageRow.getByRole('button', { name: 'Realizar triagem' }).click();
   const triageDialog = page.getByRole('dialog');
@@ -14,7 +14,7 @@ test('fase 3: pedido em consulta, colheita, resultado, validação e processo cl
   await expect(triageDialog).not.toBeVisible();
 
   await page.getByRole('link', { name: 'Consultas médicas' }).click();
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   await page
     .getByRole('row')
     .filter({ hasText: 'Miguel Domingos Chaves' })
@@ -34,7 +34,7 @@ test('fase 3: pedido em consulta, colheita, resultado, validação e processo cl
   await expect(card).toContainText('Pedido');
 
   await page.getByRole('link', { name: 'Laboratório e imagiologia' }).click();
-  await page.getByLabel('Perfil de demonstração').selectOption('Técnico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Técnico');
   const examRow = page
     .getByRole('row')
     .filter({ hasText: 'Miguel Domingos Chaves' })
@@ -57,7 +57,7 @@ test('fase 3: pedido em consulta, colheita, resultado, validação e processo cl
 
   // O técnico não valida: a validação é uma decisão médica.
   await expect(examRow.getByRole('button', { name: 'Validar resultado' })).toBeDisabled();
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   await examRow.getByRole('button', { name: 'Validar resultado' }).click();
   await page.getByRole('dialog').getByLabel('Nota de validação').fill('Compatível com o quadro.');
   await page.getByRole('dialog').getByRole('button', { name: 'Validar resultado' }).click();
@@ -79,7 +79,7 @@ test('fase 3: pedido em consulta, colheita, resultado, validação e processo cl
 
 test('imagiologia é agendada e realizada antes do relatório', async ({ page }) => {
   await page.goto('/exames');
-  await page.getByLabel('Perfil de demonstração').selectOption('Técnico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Técnico');
   await page.getByRole('tab', { name: 'Imagiologia' }).click();
   const row = page.getByRole('row').filter({ hasText: 'Radiografia de tórax' });
   await expect(row).toContainText('Agendado');

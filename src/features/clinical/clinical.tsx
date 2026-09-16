@@ -295,7 +295,7 @@ function TriageForm({ episode, onClose }: { episode: Episode; onClose: () => voi
           </Field>
         </div>
         <div className="clinical-warning">
-          A prioridade é uma decisão do profissional. Esta demo não calcula nem recomenda uma
+          A prioridade é uma decisão do profissional. O sistema não calcula nem recomenda uma
           classificação clínica.
         </div>
       </ActionForm>
@@ -337,7 +337,7 @@ export function ClinicalWorkspace({ episodeId }: { episodeId: string }) {
     return (
       <Empty
         title="Episódio não encontrado"
-        description="Este atendimento não existe no cenário actual."
+        description="Este atendimento não existe nos registos desta unidade."
       />
     );
   const patient = db.patients.find((p) => p.id === episode.patientId)!;

@@ -44,7 +44,7 @@ describe('Recepção: consistência e transições', () => {
     expect(() =>
       executeCommand(
         createSeed(),
-        { type: 'patient.save', input: { ...input, document: ' demo000001 ' } },
+        { type: 'patient.save', input: { ...input, document: ' 004521367la041 ' } },
         admin,
       ),
     ).toThrow('Já existe');

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { CloudOff } from 'lucide-react';
 
 /**
- * Regista o service worker que permite abrir a demo sem rede e mostra
+ * Regista o service worker que permite abrir a aplicação sem rede e mostra
  * uma faixa quando o navegador comunica que está offline.
  */
 export function OfflineWatcher() {
@@ -11,7 +11,7 @@ export function OfflineWatcher() {
   useEffect(() => {
     if ('serviceWorker' in navigator)
       navigator.serviceWorker.register('/sw.js').catch(() => {
-        // Sem service worker a demo funciona, apenas não abre a frio sem rede.
+        // Sem service worker a aplicação funciona, apenas não abre a frio sem rede.
       });
     const update = () => setOffline(!navigator.onLine);
     update();

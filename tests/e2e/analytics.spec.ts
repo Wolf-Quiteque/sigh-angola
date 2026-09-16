@@ -4,7 +4,7 @@ test('fase 7: indicadores reconciliam com os registos e agregam por território'
   page,
 }) => {
   await page.goto('/internamento');
-  await page.getByLabel('Perfil de demonstração').selectOption('Médico');
+  await page.getByLabel('Perfil do utilizador').selectOption('Médico');
   const occupancy = await page
     .getByRole('row')
     .filter({ hasText: 'Beatriz Joaquim Kapenda' })
@@ -34,7 +34,9 @@ test('fase 7: indicadores reconciliam com os registos e agregam por território'
   await expect(
     page.getByRole('row').filter({ hasText: 'Hospital Provincial da Huíla' }),
   ).toHaveCount(0);
-  await expect(page.getByRole('row').filter({ hasText: 'Hospital de Demonstração' })).toBeVisible();
+  await expect(
+    page.getByRole('row').filter({ hasText: 'Hospital Municipal de Menongue' }),
+  ).toBeVisible();
 });
 
 test('fase 7: utilizadores, matriz de permissões e recuperação simulada', async ({ page }) => {
@@ -59,11 +61,11 @@ test('fase 7: utilizadores, matriz de permissões e recuperação simulada', asy
   const admin = page.getByRole('row').filter({ hasText: 'ana.manuel' });
   await admin.getByRole('button', { name: 'Recuperar acesso' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Registar pedido' }).click();
-  await expect(page.getByRole('status')).toContainText('Recuperação de acesso simulada');
+  await expect(page.getByRole('status')).toContainText('Recuperação de acesso iniciada');
   await expect(admin).toContainText('Recuperação pedida');
 
   // O perfil de leitura não gere utilizadores.
-  await page.getByLabel('Perfil de demonstração').selectOption('Direcção');
+  await page.getByLabel('Perfil do utilizador').selectOption('Direcção');
   await expect(page.getByRole('button', { name: 'Novo utilizador' })).toHaveCount(0);
   await expect(page.getByText('Seleccione o perfil Administrador')).toBeVisible();
 });
@@ -72,7 +74,7 @@ test('fase 7: cartão do paciente com QR do identificador e auditoria de acesso'
   page,
 }) => {
   await page.goto('/pacientes');
-  await page.getByLabel('Perfil de demonstração').selectOption('Direcção');
+  await page.getByLabel('Perfil do utilizador').selectOption('Direcção');
   await page
     .getByRole('link', { name: /Esperança Manuel Zua/ })
     .first()
